@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Partner Insights 1.2</title>
+  <title>Partner Insights 1.0</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <meta name="color-scheme" content="light" />
   <style>
@@ -29,7 +29,7 @@
   <div class="mx-auto max-w-6xl p-6">
     <header class="mb-8 flex items-center justify-between">
       <div>
-        <h1 class="text-3xl font-semibold tracking-tight">Partner Insights 1.2</h1>
+        <h1 class="text-3xl font-semibold tracking-tight">Partner Insights 1.0</h1>
         <p class="text-sm text-[var(--tfa-muted)] mt-1">Filter Supabase → Ask Gemini → See answers with sources.</p>
       </div>
       <span class="hidden sm:inline-flex items-center rounded-full border border-[var(--tfa-border)] px-3 py-1 text-xs text-[var(--tfa-muted)]">v1.0</span>
@@ -216,8 +216,8 @@
     el('queryForm').addEventListener('submit', async (ev) => {
       ev.preventDefault();
 
-      // CHANGE: This URL now points to your local n8n instance
-      const workerUrl = 'https://d1jidyievmacuyrj2yp8rrlk.hooks.n8n.cloud/webhook-test/ef5a4422-3223-4451-81ef-87fb70433877';
+      // CHANGE: This URL now points to your Supabase Edge Function
+      const workerUrl = 'YOUR_EDGE_FUNCTION_URL_HERE';
 
       const payload = {
         countries: parseCountries(el('countries').value),

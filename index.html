@@ -112,4 +112,153 @@
                   <th class="px-3 py-2 text-left">Headline</th>
                 </tr>
               </thead>
-              <tbody id="sources" class="divide-y divide-[var(--tfa-border)]
+              <tbody id="sources" class="divide-y divide-[var(--tfa-border)]"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <dialog id="countryModal" class="rounded-2xl border border-[var(--tfa-border)] bg-[var(--tfa-surface)] p-0 text-[var(--tfa-text)] shadow-xl w-full max-w-lg">
+      <form method="dialog">
+        <div class="p-5 border-b border-[var(--tfa-border)] flex items-center justify-between">
+          <h3 class="text-base font-medium">Pick countries</h3>
+          <button class="rounded-lg px-2 py-1 text-[var(--tfa-text)]/70 hover:bg-white" value="cancel">✕</button>
+        </div>
+        <div class="p-5 space-y-2 max-h-[50vh] overflow-auto" id="countryList">
+          </div>
+        <div class="p-4 border-t border-[var(--tfa-border)] flex justify-end gap-2">
+          <button class="rounded-xl border border-[var(--tfa-border)] px-4 py-2 text-sm" value="cancel">Cancel</button>
+          <button id="applyCountries" class="rounded-xl bg-[var(--tfa-primary)] px-4 py-2 text-sm font-medium text-white" value="default">Apply</button>
+        </div>
+      </form>
+    </dialog>
+
+    <div id="toast" class="fixed bottom-4 right-4 hidden rounded-xl bg-[var(--tfa-text)]/90 px-4 py-3 text-sm text-white shadow-lg"></div>
+  </div>
+
+  <script>
+    // --- Simple country list (edit or fetch dynamically) ---
+    const COUNTRY_OPTIONS = [
+      'Albania','Armenia','Austria','Bulgaria','Czech Republic','Georgia','Hungary','Israel','Italy','Kosovo','Latvia','Lithuania','Moldova','Portugal','Romania','Serbia','Slovakia','Spain','Ukraine','UK'
+    ];
+
+    const el = (id) => document.getElementById(id);
+
+    function showToast(msg, ms = 2200) {
+      const t = el('toast');
+      t.textContent = msg;
+      t.classList.remove('hidden');
+      setTimeout(() => t.classList.add('hidden'), ms);
+    }
+
+    function parseCountries(input) {
+      return input.split(',').map(s => s.trim()).filter(Boolean);
+    }
+
+    function renderChips(values){
+      const wrap = el('countryChips');
+      wrap.innerHTML = '';
+      (values||[]).forEach(v => {
+        const chip = document.createElement('span');
+        chip.className = 'inline-flex items-center gap-1 rounded-full bg-[color-mix(in srgb,var(--tfa-primary),white 85%)] text-[var(--tfa-text)]/80 px-2.5 py-1 text-xs';
+        chip.textContent = v;
+        const x = document.createElement('button');
+        x.type = 'button';
+        x.className = 'ml-1 text-[var(--tfa-text)]/60 hover:text-[var(--tfa-text)]';
+        x.textContent = '×';
+        x.onclick = () => {
+          const arr = parseCountries(el('countries').value).filter(c => c !== v);
+          el('countries').value = arr.join(', ');
+          renderChips(arr);
+        };
+        chip.appendChild(x);
+        wrap.appendChild(chip);
+      });
+    }
+
+    function renderSources(rows) {
+      const tbody = el('sources');
+      tbody.innerHTML = '';
+      (rows || []).forEach(r => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-[color-mix(in srgb,var(--tfa-primary),white 96%)]';
+        tr.innerHTML = `<td class="px-3 py-2 align-top">${r.date ?? ''}</td>
+                         <td class="px-3 py-2 align-top">${r.countries ?? ''}</td>
+                         <td class="px-3 py-2 align-top">${r.headline ?? ''}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // --- Country modal logic ---
+    const modal = el('countryModal');
+    const list = el('countryList');
+    el('pickCountries').addEventListener('click', () => {
+      list.innerHTML = COUNTRY_OPTIONS.map(c => `
+        <label class="flex items-center gap-2 text-sm">
+          <input type="checkbox" value="${c}" class="accent-[var(--tfa-primary)]">
+          <span>${c}</span>
+        </label>`).join('');
+      modal.showModal();
+    });
+    el('applyCountries').addEventListener('click', (e) => {
+      e.preventDefault();
+      const selected = Array.from(list.querySelectorAll('input:checked')).map(i => i.value);
+      el('countries').value = selected.join(', ');
+      renderChips(selected);
+      modal.close();
+    });
+
+    // Keep chips in sync with free-typed input
+    el('countries').addEventListener('input', () => renderChips(parseCountries(el('countries').value)));
+
+    // --- Submit logic ---
+    el('queryForm').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+
+      // CHANGE: This URL now points to your local n8n instance
+      const workerUrl = 'http://localhost:5678/webhook-test/ef5a4422-3223-4451-81ef-87fb70433877';
+
+      const payload = {
+        countries: parseCountries(el('countries').value),
+        from: el('from').value || null,
+        to: el('to').value || null,
+        topic: el('topic').value || null,
+        prompt: el('prompt').value || null
+      };
+
+      const btn = el('run');
+      const spinner = el('runSpinner');
+      btn.disabled = true; spinner.classList.remove('hidden');
+      el('answer').textContent = '';
+      renderSources([]);
+
+      try {
+        const res = await fetch(workerUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        const answer = (data && (data.answer || data.result || data.output)) || '(No answer)';
+        el('answer').textContent = answer;
+        renderSources(data && (data.sources || data.rows || []));
+      } catch(err) {
+        el('answer').textContent = 'Error: ' + err.message;
+        showToast('Request failed. Check console for details.');
+        console.error(err);
+      } finally {
+        btn.disabled = false; spinner.classList.add('hidden');
+      }
+    });
+
+    el('resetBtn').addEventListener('click', () => {
+      ['countries','from','to','topic','prompt'].forEach(id => el(id).value = '');
+      el('answer').textContent = '';
+      renderSources([]);
+      renderChips([]);
+    });
+  </script>
+</body>
+</html>

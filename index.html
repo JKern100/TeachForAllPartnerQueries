@@ -216,8 +216,7 @@
     el('queryForm').addEventListener('submit', async (ev) => {
       ev.preventDefault();
 
-      // CHANGE: This URL now points to your Supabase Edge Function
-      const workerUrl = 'YOUR_EDGE_FUNCTION_URL_HERE';
+      const workerUrl = 'https://ofzdnwdxopporgbgrocg.supabase.co/functions/v1/partner-insights-api';
 
       const payload = {
         countries: parseCountries(el('countries').value),

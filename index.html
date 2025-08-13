@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Partner Insights</title>
+  <title>Partner Insights 1.1</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <meta name="color-scheme" content="light" />
   <style>
@@ -215,10 +215,11 @@
     // --- Submit logic ---
     el('queryForm').addEventListener('submit', async (ev) => {
       ev.preventDefault();
-      // Use the Cloudflare Worker URL, which is the new proxy
-      const hook = 'https://tfallqueries.jeff-kern.workers.dev'; 
-      if (!hook) return showToast('Enter your Zapier hook URL');
 
+      // CHANGE: Directly use the Cloudflare Worker URL here
+      const workerUrl = 'https://tfallqueries.jeff-kern.workers.dev';
+
+      // The rest of your code remains the same
       const payload = {
         countries: parseCountries(el('countries').value),
         from: el('from').value || null,
@@ -234,7 +235,7 @@
       renderSources([]);
 
       try {
-        const res = await fetch(hook, {
+        const res = await fetch(workerUrl, { // CHANGE: Use the workerUrl constant here
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)

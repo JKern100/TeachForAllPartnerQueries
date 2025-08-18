@@ -45,6 +45,7 @@
 
     details{margin-top:.75rem}
     summary{cursor:pointer}
+    pre{white-space:pre-wrap; overflow:auto; margin:0}
   </style>
 </head>
 <body>
@@ -73,7 +74,7 @@
           </div>
           <div>
             <label for="countries">Countries (comma-separated)</label>
-            <input id="countries" name="countries" placeholder="Portugal, Spain" />
+            <input id="countries" name="countries" placeholder="Portugal, Spain (leave blank = all)" />
           </div>
         </div>
 
@@ -131,18 +132,25 @@
         <div id="sources" class="sources"></div>
 
         <details>
-          <summary>Request & Raw JSON (debug)</summary>
+          <summary>Debug — Request, REST, SQL & Raw JSON</summary>
           <div style="margin:.5rem 0 .25rem;font-weight:600">Request URL</div>
           <div class="requrl" id="reqUrl">—</div>
-          <div style="margin-top:.75rem;font-weight:600">Response JSON</div>
-          <pre id="raw" style="white-space:pre-wrap;overflow:auto;margin:0"></pre>
+
+          <div style="margin:.8rem 0 .25rem;font-weight:600">Supabase REST URL</div>
+          <div class="requrl" id="restUrl">—</div>
+
+          <div style="margin:.8rem 0 .25rem;font-weight:600">SQL (approximate)</div>
+          <pre id="sqlText">—</pre>
+
+          <div style="margin:.8rem 0 .25rem;font-weight:600">Response JSON</div>
+          <pre id="raw"></pre>
         </details>
       </section>
     </div>
   </main>
 
   <script>
-    // 🔗 Your current Apps Script endpoint (update if you redeploy and the /exec URL changes)
+    // 🔗 Your current Apps Script endpoint (updated)
     const ENDPOINT = "https://script.google.com/macros/s/AKfycbyvzIgN1uiRtnQh9SkjHo8ADtm66NrX2b1uIWr_vQ6XweQZvu1r9izXIVtPWzF7SuDZ/exec";
 
     const form = document.getElementById('qf');
@@ -153,6 +161,8 @@
     const filt = document.getElementById('filters');
     const buildTag = document.getElementById('buildTag');
     const reqUrlEl = document.getElementById('reqUrl');
+    const restUrlEl = document.getElementById('restUrl');
+    const sqlTextEl = document.getElementById('sqlText');
 
     const esc = s => (s==null ? "" : String(s)
       .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
@@ -165,6 +175,8 @@
       src.innerHTML = "";
       raw.textContent = "";
       filt.textContent = "Filters — …";
+      restUrlEl.textContent = "—";
+      sqlTextEl.textContent = "—";
 
       const fd = new FormData(form);
       const params = new URLSearchParams();
@@ -187,11 +199,16 @@
             + (data.detail ? `<div class="muted">${esc(data.detail)}</div>` : "");
           raw.textContent = JSON.stringify(data, null, 2);
           filt.textContent = "Filters — error";
+          if (data.debug && data.debug.rest) restUrlEl.textContent = data.debug.rest;
+          if (data.debug && data.debug.sql)  sqlTextEl.textContent = data.debug.sql;
           return;
         }
 
         out.textContent = data.answer || "(no answer)";
         raw.textContent = JSON.stringify(data, null, 2);
+
+        if (data.debug && data.debug.rest) restUrlEl.textContent = data.debug.rest;
+        if (data.debug && data.debug.sql)  sqlTextEl.textContent = data.debug.sql;
 
         if (data.filters) {
           const { from, to, countries, type, topic, limit, style } = data.filters;

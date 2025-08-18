@@ -12,10 +12,7 @@
     }
     *{box-sizing:border-box}
     body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif}
-    .hero{
-      background:linear-gradient(125deg, var(--brand) 0%, var(--brand-2) 100%);
-      color:#fff; padding:48px 24px;
-    }
+    .hero{background:linear-gradient(125deg, var(--brand) 0%, var(--brand-2) 100%); color:#fff; padding:48px 24px;}
     .hero .wrap{max-width:1100px;margin:0 auto}
     .title{font-weight:800;letter-spacing:.2px;margin:0 0 8px}
     .subtitle{opacity:.92;margin:0}
@@ -29,9 +26,7 @@
     @media (max-width:900px){ .g2,.g3{grid-template-columns:1fr} }
 
     label{font-weight:600; font-size:.95rem}
-    input,select,textarea,button{
-      width:100%; padding:.7rem .8rem; border-radius:12px; border:1px solid var(--line); background:transparent; color:var(--fg);
-    }
+    input,select,textarea,button{width:100%;padding:.7rem .8rem;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--fg)}
     textarea{min-height:90px; resize:vertical}
     .hint{font-size:.85rem; color:var(--muted); margin-top:6px}
     .btn{cursor:pointer; background:var(--brand); color:#fff; border-color:transparent; font-weight:700}
@@ -40,12 +35,21 @@
     .out{margin-top:18px}
     .muted{color:var(--muted)}
     .requrl{font-size:.9rem; white-space:nowrap; overflow:auto; border:1px dashed var(--line); padding:.5rem .6rem; border-radius:10px; background:transparent}
-    .sources ul{margin:.5rem 0 0; padding-left:1.25rem}
+    .sources ul{margin:.5rem 0 0;padding-left:1.25rem}
     .sources li{margin:.25rem 0}
-
     details{margin-top:.75rem}
     summary{cursor:pointer}
     pre{white-space:pre-wrap; overflow:auto; margin:0}
+
+    /* Chat transcript */
+    .chat{border:1px solid var(--line); border-radius:12px; padding:12px; background:transparent; max-height:320px; overflow:auto}
+    .msg{margin:.4rem 0; padding:.5rem .6rem; border-radius:10px}
+    .user{background:rgba(91,140,255,.12)}
+    .assistant{background:rgba(124,196,255,.12)}
+    .chatmeta{display:flex; gap:12px; align-items:center}
+    .switch{display:flex; align-items:center; gap:10px}
+    .switch input{width:auto}
+    .row{display:flex; gap:10px; align-items:center}
   </style>
 </head>
 <body>
@@ -61,7 +65,22 @@
   <!-- App -->
   <main class="wrap">
     <div class="card">
-      <form id="qf" class="grid">
+      <!-- Chat controls -->
+      <div class="grid g2">
+        <div class="switch">
+          <label for="chat">Chat mode (remember this thread)</label>
+          <input id="chat" type="checkbox" />
+        </div>
+        <div class="row">
+          <div class="muted" id="threadDisplay">Thread: —</div>
+          <button id="newChat" type="button" class="btn" style="max-width:180px">New chat</button>
+        </div>
+      </div>
+      <div class="chat" id="chatBox" hidden>
+        <!-- transcript messages appear here -->
+      </div>
+
+      <form id="qf" class="grid" style="margin-top:16px">
         <!-- 1) From / To / Countries first -->
         <div class="grid g3">
           <div>
@@ -78,7 +97,7 @@
           </div>
         </div>
 
-        <!-- 2) Type selector -->
+        <!-- 2) Type selector + Topic -->
         <div class="grid g2">
           <div>
             <label for="type">Type</label>
@@ -89,21 +108,19 @@
               <option value="Note">Note</option>
             </select>
           </div>
-
-          <!-- 3) Topic -->
           <div>
             <label for="topic">Topic (optional)</label>
             <input id="topic" name="topic" placeholder="standards" />
           </div>
         </div>
 
-        <!-- 4) Question -->
+        <!-- 3) Question -->
         <div>
           <label for="question">Question</label>
           <textarea id="question" name="question" placeholder="e.g., What are the next steps for network standards?"></textarea>
         </div>
 
-        <!-- 5) Style + Limit + Ask -->
+        <!-- 4) Style + Limit + Ask -->
         <div class="grid g3">
           <div>
             <label for="style">Answer style</label>
@@ -115,7 +132,7 @@
           <div>
             <label for="limit">Limit</label>
             <input id="limit" name="limit" type="number" min="1" max="10" value="5" />
-            <div class="hint">Max number of rows pulled from Supabase as context (keeps responses fast & relevant).</div>
+            <div class="hint">Rows passed to Gemini as context (higher → more context, slower).</div>
           </div>
           <div style="display:flex; align-items:flex-end">
             <button id="askBtn" class="btn" type="submit">Ask</button>
@@ -132,7 +149,7 @@
         <div id="sources" class="sources"></div>
 
         <details>
-          <summary>Debug — Request, REST, SQL & Raw JSON</summary>
+          <summary>Debug — Request, REST, SQL, Prompt & Raw JSON</summary>
           <div style="margin:.5rem 0 .25rem;font-weight:600">Request URL</div>
           <div class="requrl" id="reqUrl">—</div>
 
@@ -142,6 +159,9 @@
           <div style="margin:.8rem 0 .25rem;font-weight:600">SQL (approximate)</div>
           <pre id="sqlText">—</pre>
 
+          <div style="margin:.8rem 0 .25rem;font-weight:600">Prompt (exact, sent to Gemini)</div>
+          <pre id="promptText">—</pre>
+
           <div style="margin:.8rem 0 .25rem;font-weight:600">Response JSON</div>
           <pre id="raw"></pre>
         </details>
@@ -150,7 +170,7 @@
   </main>
 
   <script>
-    // 🔗 Your current Apps Script endpoint (updated)
+    // 🔗 Current Apps Script endpoint
     const ENDPOINT = "https://script.google.com/macros/s/AKfycbyvzIgN1uiRtnQh9SkjHo8ADtm66NrX2b1uIWr_vQ6XweQZvu1r9izXIVtPWzF7SuDZ/exec";
 
     const form = document.getElementById('qf');
@@ -163,11 +183,69 @@
     const reqUrlEl = document.getElementById('reqUrl');
     const restUrlEl = document.getElementById('restUrl');
     const sqlTextEl = document.getElementById('sqlText');
+    const promptTextEl = document.getElementById('promptText');
 
-    const esc = s => (s==null ? "" : String(s)
-      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
-      .replace(/"/g,"&quot;").replace(/'/g,"&#39;"));
+    // Chat elements
+    const chatToggle = document.getElementById('chat');
+    const chatBox = document.getElementById('chatBox');
+    const newChatBtn = document.getElementById('newChat');
+    const threadDisplay = document.getElementById('threadDisplay');
 
+    // Thread id in localStorage
+    function getThread(){
+      return localStorage.getItem('tfa_chat_thread') || '';
+    }
+    function setThread(id){
+      localStorage.setItem('tfa_chat_thread', id);
+      threadDisplay.textContent = 'Thread: ' + id;
+    }
+    function clearThread(){
+      localStorage.removeItem('tfa_chat_thread');
+      threadDisplay.textContent = 'Thread: —';
+    }
+    function uuid(){
+      // simple UUID v4-ish
+      return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+      );
+    }
+
+    // Chat UI helpers
+    function addMsg(role, text){
+      const div = document.createElement('div');
+      div.className = 'msg ' + (role === 'user' ? 'user' : 'assistant');
+      div.textContent = text;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+    function showChat(on){
+      chatBox.hidden = !on;
+      if (on && !getThread()){
+        setThread(uuid());
+      }
+      if (!on) clearThread();
+    }
+
+    // Restore chat state
+    (function init(){
+      const existing = getThread();
+      if (existing){
+        chatToggle.checked = true;
+        showChat(true);
+        setThread(existing);
+      }
+    })();
+
+    newChatBtn.addEventListener('click', ()=>{
+      setThread(uuid());
+      chatBox.innerHTML = '';
+    });
+
+    chatToggle.addEventListener('change', ()=>{
+      showChat(chatToggle.checked);
+    });
+
+    // Request
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       btn.disabled = true;
@@ -177,6 +255,7 @@
       filt.textContent = "Filters — …";
       restUrlEl.textContent = "—";
       sqlTextEl.textContent = "—";
+      promptTextEl.textContent = "—";
 
       const fd = new FormData(form);
       const params = new URLSearchParams();
@@ -184,9 +263,21 @@
         const v = (fd.get(k) ?? "").toString();
         params.set(k, v);
       });
+
+      // Chat params
+      if (chatToggle.checked){
+        const thread = getThread() || uuid();
+        setThread(thread);
+        params.set("chat", "1");
+        params.set("thread", thread);
+      }
+
       params.set("ts", Date.now().toString()); // cache-buster
       const url = `${ENDPOINT}?${params.toString()}`;
       reqUrlEl.textContent = url;
+
+      const userQ = (fd.get('question') || '').toString();
+      if (chatToggle.checked && userQ) addMsg('user', userQ);
 
       try {
         const res = await fetch(url);
@@ -195,21 +286,21 @@
         if (data.build) buildTag.textContent = data.build;
 
         if (data.error) {
-          out.innerHTML = `<span class="muted">Error:</span> ${esc(data.error)}`
-            + (data.detail ? `<div class="muted">${esc(data.detail)}</div>` : "");
+          out.innerHTML = `<span class="muted">Error:</span> ${data.error}` + (data.detail ? `<div class="muted">${data.detail}</div>` : "");
           raw.textContent = JSON.stringify(data, null, 2);
-          filt.textContent = "Filters — error";
-          if (data.debug && data.debug.rest) restUrlEl.textContent = data.debug.rest;
-          if (data.debug && data.debug.sql)  sqlTextEl.textContent = data.debug.sql;
+          if (data.debug?.rest) restUrlEl.textContent = data.debug.rest;
+          if (data.debug?.sql)  sqlTextEl.textContent = data.debug.sql;
+          if (data.debug?.prompt) promptTextEl.textContent = data.debug.prompt;
           return;
         }
 
         out.textContent = data.answer || "(no answer)";
         raw.textContent = JSON.stringify(data, null, 2);
+        if (data.debug?.rest) restUrlEl.textContent = data.debug.rest;
+        if (data.debug?.sql)  sqlTextEl.textContent = data.debug.sql;
+        if (data.debug?.prompt) promptTextEl.textContent = data.debug.prompt;
 
-        if (data.debug && data.debug.rest) restUrlEl.textContent = data.debug.rest;
-        if (data.debug && data.debug.sql)  sqlTextEl.textContent = data.debug.sql;
-
+        // Filters echo
         if (data.filters) {
           const { from, to, countries, type, topic, limit, style } = data.filters;
           const parts = [];
@@ -225,18 +316,24 @@
           filt.textContent = "Filters — none";
         }
 
+        // Sources
         if (Array.isArray(data.sources) && data.sources.length) {
           const list = data.sources.map(s=>{
             const meta = [s.date, s.type, s.countries].filter(Boolean).join(" · ");
-            const link = s.url ? ` — <a href="${esc(s.url)}" target="_blank" rel="noopener">link</a>` : "";
-            return `<li>${esc(s.title || "(untitled)")} ${meta?`<span class="muted">(${esc(meta)})</span>`:""}${link}</li>`;
+            const link = s.url ? ` — <a href="${s.url}" target="_blank" rel="noopener">link</a>` : "";
+            return `<li>${s.title || "(untitled)"} ${meta?`<span class="muted">(${meta})</span>`:""}${link}</li>`;
           }).join("");
           src.innerHTML = `<h4 style="margin:.8rem 0 .3rem">Sources</h4><ul>${list}</ul>`;
         } else {
           src.innerHTML = "";
         }
+
+        // Show assistant message in chat
+        if (chatToggle.checked && data.answer) addMsg('assistant', data.answer);
+
+        // If server returned chat log (last messages), you could render it here (optional).
       } catch (err) {
-        out.innerHTML = `<span class="muted">Network error:</span> ${esc(err.message || err)}`;
+        out.innerHTML = `<span class="muted">Network error:</span> ${err.message || err}`;
         filt.textContent = "Filters — network error";
       } finally {
         btn.disabled = false;

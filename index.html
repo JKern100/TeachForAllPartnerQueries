@@ -1,102 +1,203 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>TFALL Query</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Teach For All — Knowledge Q&A</title>
+  <meta name="description" content="Ask questions against Teach For All meeting data and get AI-powered answers." />
   <style>
-    body{font:16px/1.4 system-ui, sans-serif; max-width:900px; margin:2rem auto; padding:0 1rem;}
-    label{display:block; margin:.4rem 0 .2rem;}
-    input,textarea,select,button{width:100%; padding:.5rem; border:1px solid #ccc; border-radius:8px}
-    .row{display:grid; gap:.75rem; grid-template-columns:1fr 1fr}
-    .sources{margin-top:1rem; font-size:.95em}
-    pre{white-space:pre-wrap}
+    :root { color-scheme: light dark; }
+    body{font:16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin:0; padding:0; background:#fff; color:#111;}
+    .wrap{max-width:980px; margin:2rem auto; padding:0 1rem;}
+    h1{font-weight:700; margin:.5rem 0 1rem;}
+    p.lead{margin:0 0 1.25rem; color:#444;}
+    form{display:grid; gap:.9rem; grid-template-columns:1fr;}
+    .grid{display:grid; gap:.9rem; grid-template-columns:1fr 1fr;}
+    label{font-weight:600;}
+    input, textarea, select, button{
+      width:100%; padding:.6rem .7rem; border:1px solid #cdd1d5; border-radius:10px; background:#fff; color:#111;
+    }
+    textarea{min-height:90px; resize:vertical;}
+    button{cursor:pointer; background:#0b66ff; border-color:#0b66ff; color:#fff; font-weight:700;}
+    button:disabled{opacity:.7; cursor:default;}
+    .out{margin-top:1.25rem; padding:1rem; border:1px solid #e1e3e6; border-radius:10px; background:#fafafa;}
+    .meta{color:#555; font-size:.95rem;}
+    .sources ul{margin:.5rem 0 0; padding-left:1.2rem;}
+    .sources li{margin:.25rem 0;}
+    .muted{opacity:.75}
+    .row{display:flex; gap:.75rem; align-items:center}
+    .row > *{flex:1}
+    .badge{display:inline-block; padding:.2rem .5rem; border:1px solid #e1e3e6; border-radius:999px; font-size:.8rem; margin-left:.5rem;}
+    details{margin-top:.75rem}
+    @media (prefers-color-scheme:dark){
+      body{background:#0b0d10; color:#e8eaed;}
+      input,textarea,select{background:#0f1216; color:#e8eaed; border-color:#2a2e33;}
+      .out{background:#0f1216; border-color:#2a2e33;}
+      .meta{color:#a8b0b9;}
+      .sources a{color:#8ab4ff}
+    }
   </style>
 </head>
 <body>
-  <h1>Teach For All – Meetings Q&A</h1>
+  <div class="wrap">
+    <header>
+      <h1>Teach For All — Knowledge Q&A <span id="buildTag" class="badge muted"></span></h1>
+      <p class="lead">Query meeting notes with filters (date range, countries, topic) and get an AI-generated answer with sources.</p>
+    </header>
 
-  <form id="qf">
-    <label>Question (use this OR Prompt)</label>
-    <textarea name="question" rows="3" placeholder="e.g., What are the next steps for network standards?"></textarea>
-
-    <label>Prompt (full override, English)</label>
-    <textarea name="prompt" rows="3" placeholder="e.g., Summarize key decisions for Portugal and Spain between Aug 10–16 in 4 bullets."></textarea>
-
-    <div class="row">
+    <!-- Query Form -->
+    <form id="qf" autocomplete="off">
       <div>
-        <label>From (YYYY-MM-DD)</label>
-        <input name="from" placeholder="2025-08-10" />
+        <label for="question">Question (use this OR Prompt)</label>
+        <textarea id="question" name="question" placeholder="e.g., What are the next steps for network standards?"></textarea>
       </div>
+
       <div>
-        <label>To (YYYY-MM-DD)</label>
-        <input name="to" placeholder="2025-08-16" />
+        <label for="prompt">Prompt (full override, English)</label>
+        <textarea id="prompt" name="prompt" placeholder="e.g., Summarize key decisions for Portugal and Spain between Aug 10–16 in 4 bullets."></textarea>
       </div>
-    </div>
 
-    <label>Countries (comma-separated)</label>
-    <input name="countries" placeholder="Portugal, Spain" />
+      <div class="grid">
+        <div>
+          <label for="from">From date</label>
+          <input id="from" name="from" type="date" placeholder="YYYY-MM-DD" />
+        </div>
+        <div>
+          <label for="to">To date</label>
+          <input id="to" name="to" type="date" placeholder="YYYY-MM-DD" />
+        </div>
+      </div>
 
-    <label>Topic (optional keyword)</label>
-    <input name="topic" placeholder="standards" />
-
-    <div class="row">
       <div>
-        <label>Limit (1–10)</label>
-        <input name="limit" type="number" min="1" max="10" value="5" />
+        <label for="countries">Countries (comma-separated)</label>
+        <input id="countries" name="countries" placeholder="Portugal, Spain" />
       </div>
-      <div>
-        <label>Style</label>
-        <select name="style">
-          <option value="normal">normal</option>
-          <option value="short" selected>short</option>
-        </select>
+
+      <div class="grid">
+        <div>
+          <label for="topic">Topic (optional)</label>
+          <input id="topic" name="topic" placeholder="standards" />
+        </div>
+        <div>
+          <label for="limit">Limit (1–10)</label>
+          <input id="limit" name="limit" type="number" min="1" max="10" value="5" />
+        </div>
       </div>
-    </div>
 
-    <button type="submit" style="margin-top:1rem">Ask</button>
-  </form>
+      <div class="row">
+        <div>
+          <label for="style">Answer style</label>
+          <select id="style" name="style">
+            <option value="normal">normal</option>
+            <option value="short" selected>short</option>
+          </select>
+        </div>
+        <div>
+          <label>&nbsp;</label>
+          <button id="askBtn" type="submit">Ask</button>
+        </div>
+      </div>
+    </form>
 
-  <h2>Answer</h2>
-  <pre id="answer">—</pre>
+    <!-- Output -->
+    <section class="out">
+      <div class="meta" id="filters">—</div>
+      <h3 style="margin:.2rem 0 .6rem">Answer</h3>
+      <div id="answer" class="answer">—</div>
 
-  <div class="sources" id="sources"></div>
+      <div class="sources" id="sources"></div>
+
+      <details>
+        <summary>Raw JSON (debug)</summary>
+        <pre id="raw" style="white-space:pre-wrap; overflow:auto; margin:0"></pre>
+      </details>
+    </section>
+  </div>
 
   <script>
-    const ENDPOINT = "https://script.google.com/macros/s/AKfycbxOH3csXLy8vAxOB6NOKzxpqyLRAfxUulGeTwwhlYJE4XSyyJg4xS9syqoVlH7zEhKP/exec";
+    // ✅ Your live Apps Script Web App endpoint
+    const ENDPOINT = "https://script.google.com/macros/s/AKfycbxOmiNyc-QgJJQSwe6cqbC8WP-pduU832g-c4xD0sknnSt4oJ8atjYh1yvGOiMVZ_AJ/exec";
+
+    // --- DOM refs ---
     const form = document.getElementById('qf');
-    const ans = document.getElementById('answer');
+    const btn = document.getElementById('askBtn');
+    const out = document.getElementById('answer');
     const src = document.getElementById('sources');
+    const raw = document.getElementById('raw');
+    const filt = document.getElementById('filters');
+    const buildTag = document.getElementById('buildTag');
+
+    // Basic escape to keep output safe
+    const esc = s => (s==null ? "" : String(s)
+      .replace(/&/g,"&amp;")
+      .replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;")
+      .replace(/'/g,"&#39;"));
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      ans.textContent = "Working…";
+      btn.disabled = true;
+      out.textContent = "Working…";
       src.innerHTML = "";
+      raw.textContent = "";
+      filt.textContent = "—";
+
+      // Collect fields and build GET params (avoid CORS complexity)
       const fd = new FormData(form);
-      // Build GET URL (English-only; server enforces)
       const params = new URLSearchParams();
       ["question","prompt","from","to","countries","topic","limit","style"].forEach(k=>{
         const v = (fd.get(k) || "").toString().trim();
         if (v) params.set(k, v);
       });
-      const url = ENDPOINT + "?" + params.toString();
+      params.set("ts", Date.now().toString()); // cache-buster
+
       try {
-        const res = await fetch(url);
+        const res = await fetch(`${ENDPOINT}?${params.toString()}`);
         const data = await res.json();
+
+        // Persist build tag
+        if (data.build) buildTag.textContent = data.build;
+
         if (data.error) {
-          ans.textContent = "Error: " + data.error + (data.detail ? ("\n" + data.detail) : "");
+          out.innerHTML = `<span class="muted">Error:</span> ${esc(data.error)}`
+            + (data.detail ? `<div class="muted">${esc(data.detail)}</div>` : "");
+          raw.textContent = JSON.stringify(data, null, 2);
           return;
         }
-        ans.textContent = data.answer || "(no answer)";
-        if (Array.isArray(data.sources) && data.sources.length) {
-          src.innerHTML = "<h3>Sources</h3>" + data.sources.map(s=>{
-            const link = s.url ? `<a href="${s.url}" target="_blank" rel="noopener">link</a>` : "";
-            const meta = [s.date, s.type, s.countries].filter(Boolean).join(" · ");
-            return `<div>• ${s.title || "(untitled)"} ${meta?`<small>(${meta})</small>`:""} ${link}</div>`;
-          }).join("");
+
+        // Answer
+        out.textContent = data.answer ? data.answer : "(no answer)";
+        // Filters echo
+        if (data.filters) {
+          const { from, to, countries, topic, limit, style } = data.filters;
+          const parts = [];
+          if (from) parts.push(`from: ${from}`);
+          if (to) parts.push(`to: ${to}`);
+          if (countries && countries.length) parts.push(`countries: ${countries.join(", ")}`);
+          if (topic) parts.push(`topic: ${topic}`);
+          parts.push(`limit: ${limit}`);
+          if (style) parts.push(`style: ${style}`);
+          filt.textContent = parts.length ? "Filters — " + parts.join(" | ") : "Filters — none";
         }
+
+        // Sources
+        if (Array.isArray(data.sources) && data.sources.length) {
+          const list = data.sources.map(s => {
+            const meta = [s.date, s.type, s.countries].filter(Boolean).join(" · ");
+            const link = s.url ? ` — <a href="${esc(s.url)}" target="_blank" rel="noopener">link</a>` : "";
+            return `<li>${esc(s.title || "(untitled)")} ${meta ? `<span class="muted">(${esc(meta)})</span>` : ""}${link}</li>`;
+          }).join("");
+          src.innerHTML = `<h4 style="margin:.8rem 0 .3rem">Sources</h4><ul>${list}</ul>`;
+        } else {
+          src.innerHTML = "";
+        }
+
+        raw.textContent = JSON.stringify(data, null, 2);
       } catch (err) {
-        ans.textContent = "Network error: " + err;
+        out.innerHTML = `<span class="muted">Network error:</span> ${esc(err.message || err)}`;
+      } finally {
+        btn.disabled = false;
       }
     });
   </script>

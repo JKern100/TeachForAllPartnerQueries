@@ -1,205 +1,151 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Teach For All — Knowledge Q&A</title>
-  <meta name="description" content="Ask questions against Teach For All meeting data and get AI-powered answers." />
-  <style>
-    :root { color-scheme: light dark; }
-    body{font:16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin:0; padding:0; background:#fff; color:#111;}
-    .wrap{max-width:980px; margin:2rem auto; padding:0 1rem;}
-    h1{font-weight:700; margin:.5rem 0 1rem;}
-    p.lead{margin:0 0 1.25rem; color:#444;}
-    form{display:grid; gap:.9rem; grid-template-columns:1fr;}
-    .grid{display:grid; gap:.9rem; grid-template-columns:1fr 1fr;}
-    label{font-weight:600;}
-    input, textarea, select, button{
-      width:100%; padding:.6rem .7rem; border:1px solid #cdd1d5; border-radius:10px; background:#fff; color:#111;
+/* ===== Script Properties (Project Settings ▸ Script properties) =====
+   SUPABASE_URL          = https://ofzdnwdxopporgbgrocg.supabase.co
+   SUPABASE_SERVICE_ROLE = <your service_role key>
+   GEMINI_API_KEY        = <your Gemini API key>
+   TABLE_NAME            = meetings
+==================================================================== */
+
+const BUILD = "tfa-query-v7 (2025-08-17)";
+
+// JSON helper
+function json_(obj){ return ContentService.createTextOutput(JSON.stringify(obj||{})).setMimeType(ContentService.MimeType.JSON); }
+
+// Route
+function doGet(e){ return handle_(e); }
+function doPost(e){ return handle_(e); }
+
+function handle_(e){
+  try{
+    const props = PropertiesService.getScriptProperties().getProperties();
+    const SUPABASE_URL = String(props.SUPABASE_URL||"").replace(/\s+/g,"").replace(/\/+$/,"");
+    const SRK  = String(props.SUPABASE_SERVICE_ROLE||"");
+    const GEM  = String(props.GEMINI_API_KEY||"");
+    const TABLE= String(props.TABLE_NAME||"meetings");
+
+    if(!/^https:\/\/[^.]+\.supabase\.co$/.test(SUPABASE_URL)) return json_({build:BUILD,error:"Missing/invalid SUPABASE_URL"});
+    if(!SRK || !GEM) return json_({build:BUILD,error:"Missing SUPABASE_SERVICE_ROLE or GEMINI_API_KEY"});
+
+    // inputs
+    let body={}; const p=(e&&e.parameter)||{};
+    if(e&&e.postData&&e.postData.contents&&e.postData.type==="application/json"){ try{ body=JSON.parse(e.postData.contents||"{}"); }catch(_){} }
+    const get=(k,d="")=>{ const v=(body[k]!==undefined?body[k]:p[k]); return v!=null?String(v):d; };
+
+    const from = get("from").trim();
+    const to   = get("to").trim();
+    const countriesCSV = get("countries").trim();
+    const topic= get("topic").trim();
+    const question = get("question").trim();
+    const style= get("style","short").toLowerCase();              // "short" | "normal"
+    const limit= Math.max(1, Math.min(10, Number(get("limit","5"))||5));
+
+    // Type (All / Zoom Meeting / Email / Note)
+    let typeRaw = get("type","").trim();
+    let type = "";
+    if(typeRaw){
+      const t=typeRaw.toLowerCase();
+      if(t==="email") type="Email";
+      else if(t==="note"||t==="notes") type="Note";
+      else if(t==="zoom meeting"||t==="zoom"||t==="meeting") type="Zoom Meeting";
+      else type = typeRaw;
     }
-    textarea{min-height:90px; resize:vertical;}
-    button{cursor:pointer; background:#0b66ff; border-color:#0b66ff; color:#fff; font-weight:700;}
-    button:disabled{opacity:.7; cursor:default;}
-    .out{margin-top:1.25rem; padding:1rem; border:1px solid #e1e3e6; border-radius:10px; background:#fafafa;}
-    .meta{color:#555; font-size:.95rem;}
-    .sources ul{margin:.5rem 0 0; padding-left:1.2rem;}
-    .sources li{margin:.25rem 0;}
-    .muted{opacity:.75}
-    .row{display:flex; gap:.75rem; align-items:center}
-    .row > *{flex:1}
-    .badge{display:inline-block; padding:.2rem .5rem; border:1px solid #e1e3e6; border-radius:999px; font-size:.8rem; margin-left:.5rem;}
-    details{margin-top:.75rem}
-    @media (prefers-color-scheme:dark){
-      body{background:#0b0d10; color:#e8eaed;}
-      input,textarea,select{background:#0f1216; color:#e8eaed; border-color:#2a2e33;}
-      .out{background:#0f1216; border-color:#2a2e33;}
-      .meta{color:#a8b0b9;}
-      .sources a{color:#8ab4ff}
+
+    if(!question) return json_({build:BUILD,error:"Missing 'question'."});
+
+    const countries = countriesCSV ? countriesCSV.split(",").map(s=>s.trim()).filter(Boolean) : [];
+
+    // ---- Supabase query ----
+    const selectCols = [
+      "id","date","type","countries","headline","sender","recipients",
+      "summary","source_file","created_at","updated_at"
+    ].join(",");
+
+    const qp=[];
+    qp.push(`select=${encodeURIComponent(selectCols)}`);
+    qp.push(`order=date.desc.nullslast`);
+    qp.push(`limit=${limit}`);
+    if(from) qp.push(`date=gte.${from}`);
+    if(to)   qp.push(`date=lte.${to}`);
+    if(type) qp.push(`type=eq.${encodeURIComponent(type)}`);
+
+    const ors=[];
+    if(countries.length){
+      ors.push(...countries.map(c=>`countries.ilike.*${encodeURIComponent(c)}*`));
     }
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <header>
-      <h1>Teach For All — Knowledge Q&A <span id="buildTag" class="badge muted"></span></h1>
-      <p class="lead">Query meeting notes with filters (date range, countries, topic) and get an AI-generated answer with sources.</p>
-    </header>
+    if(topic){
+      ors.push(`summary.ilike.*${encodeURIComponent(topic)}*`);
+      ors.push(`headline.ilike.*${encodeURIComponent(topic)}*`);
+    }
+    if(ors.length) qp.push(`or=(${ors.join(",")})`);
 
-    <!-- Query Form -->
-    <form id="qf" autocomplete="off">
-      <div>
-        <label for="question">Question (use this OR Prompt)</label>
-        <textarea id="question" name="question" placeholder="e.g., What are the next steps for network standards?"></textarea>
-      </div>
+    const url = `${SUPABASE_URL}/rest/v1/${encodeURIComponent(TABLE)}?${qp.join("&")}`;
+    const supRes = UrlFetchApp.fetch(url,{method:"get",headers:{
+      "apikey":SRK,"Authorization":`Bearer ${SRK}`,"Accept":"application/json"
+    },muteHttpExceptions:true});
+    const supCode = supRes.getResponseCode();
+    if(supCode>=400) return json_({build:BUILD,error:"Supabase error",status:supCode,detail:supRes.getContentText(),request:url});
+    const rows = JSON.parse(supRes.getContentText()||"[]");
 
-      <div>
-        <label for="prompt">Prompt (full override, English)</label>
-        <textarea id="prompt" name="prompt" placeholder="e.g., Summarize key decisions for Portugal and Spain between Aug 10–16 in 4 bullets."></textarea>
-      </div>
+    // ---- Prompt ----
+    const ctx = rows.map(r=>{
+      const ctry = (r.countries||"None").toString();
+      const snip = [r.summary,r.headline,r.sender,r.recipients].filter(Boolean).join(" · ");
+      return `- title: ${r.headline||"(untitled)"}\n  date: ${r.date||"—"}  ·  type: ${r.type||"—"}  ·  countries: ${ctry}\n  snippet: ${snip.substring(0,280)}`;
+    }).join("\n\n");
 
-      <div class="grid">
-        <div>
-          <label for="from">From date</label>
-          <input id="from" name="from" type="date" placeholder="YYYY-MM-DD" />
-        </div>
-        <div>
-          <label for="to">To date</label>
-          <input id="to" name="to" type="date" placeholder="YYYY-MM-DD" />
-        </div>
-      </div>
+    const filtersSummary = [
+      `from=${from||"—"}`, `to=${to||"—"}`,
+      `countries=${countries.length?countries.join(", "):"—"}`,
+      `type=${type||"All"}`, `topic=${topic||"—"}`, `limit=${limit}`
+    ].join("; ");
 
-      <div>
-        <label for="countries">Countries (comma-separated)</label>
-        <input id="countries" name="countries" placeholder="Portugal, Spain" />
-      </div>
+    const prompt =
+`You are a helpful Teach For All support agent. Answer in English only.
+Use ONLY the CONTEXT below (from the Supabase '${TABLE}' table). Do not invent facts.
+If the context is insufficient, say what is missing and ask for the smallest clarification possible.
 
-      <div class="grid">
-        <div>
-          <label for="topic">Topic (optional)</label>
-          <input id="topic" name="topic" placeholder="standards" />
-        </div>
-        <div>
-          <label for="limit">Limit (1–10)</label>
-          <input id="limit" name="limit" type="number" min="1" max="10" value="5" />
-        </div>
-      </div>
+Style: ${style}
+- short  → concise bullets (3–6), direct wording, no fluff.
+- normal → 1–3 short paragraphs, then a compact bullet list.
 
-      <div class="row">
-        <div>
-          <label for="style">Answer style</label>
-          <select id="style" name="style">
-            <option value="normal">normal</option>
-            <option value="short" selected>short</option>
-          </select>
-        </div>
-        <div>
-          <label>&nbsp;</label>
-          <button id="askBtn" type="submit">Ask</button>
-        </div>
-      </div>
-    </form>
+When useful, reference items by title and/or date. Prefer recent items.
+Respect all provided filters (including 'type').
 
-    <!-- Output -->
-    <section class="out">
-      <div class="meta" id="filters">—</div>
-      <h3 style="margin:.2rem 0 .6rem">Answer</h3>
-      <div id="answer" class="answer">—</div>
+QUESTION:
+${question}
 
-      <div class="sources" id="sources"></div>
+FILTERS:
+${filtersSummary}
 
-      <details>
-        <summary>Raw JSON (debug)</summary>
-        <pre id="raw" style="white-space:pre-wrap; overflow:auto; margin:0"></pre>
-      </details>
-    </section>
-  </div>
+CONTEXT (each item is one row from Supabase):
+${ctx || "(no rows in context)"}
 
-  <script>
-    // ✅ Your live Apps Script Web App endpoint
-    const ENDPOINT = "https://script.google.com/macros/s/AKfycbxOmiNyc-QgJJQSwe6cqbC8WP-pduU832g-c4xD0sknnSt4oJ8atjYh1yvGOiMVZ_AJ/exec";
+TASK:
+1) Answer the QUESTION using only the CONTEXT.
+2) If context is missing, state exactly what is missing.
+3) Keep the output in ${style} format.`;
 
-    // --- DOM refs ---
-    const form = document.getElementById('qf');
-    const btn = document.getElementById('askBtn');
-    const out = document.getElementById('answer');
-    const src = document.getElementById('sources');
-    const raw = document.getElementById('raw');
-    const filt = document.getElementById('filters');
-    const buildTag = document.getElementById('buildTag');
-
-    // Basic escape to keep output safe
-    const esc = s => (s==null ? "" : String(s)
-      .replace(/&/g,"&amp;")
-      .replace(/</g,"&lt;")
-      .replace(/>/g,"&gt;")
-      .replace(/"/g,"&quot;")
-      .replace(/'/g,"&#39;"));
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      btn.disabled = true;
-      out.textContent = "Working…";
-      src.innerHTML = "";
-      raw.textContent = "";
-      filt.textContent = "—";
-
-      // Collect fields and build GET params (avoid CORS complexity)
-      const fd = new FormData(form);
-      const params = new URLSearchParams();
-      ["question","prompt","from","to","countries","topic","limit","style"].forEach(k=>{
-        const v = (fd.get(k) || "").toString().trim();
-        if (v) params.set(k, v);
-      });
-      params.set("ts", Date.now().toString()); // cache-buster
-
-      try {
-        const res = await fetch(`${ENDPOINT}?${params.toString()}`);
-        const data = await res.json();
-
-        // Persist build tag
-        if (data.build) buildTag.textContent = data.build;
-
-        if (data.error) {
-          out.innerHTML = `<span class="muted">Error:</span> ${esc(data.error)}`
-            + (data.detail ? `<div class="muted">${esc(data.detail)}</div>` : "");
-          raw.textContent = JSON.stringify(data, null, 2);
-          return;
-        }
-
-        // Answer
-        out.textContent = data.answer ? data.answer : "(no answer)";
-        // Filters echo
-        if (data.filters) {
-          const { from, to, countries, topic, limit, style } = data.filters;
-          const parts = [];
-          if (from) parts.push(`from: ${from}`);
-          if (to) parts.push(`to: ${to}`);
-          if (countries && countries.length) parts.push(`countries: ${countries.join(", ")}`);
-          if (topic) parts.push(`topic: ${topic}`);
-          parts.push(`limit: ${limit}`);
-          if (style) parts.push(`style: ${style}`);
-          filt.textContent = parts.length ? "Filters — " + parts.join(" | ") : "Filters — none";
-        }
-
-        // Sources
-        if (Array.isArray(data.sources) && data.sources.length) {
-          const list = data.sources.map(s => {
-            const meta = [s.date, s.type, s.countries].filter(Boolean).join(" · ");
-            const link = s.url ? ` — <a href="${esc(s.url)}" target="_blank" rel="noopener">link</a>` : "";
-            return `<li>${esc(s.title || "(untitled)")} ${meta ? `<span class="muted">(${esc(meta)})</span>` : ""}${link}</li>`;
-          }).join("");
-          src.innerHTML = `<h4 style="margin:.8rem 0 .3rem">Sources</h4><ul>${list}</ul>`;
-        } else {
-          src.innerHTML = "";
-        }
-
-        raw.textContent = JSON.stringify(data, null, 2);
-      } catch (err) {
-        out.innerHTML = `<span class="muted">Network error:</span> ${esc(err.message || err)}`;
-      } finally {
-        btn.disabled = false;
-      }
+    // ---- Gemini ----
+    const gemUrl="https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent";
+    const payload={contents:[{role:"user",parts:[{text:prompt}]}]};
+    const gemRes=UrlFetchApp.fetch(`${gemUrl}?key=${encodeURIComponent(GEM)}`,{
+      method:"post",contentType:"application/json",payload:JSON.stringify(payload),muteHttpExceptions:true
     });
-  </script>
-</body>
-</html>
+    const gemCode=gemRes.getResponseCode();
+    if(gemCode>=400) return json_({build:BUILD,error:"Gemini error",status:gemCode,detail:gemRes.getContentText()});
+    const gemJson=JSON.parse(gemRes.getContentText()||"{}");
+    const answer=(gemJson.candidates&&gemJson.candidates[0]&&gemJson.candidates[0].content&&gemJson.candidates[0].content.parts&&gemJson.candidates[0].content.parts[0]&&gemJson.candidates[0].content.parts[0].text)||"(no answer)";
+
+    const sources = rows.slice(0,limit).map(r=>({
+      title:r.headline||"(untitled)", date:r.date||null, type:r.type||null, countries:r.countries||null, url:r.source_file||null
+    }));
+
+    return json_({
+      build:BUILD,
+      answer,
+      sources,
+      filters:{ from:from||null, to:to||null, countries, type:type||null, topic:topic||null, limit, style }
+    });
+  }catch(err){
+    return json_({build:BUILD,error:"Server error",detail:String(err&&err.stack||err)});
+  }
+}

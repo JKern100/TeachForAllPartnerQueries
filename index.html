@@ -1,151 +1,230 @@
-/* ===== Script Properties (Project Settings ▸ Script properties) =====
-   SUPABASE_URL          = https://ofzdnwdxopporgbgrocg.supabase.co
-   SUPABASE_SERVICE_ROLE = <your service_role key>
-   GEMINI_API_KEY        = <your Gemini API key>
-   TABLE_NAME            = meetings
-==================================================================== */
-
-const BUILD = "tfa-query-v7 (2025-08-17)";
-
-// JSON helper
-function json_(obj){ return ContentService.createTextOutput(JSON.stringify(obj||{})).setMimeType(ContentService.MimeType.JSON); }
-
-// Route
-function doGet(e){ return handle_(e); }
-function doPost(e){ return handle_(e); }
-
-function handle_(e){
-  try{
-    const props = PropertiesService.getScriptProperties().getProperties();
-    const SUPABASE_URL = String(props.SUPABASE_URL||"").replace(/\s+/g,"").replace(/\/+$/,"");
-    const SRK  = String(props.SUPABASE_SERVICE_ROLE||"");
-    const GEM  = String(props.GEMINI_API_KEY||"");
-    const TABLE= String(props.TABLE_NAME||"meetings");
-
-    if(!/^https:\/\/[^.]+\.supabase\.co$/.test(SUPABASE_URL)) return json_({build:BUILD,error:"Missing/invalid SUPABASE_URL"});
-    if(!SRK || !GEM) return json_({build:BUILD,error:"Missing SUPABASE_SERVICE_ROLE or GEMINI_API_KEY"});
-
-    // inputs
-    let body={}; const p=(e&&e.parameter)||{};
-    if(e&&e.postData&&e.postData.contents&&e.postData.type==="application/json"){ try{ body=JSON.parse(e.postData.contents||"{}"); }catch(_){} }
-    const get=(k,d="")=>{ const v=(body[k]!==undefined?body[k]:p[k]); return v!=null?String(v):d; };
-
-    const from = get("from").trim();
-    const to   = get("to").trim();
-    const countriesCSV = get("countries").trim();
-    const topic= get("topic").trim();
-    const question = get("question").trim();
-    const style= get("style","short").toLowerCase();              // "short" | "normal"
-    const limit= Math.max(1, Math.min(10, Number(get("limit","5"))||5));
-
-    // Type (All / Zoom Meeting / Email / Note)
-    let typeRaw = get("type","").trim();
-    let type = "";
-    if(typeRaw){
-      const t=typeRaw.toLowerCase();
-      if(t==="email") type="Email";
-      else if(t==="note"||t==="notes") type="Note";
-      else if(t==="zoom meeting"||t==="zoom"||t==="meeting") type="Zoom Meeting";
-      else type = typeRaw;
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Teach For All — Knowledge Q&A</title>
+  <meta name="description" content="Ask questions against Teach For All meeting data and get AI-powered answers with sources." />
+  <style>
+    :root { color-scheme: light dark; --bg:#0b0d10; --fg:#e8eaed; --card:#0f1216; --muted:#a8b0b9; --line:#2a2e33; --brand:#5b8cff; --brand-2:#7cc4ff; }
+    @media (prefers-color-scheme:light){
+      :root{ --bg:#f6f8fb; --fg:#0b0d10; --card:#ffffff; --muted:#5a6675; --line:#e5e8ec; --brand:#0b66ff; --brand-2:#63a2ff;}
     }
-
-    if(!question) return json_({build:BUILD,error:"Missing 'question'."});
-
-    const countries = countriesCSV ? countriesCSV.split(",").map(s=>s.trim()).filter(Boolean) : [];
-
-    // ---- Supabase query ----
-    const selectCols = [
-      "id","date","type","countries","headline","sender","recipients",
-      "summary","source_file","created_at","updated_at"
-    ].join(",");
-
-    const qp=[];
-    qp.push(`select=${encodeURIComponent(selectCols)}`);
-    qp.push(`order=date.desc.nullslast`);
-    qp.push(`limit=${limit}`);
-    if(from) qp.push(`date=gte.${from}`);
-    if(to)   qp.push(`date=lte.${to}`);
-    if(type) qp.push(`type=eq.${encodeURIComponent(type)}`);
-
-    const ors=[];
-    if(countries.length){
-      ors.push(...countries.map(c=>`countries.ilike.*${encodeURIComponent(c)}*`));
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif}
+    .hero{
+      background:linear-gradient(125deg, var(--brand) 0%, var(--brand-2) 100%);
+      color:#fff; padding:48px 24px;
     }
-    if(topic){
-      ors.push(`summary.ilike.*${encodeURIComponent(topic)}*`);
-      ors.push(`headline.ilike.*${encodeURIComponent(topic)}*`);
+    .hero .wrap{max-width:1100px;margin:0 auto}
+    .title{font-weight:800;letter-spacing:.2px;margin:0 0 8px}
+    .subtitle{opacity:.92;margin:0}
+    .build{display:inline-block;margin-left:.5rem;padding:.2rem .6rem;border:1px solid rgba(255,255,255,.35);border-radius:999px;font-size:.8rem;opacity:.95}
+
+    .wrap{max-width:1100px;margin:0 auto;padding:28px 16px}
+    .card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:22px; box-shadow:0 8px 30px rgba(0,0,0,.08)}
+    .grid{display:grid; gap:14px}
+    .g2{grid-template-columns:1fr 1fr}
+    .g3{grid-template-columns:repeat(3,1fr)}
+    @media (max-width:900px){ .g2,.g3{grid-template-columns:1fr} }
+
+    label{font-weight:600; font-size:.95rem}
+    input,select,textarea,button{
+      width:100%; padding:.7rem .8rem; border-radius:12px; border:1px solid var(--line); background:transparent; color:var(--fg);
     }
-    if(ors.length) qp.push(`or=(${ors.join(",")})`);
+    textarea{min-height:90px; resize:vertical}
+    .hint{font-size:.85rem; color:var(--muted); margin-top:6px}
+    .btn{cursor:pointer; background:var(--brand); color:#fff; border-color:transparent; font-weight:700}
+    .btn:disabled{opacity:.7; cursor:default}
 
-    const url = `${SUPABASE_URL}/rest/v1/${encodeURIComponent(TABLE)}?${qp.join("&")}`;
-    const supRes = UrlFetchApp.fetch(url,{method:"get",headers:{
-      "apikey":SRK,"Authorization":`Bearer ${SRK}`,"Accept":"application/json"
-    },muteHttpExceptions:true});
-    const supCode = supRes.getResponseCode();
-    if(supCode>=400) return json_({build:BUILD,error:"Supabase error",status:supCode,detail:supRes.getContentText(),request:url});
-    const rows = JSON.parse(supRes.getContentText()||"[]");
+    .out{margin-top:18px}
+    .muted{color:var(--muted)}
+    .requrl{font-size:.9rem; white-space:nowrap; overflow:auto; border:1px dashed var(--line); padding:.5rem .6rem; border-radius:10px; background:transparent}
+    .sources ul{margin:.5rem 0 0; padding-left:1.25rem}
+    .sources li{margin:.25rem 0}
 
-    // ---- Prompt ----
-    const ctx = rows.map(r=>{
-      const ctry = (r.countries||"None").toString();
-      const snip = [r.summary,r.headline,r.sender,r.recipients].filter(Boolean).join(" · ");
-      return `- title: ${r.headline||"(untitled)"}\n  date: ${r.date||"—"}  ·  type: ${r.type||"—"}  ·  countries: ${ctry}\n  snippet: ${snip.substring(0,280)}`;
-    }).join("\n\n");
+    details{margin-top:.75rem}
+    summary{cursor:pointer}
+  </style>
+</head>
+<body>
 
-    const filtersSummary = [
-      `from=${from||"—"}`, `to=${to||"—"}`,
-      `countries=${countries.length?countries.join(", "):"—"}`,
-      `type=${type||"All"}`, `topic=${topic||"—"}`, `limit=${limit}`
-    ].join("; ");
+  <!-- Header -->
+  <section class="hero">
+    <div class="wrap">
+      <h1 class="title">Teach For All — Knowledge Q&A <span id="buildTag" class="build"></span></h1>
+      <p class="subtitle">Filter by date, countries, and type; add a topic; ask your question; get an AI-generated answer with sources.</p>
+    </div>
+  </section>
 
-    const prompt =
-`You are a helpful Teach For All support agent. Answer in English only.
-Use ONLY the CONTEXT below (from the Supabase '${TABLE}' table). Do not invent facts.
-If the context is insufficient, say what is missing and ask for the smallest clarification possible.
+  <!-- App -->
+  <main class="wrap">
+    <div class="card">
+      <form id="qf" class="grid">
+        <!-- 1) From / To / Countries first -->
+        <div class="grid g3">
+          <div>
+            <label for="from">From date</label>
+            <input id="from" name="from" type="date" />
+          </div>
+          <div>
+            <label for="to">To date</label>
+            <input id="to" name="to" type="date" />
+          </div>
+          <div>
+            <label for="countries">Countries (comma-separated)</label>
+            <input id="countries" name="countries" placeholder="Portugal, Spain" />
+          </div>
+        </div>
 
-Style: ${style}
-- short  → concise bullets (3–6), direct wording, no fluff.
-- normal → 1–3 short paragraphs, then a compact bullet list.
+        <!-- 2) Type selector -->
+        <div class="grid g2">
+          <div>
+            <label for="type">Type</label>
+            <select id="type" name="type" title="Limit results to a specific item type">
+              <option value="">All (default)</option>
+              <option value="Zoom Meeting">Zoom meeting</option>
+              <option value="Email">Email</option>
+              <option value="Note">Note</option>
+            </select>
+          </div>
 
-When useful, reference items by title and/or date. Prefer recent items.
-Respect all provided filters (including 'type').
+          <!-- 3) Topic -->
+          <div>
+            <label for="topic">Topic (optional)</label>
+            <input id="topic" name="topic" placeholder="standards" />
+          </div>
+        </div>
 
-QUESTION:
-${question}
+        <!-- 4) Question -->
+        <div>
+          <label for="question">Question</label>
+          <textarea id="question" name="question" placeholder="e.g., What are the next steps for network standards?"></textarea>
+        </div>
 
-FILTERS:
-${filtersSummary}
+        <!-- 5) Style + Limit + Ask -->
+        <div class="grid g3">
+          <div>
+            <label for="style">Answer style</label>
+            <select id="style" name="style">
+              <option value="normal">normal</option>
+              <option value="short" selected>short</option>
+            </select>
+          </div>
+          <div>
+            <label for="limit">Limit</label>
+            <input id="limit" name="limit" type="number" min="1" max="10" value="5" />
+            <div class="hint">Max number of rows pulled from Supabase as context (keeps responses fast & relevant).</div>
+          </div>
+          <div style="display:flex; align-items:flex-end">
+            <button id="askBtn" class="btn" type="submit">Ask</button>
+          </div>
+        </div>
+      </form>
 
-CONTEXT (each item is one row from Supabase):
-${ctx || "(no rows in context)"}
+      <!-- Output -->
+      <section class="out">
+        <div class="muted" id="filters">Filters — none</div>
+        <h3 style="margin:.35rem 0 .5rem">Answer</h3>
+        <div id="answer">—</div>
 
-TASK:
-1) Answer the QUESTION using only the CONTEXT.
-2) If context is missing, state exactly what is missing.
-3) Keep the output in ${style} format.`;
+        <div id="sources" class="sources"></div>
 
-    // ---- Gemini ----
-    const gemUrl="https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent";
-    const payload={contents:[{role:"user",parts:[{text:prompt}]}]};
-    const gemRes=UrlFetchApp.fetch(`${gemUrl}?key=${encodeURIComponent(GEM)}`,{
-      method:"post",contentType:"application/json",payload:JSON.stringify(payload),muteHttpExceptions:true
+        <details>
+          <summary>Request & Raw JSON (debug)</summary>
+          <div style="margin:.5rem 0 .25rem;font-weight:600">Request URL</div>
+          <div class="requrl" id="reqUrl">—</div>
+          <div style="margin-top:.75rem;font-weight:600">Response JSON</div>
+          <pre id="raw" style="white-space:pre-wrap;overflow:auto;margin:0"></pre>
+        </details>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    // 🔗 Your current Apps Script endpoint (update if you redeploy and the /exec URL changes)
+    const ENDPOINT = "https://script.google.com/macros/s/AKfycbyvzIgN1uiRtnQh9SkjHo8ADtm66NrX2b1uIWr_vQ6XweQZvu1r9izXIVtPWzF7SuDZ/exec";
+
+    const form = document.getElementById('qf');
+    const btn = document.getElementById('askBtn');
+    const out = document.getElementById('answer');
+    const src = document.getElementById('sources');
+    const raw = document.getElementById('raw');
+    const filt = document.getElementById('filters');
+    const buildTag = document.getElementById('buildTag');
+    const reqUrlEl = document.getElementById('reqUrl');
+
+    const esc = s => (s==null ? "" : String(s)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;").replace(/'/g,"&#39;"));
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      btn.disabled = true;
+      out.textContent = "Working…";
+      src.innerHTML = "";
+      raw.textContent = "";
+      filt.textContent = "Filters — …";
+
+      const fd = new FormData(form);
+      const params = new URLSearchParams();
+      ["from","to","countries","type","topic","question","style","limit"].forEach(k=>{
+        const v = (fd.get(k) ?? "").toString();
+        params.set(k, v);
+      });
+      params.set("ts", Date.now().toString()); // cache-buster
+      const url = `${ENDPOINT}?${params.toString()}`;
+      reqUrlEl.textContent = url;
+
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.build) buildTag.textContent = data.build;
+
+        if (data.error) {
+          out.innerHTML = `<span class="muted">Error:</span> ${esc(data.error)}`
+            + (data.detail ? `<div class="muted">${esc(data.detail)}</div>` : "");
+          raw.textContent = JSON.stringify(data, null, 2);
+          filt.textContent = "Filters — error";
+          return;
+        }
+
+        out.textContent = data.answer || "(no answer)";
+        raw.textContent = JSON.stringify(data, null, 2);
+
+        if (data.filters) {
+          const { from, to, countries, type, topic, limit, style } = data.filters;
+          const parts = [];
+          if (from) parts.push(`from: ${from}`);
+          if (to) parts.push(`to: ${to}`);
+          if (countries && countries.length) parts.push(`countries: ${countries.join(", ")}`);
+          if (type) parts.push(`type: ${type}`);
+          if (topic) parts.push(`topic: ${topic}`);
+          parts.push(`limit: ${limit}`);
+          if (style) parts.push(`style: ${style}`);
+          filt.textContent = parts.length ? "Filters — " + parts.join(" | ") : "Filters — none";
+        } else {
+          filt.textContent = "Filters — none";
+        }
+
+        if (Array.isArray(data.sources) && data.sources.length) {
+          const list = data.sources.map(s=>{
+            const meta = [s.date, s.type, s.countries].filter(Boolean).join(" · ");
+            const link = s.url ? ` — <a href="${esc(s.url)}" target="_blank" rel="noopener">link</a>` : "";
+            return `<li>${esc(s.title || "(untitled)")} ${meta?`<span class="muted">(${esc(meta)})</span>`:""}${link}</li>`;
+          }).join("");
+          src.innerHTML = `<h4 style="margin:.8rem 0 .3rem">Sources</h4><ul>${list}</ul>`;
+        } else {
+          src.innerHTML = "";
+        }
+      } catch (err) {
+        out.innerHTML = `<span class="muted">Network error:</span> ${esc(err.message || err)}`;
+        filt.textContent = "Filters — network error";
+      } finally {
+        btn.disabled = false;
+      }
     });
-    const gemCode=gemRes.getResponseCode();
-    if(gemCode>=400) return json_({build:BUILD,error:"Gemini error",status:gemCode,detail:gemRes.getContentText()});
-    const gemJson=JSON.parse(gemRes.getContentText()||"{}");
-    const answer=(gemJson.candidates&&gemJson.candidates[0]&&gemJson.candidates[0].content&&gemJson.candidates[0].content.parts&&gemJson.candidates[0].content.parts[0]&&gemJson.candidates[0].content.parts[0].text)||"(no answer)";
-
-    const sources = rows.slice(0,limit).map(r=>({
-      title:r.headline||"(untitled)", date:r.date||null, type:r.type||null, countries:r.countries||null, url:r.source_file||null
-    }));
-
-    return json_({
-      build:BUILD,
-      answer,
-      sources,
-      filters:{ from:from||null, to:to||null, countries, type:type||null, topic:topic||null, limit, style }
-    });
-  }catch(err){
-    return json_({build:BUILD,error:"Server error",detail:String(err&&err.stack||err)});
-  }
-}
+  </script>
+</body>
+</html>

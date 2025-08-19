@@ -41,7 +41,6 @@
     summary{cursor:pointer}
     pre{white-space:pre-wrap; overflow:auto; margin:0}
 
-    /* Chat transcript */
     .chat{border:1px solid var(--line); border-radius:12px; padding:12px; background:transparent; max-height:320px; overflow:auto}
     .msg{margin:.4rem 0; padding:.5rem .6rem; border-radius:10px}
     .user{background:rgba(91,140,255,.12)}
@@ -54,15 +53,13 @@
 </head>
 <body>
 
-  <!-- Header -->
   <section class="hero">
     <div class="wrap">
       <h1 class="title">Teach For All — Knowledge Q&A <span id="buildTag" class="build"></span></h1>
-      <p class="subtitle">Filter by date, countries, and type; add a topic; ask your question; get an AI-generated answer with sources.</p>
+      <p class="subtitle">Filter by date, countries, type; add a topic; ask your question; get an AI-generated answer with sources.</p>
     </div>
   </section>
 
-  <!-- App -->
   <main class="wrap">
     <div class="card">
       <!-- Chat controls -->
@@ -76,12 +73,10 @@
           <button id="newChat" type="button" class="btn" style="max-width:180px">New chat</button>
         </div>
       </div>
-      <div class="chat" id="chatBox" hidden>
-        <!-- transcript messages appear here -->
-      </div>
+      <div class="chat" id="chatBox" hidden></div>
 
       <form id="qf" class="grid" style="margin-top:16px">
-        <!-- 1) From / To / Countries first -->
+        <!-- From / To / Countries -->
         <div class="grid g3">
           <div>
             <label for="from">From date</label>
@@ -97,11 +92,11 @@
           </div>
         </div>
 
-        <!-- 2) Type selector + Topic -->
+        <!-- Type / Topic -->
         <div class="grid g2">
           <div>
             <label for="type">Type</label>
-            <select id="type" name="type" title="Limit results to a specific item type">
+            <select id="type" name="type">
               <option value="">All (default)</option>
               <option value="Zoom Meeting">Zoom meeting</option>
               <option value="Email">Email</option>
@@ -114,13 +109,13 @@
           </div>
         </div>
 
-        <!-- 3) Question -->
+        <!-- Question -->
         <div>
           <label for="question">Question</label>
           <textarea id="question" name="question" placeholder="e.g., What are the next steps for network standards?"></textarea>
         </div>
 
-        <!-- 4) Style + Limit + Ask -->
+        <!-- Answer style / Response speed -->
         <div class="grid g3">
           <div>
             <label for="style">Answer style</label>
@@ -129,15 +124,24 @@
               <option value="short" selected>short</option>
             </select>
           </div>
+
           <div>
-            <label for="limit">Limit</label>
-            <input id="limit" name="limit" type="number" min="1" max="10" value="5" />
-            <div class="hint">Rows passed to Gemini as context (higher → more context, slower).</div>
+            <label for="speed">Response speed</label>
+            <select id="speed" name="speed" title="Controls how many rows are sent as context">
+              <option value="fast" selected>Fast (≈ 50 rows)</option>
+              <option value="medium">Medium (≈ 100 rows)</option>
+              <option value="slow">Slower (≈ 200 rows)</option>
+            </select>
+            <div class="hint">Fast = 50 · Medium = 100 · Slower = 200</div>
           </div>
+
           <div style="display:flex; align-items:flex-end">
             <button id="askBtn" class="btn" type="submit">Ask</button>
           </div>
         </div>
+
+        <!-- Hidden limit actually sent to backend -->
+        <input id="limit" name="limit" type="hidden" value="50" />
       </form>
 
       <!-- Output -->
@@ -170,7 +174,7 @@
   </main>
 
   <script>
-    // 🔗 Current Apps Script endpoint
+    // Your current Apps Script endpoint
     const ENDPOINT = "https://script.google.com/macros/s/AKfycbyvzIgN1uiRtnQh9SkjHo8ADtm66NrX2b1uIWr_vQ6XweQZvu1r9izXIVtPWzF7SuDZ/exec";
 
     const form = document.getElementById('qf');
@@ -185,32 +189,25 @@
     const sqlTextEl = document.getElementById('sqlText');
     const promptTextEl = document.getElementById('promptText');
 
-    // Chat elements
+    const speedSel = document.getElementById('speed');
+    const limitHidden = document.getElementById('limit');
+
+    // Chat bits
     const chatToggle = document.getElementById('chat');
     const chatBox = document.getElementById('chatBox');
     const newChatBtn = document.getElementById('newChat');
     const threadDisplay = document.getElementById('threadDisplay');
 
-    // Thread id in localStorage
-    function getThread(){
-      return localStorage.getItem('tfa_chat_thread') || '';
-    }
-    function setThread(id){
-      localStorage.setItem('tfa_chat_thread', id);
-      threadDisplay.textContent = 'Thread: ' + id;
-    }
-    function clearThread(){
-      localStorage.removeItem('tfa_chat_thread');
-      threadDisplay.textContent = 'Thread: —';
-    }
-    function uuid(){
-      // simple UUID v4-ish
-      return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-      );
-    }
+    const speedMap = { fast: 50, medium: 100, slow: 200 };
+    function applySpeed(){ limitHidden.value = String(speedMap[speedSel.value] || 50); }
+    speedSel.addEventListener('change', applySpeed);
+    applySpeed();
 
-    // Chat UI helpers
+    function getThread(){ return localStorage.getItem('tfa_chat_thread') || ''; }
+    function setThread(id){ localStorage.setItem('tfa_chat_thread', id); threadDisplay.textContent = 'Thread: ' + id; }
+    function clearThread(){ localStorage.removeItem('tfa_chat_thread'); threadDisplay.textContent = 'Thread: —'; }
+    function uuid(){ return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)); }
+
     function addMsg(role, text){
       const div = document.createElement('div');
       div.className = 'msg ' + (role === 'user' ? 'user' : 'assistant');
@@ -220,34 +217,19 @@
     }
     function showChat(on){
       chatBox.hidden = !on;
-      if (on && !getThread()){
-        setThread(uuid());
-      }
+      if (on && !getThread()){ setThread(uuid()); }
       if (!on) clearThread();
     }
-
-    // Restore chat state
     (function init(){
       const existing = getThread();
-      if (existing){
-        chatToggle.checked = true;
-        showChat(true);
-        setThread(existing);
-      }
+      if (existing){ chatToggle.checked = true; showChat(true); setThread(existing); }
     })();
+    newChatBtn.addEventListener('click', ()=>{ setThread(uuid()); chatBox.innerHTML = ''; });
+    chatToggle.addEventListener('change', ()=> showChat(chatToggle.checked));
 
-    newChatBtn.addEventListener('click', ()=>{
-      setThread(uuid());
-      chatBox.innerHTML = '';
-    });
-
-    chatToggle.addEventListener('change', ()=>{
-      showChat(chatToggle.checked);
-    });
-
-    // Request
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      applySpeed(); // ensure limit matches selected speed
       btn.disabled = true;
       out.textContent = "Working…";
       src.innerHTML = "";
@@ -264,15 +246,14 @@
         params.set(k, v);
       });
 
-      // Chat params
       if (chatToggle.checked){
         const thread = getThread() || uuid();
         setThread(thread);
-        params.set("chat", "1");
+        params.set("chat","1");
         params.set("thread", thread);
       }
 
-      params.set("ts", Date.now().toString()); // cache-buster
+      params.set("ts", Date.now().toString());
       const url = `${ENDPOINT}?${params.toString()}`;
       reqUrlEl.textContent = url;
 
@@ -300,7 +281,6 @@
         if (data.debug?.sql)  sqlTextEl.textContent = data.debug.sql;
         if (data.debug?.prompt) promptTextEl.textContent = data.debug.prompt;
 
-        // Filters echo
         if (data.filters) {
           const { from, to, countries, type, topic, limit, style } = data.filters;
           const parts = [];
@@ -316,7 +296,6 @@
           filt.textContent = "Filters — none";
         }
 
-        // Sources
         if (Array.isArray(data.sources) && data.sources.length) {
           const list = data.sources.map(s=>{
             const meta = [s.date, s.type, s.countries].filter(Boolean).join(" · ");
@@ -328,10 +307,7 @@
           src.innerHTML = "";
         }
 
-        // Show assistant message in chat
         if (chatToggle.checked && data.answer) addMsg('assistant', data.answer);
-
-        // If server returned chat log (last messages), you could render it here (optional).
       } catch (err) {
         out.innerHTML = `<span class="muted">Network error:</span> ${err.message || err}`;
         filt.textContent = "Filters — network error";

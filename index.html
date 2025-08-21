@@ -158,7 +158,7 @@
           <textarea id="n_summary" placeholder="Write your note…"></textarea>
         </div>
         <div style="grid-column:span 12;display:flex;justify-content:flex-end">
-          <button class="btn" onclick="saveNote()">Save note</button>
+          <button class="btn" onclick="e()">Save note</button>
         </div>
       </div>
       <p class="muted">You must be signed into your <strong>@teachforallnetwork.org</strong> account in this browser. Inserts are authenticated by the Apps Script web app.</p>
@@ -248,35 +248,44 @@
   }
 
   async function saveNote(){
-    const payload = {
-      action: "insert",
-      date: document.getElementById("n_date").value || new Date().toISOString().slice(0,10),
-      type: document.getElementById("n_type").value,
-      recipients: (document.getElementById("n_recipients").value || "").trim() || null,
-      countries: (document.getElementById("n_countries").value || "").trim() || null,
-      summary: (document.getElementById("n_summary").value || "").trim()
-    };
-    if (!payload.summary){ alert("Please enter a summary."); return; }
+    <script>
+async function saveNote(){
+  const date       = document.getElementById("n_date").value || new Date().toISOString().slice(0,10);
+  const type       = document.getElementById("n_type").value || "Note";
+  const recipients = document.getElementById("n_recipients").value || "";
+  const countries  = document.getElementById("n_countries").value || "";
+  const summary    = document.getElementById("n_summary").value.trim();
+  const statusEl   = document.getElementById("n_status");
 
-    try{
-      const r = await fetch(ENDPOINT, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include", // send Google session cookies
-        body: JSON.stringify(payload)
-      });
-      const data = await r.json();
-      if (!data.ok) throw new Error(data.error || "Insert failed");
-      alert("Saved ✔");
-      // clear a few fields
-      document.getElementById("n_recipients").value = "";
-      document.getElementById("n_countries").value = "";
-      document.getElementById("n_summary").value = "";
-    }catch(err){
-      alert("Error saving note: " + err.message);
-      console.error(err);
-    }
+  if (!summary){
+    statusEl.innerHTML = `<span class="err">Please enter a note summary.</span>`;
+    return;
   }
+  statusEl.textContent = "Saving…";
+
+  try {
+    // IMPORTANT: no headers; let the browser send application/x-www-form-urlencoded
+    const body = new URLSearchParams({
+      action: "insert",
+      date, type, recipients, countries, summary
+    });
+
+    const res  = await fetch(ENDPOINT, { method: "POST", body });
+    const data = await res.json();
+
+    if (data.ok) {
+      statusEl.innerHTML = `<span class="ok">Saved.</span>`;
+      document.getElementById("n_summary").value = "";
+    } else {
+      statusEl.innerHTML = `<span class="err">Failed: ${data.error || "Unknown error"}</span>`;
+      alert(`Error saving note: ${data.error || "Unknown error"}`);
+    }
+  } catch (err) {
+    statusEl.innerHTML = `<span class="err">Error: ${err.message}</span>`;
+    alert(`Error saving note: ${err.message}`);
+    console.error(err);
+  }
+}
 </script>
 </body>
 </html>

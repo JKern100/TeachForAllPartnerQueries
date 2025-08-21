@@ -1,283 +1,282 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Teach For All — Knowledge Q&A</title>
-
-  <!-- Inter font -->
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-  <!-- Markdown renderer + sanitizer -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
-
-  <style>
-    :root{
-      --bg:#0f172a; --card:#0b1220; --ink:#e5e7eb; --ink-dim:#cbd5e1; --muted:#94a3b8;
-      --brand:#4f46e5; --brand-2:#6366f1; --chip:#1e293b; --border:#354052;
-      --radius:14px; --shadow:0 10px 30px rgba(0,0,0,.35);
-    }
-    *{ box-sizing:border-box }
-    html,body{ height:100% }
-    body{
-      margin:0; font-family:Inter,system-ui,Segoe UI,Roboto,Arial,Apple Color Emoji,Noto Color Emoji,sans-serif;
-      color:var(--ink);
-      background:
-        radial-gradient(1000px 700px at 10% -10%, #1f2937 0%, transparent 55%),
-        radial-gradient(1200px 900px at 110% -20%, #111827 0%, transparent 60%),
-        var(--bg);
-    }
-    .wrap{ max-width:1100px; margin:0 auto; padding:32px 18px 80px }
-    header{ display:flex; align-items:center; gap:14px; margin:6px 0 22px; }
-    header h1{ font-weight:700; font-size:clamp(20px,3.2vw,28px); margin:0 }
-    .badge{ font:600 12px/1 Inter; color:#c7d2fe; background:#1e1b4b; border:1px solid #312e81;
-      padding:6px 9px; border-radius:999px; }
-    .sub{ color:var(--muted); margin-top:6px; font-size:14px }
-
-    .card{ background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.0)) , var(--card);
-      border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px; }
-
-    .grid{ display:grid; gap:14px; grid-template-columns:repeat(12,1fr); }
-    @media (max-width:880px){ .grid{ grid-template-columns:repeat(6,1fr) } }
-    label{ font-weight:600; color:var(--ink-dim); font-size:13px; display:block; margin:6px 0 6px }
-    input[type="date"], input[type="text"], select, textarea{
-      width:100%; background:#0a1425; color:var(--ink); border:1px solid #2b3546;
-      outline:none; padding:10px 12px; border-radius:10px; transition:border .15s ease, box-shadow .15s ease, background .15s ease;
-    }
-    textarea{ min-height:120px; resize:vertical }
-    input::placeholder, textarea::placeholder{ color:#6b7280 }
-
-    .chips{ display:flex; gap:8px; flex-wrap:wrap }
-    .chip{ border:1px solid #304057; background:var(--chip); color:#d1d5db; border-radius:999px;
-      padding:8px 12px; font-size:12px; cursor:pointer; transition:transform .06s ease, background .2s ease, border .2s ease; user-select:none; }
-    .chip:hover{ transform:translateY(-1px); background:#233149 }
-    .chip:active{ transform:translateY(0) }
-
-    .row{ display:flex; gap:10px; align-items:end; flex-wrap:wrap }
-    .btn{ background:linear-gradient(180deg,var(--brand-2),var(--brand)); border:none; color:white; font-weight:700;
-      padding:12px 18px; border-radius:12px; cursor:pointer; transition:transform .06s ease, filter .2s ease; }
-    .btn:hover{ filter:brightness(1.05); transform:translateY(-1px) }
-    .btn:disabled{ opacity:.6; cursor:not-allowed; transform:none }
-
-    .pill{ display:inline-flex; gap:6px; align-items:center; color:#cbd5e1; font-weight:500; font-size:12px;
-      background:#0a1425; border:1px solid #2b3546; border-radius:999px; padding:6px 10px; }
-
-    h2{ margin:18px 0 10px; font-size:16px }
-    #answer p{ margin:0 0 .6rem } #answer ul{ margin:.3rem 0 .7rem; padding-left:1.1rem } #answer li{ margin:.22rem 0 }
-
-    details{ border:1px dashed #334155; border-radius:12px; padding:10px 12px; background:#0a1323 }
-    summary{ cursor:pointer; color:#d1d5db; font-weight:600 }
-    code, pre{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      background:#0b172a; color:#e5e7eb; border:1px solid #334155; border-radius:10px; }
-    pre{ padding:10px; overflow:auto }
-
-    .small{ color:var(--muted); font-size:12px }
-    .divider{ height:1px; background:#2a3546; margin:14px 0 }
-  </style>
+<meta charset="utf-8">
+<title>Teach For All — Knowledge Q&A</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#0b1220; --card:#111a2b; --ink:#e8edf7; --muted:#a6b0c3;
+    --accent:#4f8cff; --accent-2:#2a6ef0; --ok:#2ecc71; --warn:#f39c12;
+    --radius:16px;
+  }
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;}
+  .wrap{max-width:1000px;margin:0 auto;padding:28px 16px 64px;}
+  h1{display:flex;align-items:center;gap:12px;font-size:28px;margin:0 0 16px;}
+  .badge{background:#23385f;padding:4px 10px;border-radius:999px;font-size:12px;color:#cdd6e8}
+  .card{background:var(--card);border:1px solid #203255;border-radius:var(--radius);padding:18px 16px;margin:16px 0;}
+  label{display:block;margin:10px 0 6px;color:var(--muted);font-size:13px}
+  input,select,textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #31486f;background:#0e1626;color:var(--ink);}
+  textarea{min-height:100px;resize:vertical}
+  .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}
+  .btn{background:var(--accent);border:none;color:white;padding:12px 18px;border-radius:12px;font-weight:600;cursor:pointer}
+  .btn:hover{background:var(--accent-2)}
+  .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .muted{color:var(--muted);font-size:13px}
+  .answer{white-space:pre-wrap}
+  details{background:#0d1626;border:1px dashed #2a3f63;border-radius:12px;padding:8px 10px}
+  details>summary{cursor:pointer;font-weight:600;margin:4px 0 8px}
+  .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#1b2a46;color:#9eb1d5;font-size:12px}
+</style>
 </head>
 <body>
   <div class="wrap">
-    <header>
-      <h1>Teach For All — Knowledge Q&amp;A</h1>
-      <span class="badge" id="buildTag">client-ui</span>
-    </header>
-    <div class="sub">Filter by date, countries, type; ask a question; get an AI-generated answer. (Links are suppressed by design.)</div>
+    <h1>Teach For All — Knowledge Q&amp;A <span id="build" class="badge"></span></h1>
+    <p class="muted">Filter by date, countries, and type; ask your question; get an AI-generated answer with sources.</p>
 
-    <section class="card" style="margin-top:14px">
-      <form id="qf" onsubmit="return false;">
-        <div class="grid">
-          <div style="grid-column:span 3">
-            <label for="from">From date</label>
-            <input type="date" id="from" />
-          </div>
-          <div style="grid-column:span 3">
-            <label for="to">To date</label>
-            <input type="date" id="to" />
-          </div>
-          <div style="grid-column:span 6">
-            <label>Quick ranges</label>
-            <div class="chips">
-              <div class="chip" onclick="setQuickRange(7)">Past 7 days</div>
-              <div class="chip" onclick="setQuickRange(30)">Past month</div>
-              <div class="chip" onclick="setQuickRange(90)">Last 3 months</div>
-              <div class="chip" onclick="clearDates()">Clear dates</div>
-            </div>
-          </div>
-
-          <div style="grid-column:span 3">
-            <label for="type">Type</label>
-            <select id="type">
-              <option>All (default)</option>
-              <option>Email</option>
-              <option>Zoom Meeting</option>
-              <option>Note</option>
-            </select>
-          </div>
-          <div style="grid-column:span 5">
-            <label for="countries">Countries (comma-separated)</label>
-            <input id="countries" type="text" placeholder="e.g., Portugal, Spain" />
-          </div>
-          <div style="grid-column:span 4">
-            <label for="topic">Topic (optional)</label>
-            <input id="topic" type="text" placeholder="standards, onboarding, budget…" />
-          </div>
-
-          <div style="grid-column:span 12">
-            <label for="question">Question</label>
-            <textarea id="question" placeholder="Ask your question… e.g., What are Italy’s priorities from the last two weeks?"></textarea>
-          </div>
-
-          <div style="grid-column:span 3">
-            <label for="style">Answer style</label>
-            <select id="style">
-              <option value="short">short</option>
-              <option value="normal" selected>normal</option>
-            </select>
-          </div>
-          <div style="grid-column:span 4">
-            <label for="speed">Response speed</label>
-            <select id="speed">
-              <option value="50">Fast (~50 rows)</option>
-              <option value="100" selected>Medium (~100 rows)</option>
-              <option value="200">Slower (~200 rows)</option>
-            </select>
-            <div class="small">More rows = more context, potentially slower.</div>
-          </div>
-
-          <div style="grid-column:span 5; display:flex; gap:10px; align-items:flex-end; justify-content:flex-end">
-            <button class="btn" id="askBtn" onclick="runQuery()">Ask</button>
-            <button class="btn" type="button" style="background:linear-gradient(180deg,#334155,#1f2937)" onclick="resetForm()">Reset</button>
-          </div>
+    <!-- Query form -->
+    <section class="card">
+      <div class="toolbar" style="justify-content:space-between">
+        <div class="toolbar" style="gap:12px">
+          <label style="display:flex;align-items:center;gap:8px"><input id="chatMode" type="checkbox"> Chat mode (remember this thread)</label>
+          <span class="pill">Thread: <span id="threadId">(new)</span></span>
+          <button class="btn" type="button" onclick="newChat()">New chat</button>
         </div>
-      </form>
-    </section>
-
-    <section class="card" style="margin-top:16px">
-      <div class="row" style="justify-content:space-between; align-items:center">
-        <div class="pill" id="filterPill">Filters —</div>
-        <div class="small" id="status">Ready</div>
       </div>
-      <div class="divider"></div>
 
-      <h2>Answer</h2>
-      <div id="answer">—</div>
+      <div class="grid">
+        <div style="grid-column:span 3">
+          <label>From date</label>
+          <input type="date" id="from">
+        </div>
+        <div style="grid-column:span 3">
+          <label>To date</label>
+          <input type="date" id="to">
+        </div>
+        <div style="grid-column:span 6">
+          <label>Countries (comma-separated)</label>
+          <input id="countries" placeholder="Portugal, Spain (leave blank = all)">
+        </div>
 
-      <details style="margin-top:12px">
+        <div style="grid-column:span 3">
+          <label>Type</label>
+          <select id="type">
+            <option>All (default)</option>
+            <option>Zoom Meeting</option>
+            <option>Email</option>
+            <option>Note</option>
+          </select>
+        </div>
+        <div style="grid-column:span 3">
+          <label>Topic (optional)</label>
+          <input id="topic" placeholder="standards">
+        </div>
+        <div style="grid-column:span 12">
+          <label>Question</label>
+          <textarea id="question" placeholder="e.g., What are Italy’s priorities?"></textarea>
+        </div>
+
+        <div style="grid-column:span 3">
+          <label>Answer style</label>
+          <select id="style">
+            <option value="normal" selected>normal</option>
+            <option value="short">short</option>
+          </select>
+        </div>
+        <div style="grid-column:span 4">
+          <label>Response speed</label>
+          <select id="speed">
+            <option value="50" selected>Fast (≈ 50 rows)</option>
+            <option value="100">Medium (≈ 100 rows)</option>
+            <option value="200">Slower (≈ 200 rows)</option>
+          </select>
+          <div class="muted">Higher = more context, a bit slower.</div>
+        </div>
+        <div style="grid-column:span 5;display:flex;align-items:flex-end;justify-content:flex-end">
+          <button class="btn" onclick="ask()">Ask</button>
+        </div>
+      </div>
+
+      <p class="muted" id="filtersLine"></p>
+
+      <div class="answer" id="answer"></div>
+
+      <h3>Sources</h3>
+      <ul id="sources"></ul>
+
+      <details id="dbg">
         <summary>Debug — Request, REST, SQL, Prompt &amp; Raw JSON</summary>
-        <div style="margin-top:8px">
-          <div class="small">Request URL</div>
-          <pre id="reqUrl" style="white-space:pre-wrap">—</pre>
-
-          <div class="small" style="margin-top:10px">Supabase REST/RPC URL</div>
-          <pre id="restUrl" style="white-space:pre-wrap">—</pre>
-
-          <div class="small" style="margin-top:10px">SQL (approximate)</div>
-          <pre id="sql">—</pre>
-
-          <div class="small" style="margin-top:10px">Prompt (exact, sent to Gemini)</div>
-          <pre id="prompt" style="white-space:pre-wrap">—</pre>
-
-          <div class="small" style="margin-top:10px">Response JSON</div>
-          <pre id="raw" style="white-space:pre-wrap">—</pre>
+        <div>
+          <label>Request URL</label>
+          <input id="reqUrl" readonly>
+        </div>
+        <div>
+          <label>Supabase REST URL</label>
+          <input id="restUrl" readonly>
+        </div>
+        <div>
+          <label>SQL (approximate)</label>
+          <textarea id="sqlApprox" readonly></textarea>
+        </div>
+        <div>
+          <label>Prompt (exact, sent to Gemini)</label>
+          <textarea id="promptOut" readonly></textarea>
+        </div>
+        <div>
+          <label>Response JSON</label>
+          <textarea id="jsonOut" readonly style="min-height:180px"></textarea>
         </div>
       </details>
+    </section>
+
+    <!-- Add note -->
+    <section class="card">
+      <h2 style="margin-top:0">Add note</h2>
+      <div class="grid">
+        <div style="grid-column:span 3">
+          <label for="n_date">Date</label>
+          <input id="n_date" type="date">
+        </div>
+        <div style="grid-column:span 3">
+          <label for="n_type">Type</label>
+          <select id="n_type">
+            <option>Note</option>
+            <option>Zoom Meeting</option>
+            <option>Email</option>
+          </select>
+        </div>
+        <div style="grid-column:span 6">
+          <label for="n_recipients">Recipients (optional)</label>
+          <input id="n_recipients" placeholder="Ramona; João; …">
+        </div>
+        <div style="grid-column:span 6">
+          <label for="n_countries">Countries (optional)</label>
+          <input id="n_countries" placeholder="Latvia, Portugal">
+        </div>
+        <div style="grid-column:span 12">
+          <label for="n_summary">Summary (note body)</label>
+          <textarea id="n_summary" placeholder="Write your note…"></textarea>
+        </div>
+        <div style="grid-column:span 12;display:flex;justify-content:flex-end">
+          <button class="btn" onclick="saveNote()">Save note</button>
+        </div>
+      </div>
+      <p class="muted">You must be signed into your <strong>@teachforallnetwork.org</strong> account in this browser. Inserts are authenticated by the Apps Script web app.</p>
     </section>
   </div>
 
 <script>
-  // ====== CONFIG (latest endpoint you gave me) ======
+  // ====== CONFIG ======
   const ENDPOINT = "https://script.google.com/macros/s/AKfycbyvzIgN1uiRtnQh9SkjHo8ADtm66NrX2b1uIWr_vQ6XweQZvu1r9izXIVtPWzF7SuDZ/exec";
 
-  // ====== UTIL ======
-  const $ = s => document.querySelector(s);
-  function fmtDate(d){ return d.toISOString().slice(0,10) }
+  // ====== State ======
+  const S = {
+    thread: localStorage.getItem("tfa_thread") || "",
+    lastBuild: ""
+  };
 
-  function setQuickRange(days){
-    const to = new Date();
-    const from = new Date();
-    from.setDate(to.getDate() - (days-1));
-    $("#from").value = fmtDate(from);
-    $("#to").value   = fmtDate(to);
-  }
-  function clearDates(){ $("#from").value = ""; $("#to").value = ""; }
-  function resetForm(){
-    $("#from").value=""; $("#to").value="";
-    $("#type").selectedIndex=0; $("#countries").value=""; $("#topic").value="";
-    $("#question").value=""; $("#style").value="normal"; $("#speed").value="100";
-    $("#answer").innerHTML="—"; $("#reqUrl").textContent="—"; $("#restUrl").textContent="—";
-    $("#sql").textContent="—"; $("#prompt").textContent="—"; $("#raw").textContent="—";
-    $("#status").textContent="Ready"; renderFilters();
-  }
+  // ====== Init ======
+  (function init(){
+    document.getElementById("build").textContent = "…";
+    document.getElementById("threadId").textContent = S.thread || "(new)";
+    // default "Add note" date = today
+    const d = new Date().toISOString().slice(0,10);
+    document.getElementById("n_date").value = d;
+  })();
 
-  function renderFilters(){
-    const f = $("#from").value || "—";
-    const t = $("#to").value   || "—";
-    const c = ($("#countries").value || "all").trim();
-    const ty = $("#type").value; const type = ty.startsWith("All") ? "all" : ty;
-    const style = $("#style").value; const limit = $("#speed").value;
-    $("#filterPill").textContent = `Filters — countries: ${c} | type: ${type} | limit: ${limit} | style: ${style} | from: ${f} | to: ${t}`;
-  }
-  ["from","to","countries","type","style","speed"].forEach(id=>{
-    document.addEventListener("change", e => { if (e.target && e.target.id===id) renderFilters(); });
-  });
-
-  // Markdown → HTML but with ALL LINKS REMOVED
-  function renderAnswer(md){
-    const allowed = ['p','ul','ol','li','strong','em','code','pre','blockquote','hr','br'];
-    const html = DOMPurify.sanitize(
-      marked.parse(md || "", { mangle:false, headerIds:false }),
-      { ALLOWED_TAGS: allowed } // no <a> tag allowed
-    );
-    $("#answer").innerHTML = html || "—";
+  function newChat(){
+    S.thread = String(Date.now());
+    localStorage.setItem("tfa_thread", S.thread);
+    document.getElementById("threadId").textContent = S.thread;
   }
 
-  // Sources suppressed
-  function renderSources(){ /* disabled: links removed by request */ }
+  function filtersLineText(filters){
+    const parts = [];
+    if (filters.from) parts.push(`from: ${filters.from}`);
+    if (filters.to) parts.push(`to: ${filters.to}`);
+    if (filters.countries) parts.push(`countries: ${filters.countries}`);
+    if (filters.type && filters.type !== "All (default)") parts.push(`type: ${filters.type}`);
+    parts.push(`limit: ${filters.limit}`);
+    parts.push(`style: ${filters.style}`);
+    return "Filters — " + parts.join(" | ");
+  }
 
-  async function runQuery(){
-    const btn = $("#askBtn"); btn.disabled = true; $("#status").textContent = "Working…";
-
-    const q = ($("#question").value || "").trim();
-    const topic = ($("#topic").value || "").trim();
-    if (!q && !topic){ alert("Please enter a question (or a topic)."); btn.disabled=false; $("#status").textContent="Ready"; return; }
-
+  async function ask(){
     const params = new URLSearchParams();
-    if ($("#from").value) params.set("from", $("#from").value);
-    if ($("#to").value)   params.set("to",   $("#to").value);
-    const type = $("#type").value.startsWith("All") ? "" : $("#type").value; if (type) params.set("type", type);
-    const countries = ($("#countries").value || "").trim(); if (countries) params.set("countries", countries);
-    if (topic) params.set("topic", topic); if (q) params.set("question", q);
-    params.set("style", $("#style").value); params.set("limit", $("#speed").value);
+    const from = document.getElementById("from").value;
+    const to   = document.getElementById("to").value;
+    const ctry = document.getElementById("countries").value.trim();
+    const type = document.getElementById("type").value;
+    const topic= document.getElementById("topic").value.trim();
+    const question = document.getElementById("question").value.trim();
+    const style = document.getElementById("style").value;
+    const limit = document.getElementById("speed").value;
+    const chatMode = document.getElementById("chatMode").checked;
+
+    if (from) params.set("from", from);
+    if (to) params.set("to", to);
+    if (ctry) params.set("countries", ctry);
+    if (type) params.set("type", type);
+    if (topic) params.set("topic", topic);
+    if (question) params.set("question", question);
+    if (style) params.set("style", style);
+    if (limit) params.set("limit", limit);
+    if (chatMode && S.thread) params.set("thread", S.thread);
 
     const url = ENDPOINT + "?" + params.toString();
-    $("#reqUrl").textContent = url;
+    const r = await fetch(url, { credentials: "include" });
+    const data = await r.json().catch(()=>({error:"Invalid JSON"}));
 
-    try{
-      const res = await fetch(url, { method:"GET" });
-      const data = await res.json();
+    document.getElementById("build").textContent = data.build || "";
+    document.getElementById("filtersLine").textContent =
+      filtersLineText({ from, to, countries: ctry, type, limit, style });
 
-      if (data.build) $("#buildTag").textContent = data.build;
-      renderAnswer(data.answer || "—");
-      renderSources(data.sources || []); // no-op
+    document.getElementById("answer").textContent = data.answer || "(no answer)";
+    const ul = document.getElementById("sources"); ul.innerHTML = "";
+    (data.sources || []).forEach(s => {
+      const li = document.createElement("li");
+      li.textContent = `${s.title} (${s.date || "n/a"} · ${s.type || "n/a"} · ${s.countries || "—"})`;
+      ul.appendChild(li);
+    });
 
-      $("#restUrl").textContent = data?.debug?.rest || "—";
-      $("#sql").textContent     = data?.debug?.sql  || "—";
-      $("#prompt").textContent  = data?.debug?.prompt || "—";
-      $("#raw").textContent     = JSON.stringify(data, null, 2);
-
-      $("#status").textContent = "Done";
-    } catch(err){
-      $("#status").textContent = "Error";
-      renderAnswer("**Error:** " + String(err));
-      $("#raw").textContent = String(err && err.message || err);
-    } finally {
-      btn.disabled = false; renderFilters();
-    }
+    // Debug
+    document.getElementById("reqUrl").value = data?.debug?.request_url || url;
+    document.getElementById("restUrl").value = data?.debug?.supabase_rest_url || "";
+    document.getElementById("sqlApprox").value = data?.debug?.sql_approx || "";
+    document.getElementById("promptOut").value = data?.debug?.prompt_used || "";
+    document.getElementById("jsonOut").value = JSON.stringify(data, null, 2);
   }
 
-  renderFilters();
+  async function saveNote(){
+    const payload = {
+      action: "insert",
+      date: document.getElementById("n_date").value || new Date().toISOString().slice(0,10),
+      type: document.getElementById("n_type").value,
+      recipients: (document.getElementById("n_recipients").value || "").trim() || null,
+      countries: (document.getElementById("n_countries").value || "").trim() || null,
+      summary: (document.getElementById("n_summary").value || "").trim()
+    };
+    if (!payload.summary){ alert("Please enter a summary."); return; }
+
+    try{
+      const r = await fetch(ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // send Google session cookies
+        body: JSON.stringify(payload)
+      });
+      const data = await r.json();
+      if (!data.ok) throw new Error(data.error || "Insert failed");
+      alert("Saved ✔");
+      // clear a few fields
+      document.getElementById("n_recipients").value = "";
+      document.getElementById("n_countries").value = "";
+      document.getElementById("n_summary").value = "";
+    }catch(err){
+      alert("Error saving note: " + err.message);
+      console.error(err);
+    }
+  }
 </script>
 </body>
 </html>

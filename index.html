@@ -6,7 +6,6 @@
   <title>Teach For All — Knowledge Q&A</title>
   <meta name="description" content="Ask questions against Teach For All meeting data and get AI-powered answers with sources." />
   <style>
-    #answer { white-space: pre-wrap; }
     :root { color-scheme: light dark; --bg:#0b0d10; --fg:#e8eaed; --card:#0f1216; --muted:#a8b0b9; --line:#2a2e33; --brand:#5b8cff; --brand-2:#7cc4ff; }
     @media (prefers-color-scheme:light){
       :root{ --bg:#f6f8fb; --fg:#0b0d10; --card:#ffffff; --muted:#5a6675; --line:#e5e8ec; --brand:#0b66ff; --brand-2:#63a2ff;}
@@ -42,13 +41,16 @@
     summary{cursor:pointer}
     pre{white-space:pre-wrap; overflow:auto; margin:0}
 
+    /* Answer rendering: paragraphs + lists look nice */
+    #answer p{margin:.4rem 0;}
+    #answer ul{margin:.4rem 0 .4rem 1.25rem;}
+    #answer li{margin:.2rem 0;}
     .chat{border:1px solid var(--line); border-radius:12px; padding:12px; background:transparent; max-height:320px; overflow:auto}
     .msg{margin:.4rem 0; padding:.5rem .6rem; border-radius:10px}
     .user{background:rgba(91,140,255,.12)}
     .assistant{background:rgba(124,196,255,.12)}
     .chatmeta{display:flex; gap:12px; align-items:center}
     .switch{display:flex; align-items:center; gap:10px}
-    .switch input{width:auto}
     .row{display:flex; gap:10px; align-items:center}
   </style>
 </head>
@@ -77,7 +79,6 @@
       <div class="chat" id="chatBox" hidden></div>
 
       <form id="qf" class="grid" style="margin-top:16px">
-        <!-- From / To / Countries -->
         <div class="grid g3">
           <div>
             <label for="from">From date</label>
@@ -93,7 +94,6 @@
           </div>
         </div>
 
-        <!-- Type / Topic -->
         <div class="grid g2">
           <div>
             <label for="type">Type</label>
@@ -110,13 +110,11 @@
           </div>
         </div>
 
-        <!-- Question -->
         <div>
           <label for="question">Question</label>
           <textarea id="question" name="question" placeholder="e.g., What are the next steps for network standards?"></textarea>
         </div>
 
-        <!-- Answer style / Response speed -->
         <div class="grid g3">
           <div>
             <label for="style">Answer style</label>
@@ -141,11 +139,9 @@
           </div>
         </div>
 
-        <!-- Hidden limit actually sent to backend -->
         <input id="limit" name="limit" type="hidden" value="50" />
       </form>
 
-      <!-- Output -->
       <section class="out">
         <div class="muted" id="filters">Filters — none</div>
         <h3 style="margin:.35rem 0 .5rem">Answer</h3>
@@ -175,7 +171,7 @@
   </main>
 
   <script>
-    // Your current Apps Script endpoint
+    // Your Apps Script endpoint
     const ENDPOINT = "https://script.google.com/macros/s/AKfycbyvzIgN1uiRtnQh9SkjHo8ADtm66NrX2b1uIWr_vQ6XweQZvu1r9izXIVtPWzF7SuDZ/exec";
 
     const form = document.getElementById('qf');
@@ -193,7 +189,7 @@
     const speedSel = document.getElementById('speed');
     const limitHidden = document.getElementById('limit');
 
-    // Chat bits
+    // Chat
     const chatToggle = document.getElementById('chat');
     const chatBox = document.getElementById('chatBox');
     const newChatBtn = document.getElementById('newChat');
@@ -228,9 +224,47 @@
     newChatBtn.addEventListener('click', ()=>{ setThread(uuid()); chatBox.innerHTML = ''; });
     chatToggle.addEventListener('change', ()=> showChat(chatToggle.checked));
 
+    // ---------- Answer formatting ----------
+    function escapeHtml(s){
+      return s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+    }
+    function formatAnswer(plain){
+      if (!plain) return "";
+      // Normalize line breaks
+      let t = plain.replace(/\r\n/g, "\n").trim();
+      // If bullets appear inline like "… discussed. - Point - Point", ensure they break lines
+      t = t.replace(/([^\n])\s-\s/g, "$1\n- ");
+      const lines = t.split("\n");
+      let html = "";
+      let inList = false;
+
+      const flushP = (buf) => {
+        const s = buf.join(" ").trim();
+        if (s) html += `<p>${escapeHtml(s)}</p>`;
+        buf.length = 0;
+      };
+
+      const pbuf = [];
+      for (const line of lines){
+        const l = line.trim();
+        if (l.startsWith("- ")){
+          if (pbuf.length) flushP(pbuf);
+          if (!inList){ html += "<ul>"; inList = true; }
+          html += `<li>${escapeHtml(l.slice(2).trim())}</li>`;
+        } else {
+          if (inList){ html += "</ul>"; inList = false; }
+          if (l) pbuf.push(l);
+        }
+      }
+      if (inList) html += "</ul>";
+      if (pbuf.length) flushP(pbuf);
+      return html || "<p>(no answer)</p>";
+    }
+
+    // ---------- Request/Render ----------
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      applySpeed(); // ensure limit matches selected speed
+      applySpeed();
       btn.disabled = true;
       out.textContent = "Working…";
       src.innerHTML = "";
@@ -268,7 +302,7 @@
         if (data.build) buildTag.textContent = data.build;
 
         if (data.error) {
-          out.innerHTML = `<span class="muted">Error:</span> ${data.error}` + (data.detail ? `<div class="muted">${data.detail}</div>` : "");
+          out.innerHTML = `<span class="muted">Error:</span> ${data.error}` + (data.detail ? `<div class="muted">${escapeHtml(data.detail)}</div>` : "");
           raw.textContent = JSON.stringify(data, null, 2);
           if (data.debug?.rest) restUrlEl.textContent = data.debug.rest;
           if (data.debug?.sql)  sqlTextEl.textContent = data.debug.sql;
@@ -276,7 +310,9 @@
           return;
         }
 
-        out.textContent = data.answer || "(no answer)";
+        // Render answer nicely
+        out.innerHTML = formatAnswer(data.answer || "");
+
         raw.textContent = JSON.stringify(data, null, 2);
         if (data.debug?.rest) restUrlEl.textContent = data.debug.rest;
         if (data.debug?.sql)  sqlTextEl.textContent = data.debug.sql;
@@ -297,11 +333,16 @@
           filt.textContent = "Filters — none";
         }
 
+        // Sources with robust links
         if (Array.isArray(data.sources) && data.sources.length) {
           const list = data.sources.map(s=>{
             const meta = [s.date, s.type, s.countries].filter(Boolean).join(" · ");
-            const link = s.url ? ` — <a href="${s.url}" target="_blank" rel="noopener">link</a>` : "";
-            return `<li>${s.title || "(untitled)"} ${meta?`<span class="muted">(${meta})</span>`:""}${link}</li>`;
+            let linkHtml = "";
+            if (s.url && /^https?:\/\//i.test(s.url)) {
+              const safe = encodeURI(s.url);
+              linkHtml = ` — <a href="${safe}" target="_blank" rel="noopener noreferrer">link</a>`;
+            }
+            return `<li>${escapeHtml(s.title || "(untitled)")} ${meta?`<span class="muted">(${escapeHtml(meta)})</span>`:""}${linkHtml}</li>`;
           }).join("");
           src.innerHTML = `<h4 style="margin:.8rem 0 .3rem">Sources</h4><ul>${list}</ul>`;
         } else {
@@ -310,7 +351,7 @@
 
         if (chatToggle.checked && data.answer) addMsg('assistant', data.answer);
       } catch (err) {
-        out.innerHTML = `<span class="muted">Network error:</span> ${err.message || err}`;
+        out.innerHTML = `<span class="muted">Network error:</span> ${escapeHtml(err.message || String(err))}`;
         filt.textContent = "Filters — network error";
       } finally {
         btn.disabled = false;

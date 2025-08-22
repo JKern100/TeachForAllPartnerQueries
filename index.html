@@ -6,319 +6,285 @@
 <title>Teach For All — Knowledge Q&A</title>
 <style>
   :root{
-    --bg:#0f1220; --panel:#151933; --muted:#8ca1c0; --txt:#e8eefc;
-    --accent:#6c63ff; --accent-2:#4a81ff; --danger:#ff6b6b; --ok:#06d6a0;
-    --chip:#22284d; --chip-hover:#2b3161;
+    --bg:#0f1220; --panel:#151a2e; --muted:#9aa3b2; --text:#e8ecf4; --brand:#6c63ff; --brand-2:#8f87ff; --error:#ff6b7a; --ok:#44d19a;
+    --border: #252b43; --chip:#1d2340;
   }
-  html, body { background:var(--bg); color:var(--txt); font:16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji"; margin:0; }
-  a{ color:var(--accent-2); text-decoration:none; }
-  a:hover{ text-decoration:underline; }
-  .wrap{ max-width:1080px; margin:28px auto 72px; padding:0 16px; }
-  h1{ font-weight:800; letter-spacing:.2px; margin:0 0 8px; }
-  .tag{ display:inline-block; font-size:12px; padding:4px 8px; border-radius:999px; background:var(--chip); color:var(--muted); margin-left:12px; }
-  .panel{ background:var(--panel); border:1px solid #1c2143; border-radius:14px; padding:18px; box-shadow:0 6px 24px rgba(0,0,0,.25) }
-  .grid{ display:grid; grid-template-columns:repeat(12,1fr); gap:12px; }
-  .col-3{ grid-column: span 3 }
-  .col-4{ grid-column: span 4 }
-  .col-5{ grid-column: span 5 }
-  .col-6{ grid-column: span 6 }
-  .col-7{ grid-column: span 7 }
-  .col-12{ grid-column: span 12 }
-  @media (max-width:900px){
-    .col-3,.col-4,.col-5,.col-6,.col-7{ grid-column: span 12 }
-  }
-
-  label{ font-size:13px; color:var(--muted); display:block; margin:6px 0 6px 2px; }
-  input[type="text"], input[type="date"], textarea, select{
-    width:100%; background:#0e1230; color:var(--txt); border:1px solid #2a3162; border-radius:10px; padding:10px 12px; outline:none;
-  }
-  input[type="text"]::placeholder, textarea::placeholder{ color:#6f7aa6 }
-  textarea{ min-height:110px; resize:vertical }
-  .row{ margin:8px 0 10px }
-  .chips{ display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 2px }
-  .chip{ background:var(--chip); color:#d5ddf7; padding:6px 10px; border-radius:999px; cursor:pointer; font-size:13px; border:1px solid #2a3162 }
-  .chip:hover{ background:var(--chip-hover) }
-
-  .btn{ background:var(--accent); color:#fff; border:none; border-radius:10px; padding:10px 16px; cursor:pointer; font-weight:600 }
-  .btn:hover{ filter:brightness(1.05) }
-  .btn.secondary{ background:#232a57 }
-  .btn.danger{ background:var(--danger) }
-
-  .small{ font-size:12px; color:var(--muted); }
-  .muted{ color:var(--muted); }
-
-  .answer{ white-space:pre-wrap; line-height:1.55; }
-  .err{ color:var(--danger); font-weight:700 }
-
-  details.debug > summary{
-    user-select:none; cursor:pointer; padding:10px 12px; border:1px dashed #2b3768; border-radius:12px;
-    background:#111638; color:#bcd1ff;
-  }
-  details.debug pre{ background:#0e1230; border:1px solid #2b3768; border-radius:12px; padding:12px; overflow:auto; }
-
-  ul.sources{ margin:8px 0 0 18px; padding:0 }
-  ul.sources li{ margin:4px 0 }
-
-  .section-title{ font-weight:700; margin:14px 0 8px }
-  .flex{ display:flex; gap:10px; align-items:center }
-  .right{ text-align:right }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial}
+  a{color:var(--brand)}
+  .container{max-width:1100px;margin:0 auto;padding:26px}
+  .title{font-size:28px;font-weight:800;display:flex;align-items:center;gap:10px}
+  .badge{font-size:12px;padding:3px 8px;border-radius:16px;background:var(--chip);color:var(--muted)}
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;margin-top:18px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+  .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+  input, select, textarea{width:100%;background:#0e1330;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+  textarea{min-height:120px;resize:vertical}
+  .btn{border:0;border-radius:10px;padding:10px 18px;background:var(--brand);color:white;cursor:pointer;font-weight:600}
+  .btn.secondary{background:#25305b}
+  .btn:disabled{opacity:.6;cursor:not-allowed}
+  .muted{color:var(--muted)}
+  .chips{display:flex;gap:8px;flex-wrap:wrap}
+  .chip{background:var(--chip);border:1px solid var(--border);border-radius:20px;padding:8px 10px;font-size:12px;cursor:pointer}
+  .chip:hover{background:#222a52}
+  .answer{white-space:pre-wrap;line-height:1.6}
+  .answer h1,.answer h2,.answer h3{margin:12px 0 6px}
+  .answer ul{margin:0 0 0 18px;padding:0}
+  .divider{height:1px;background:var(--border);margin:10px 0}
+  .small{font-size:12px}
+  details{background:var(--chip);border:1px solid var(--border);border-radius:10px}
+  summary{cursor:pointer;padding:10px 12px}
+  .pad{padding:10px 12px;border-top:1px solid var(--border)}
+  .ok{color:var(--ok)} .err{color:var(--error)}
+  .footerNote{font-size:12px;color:var(--muted);text-align:right}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>Teach For All — Knowledge Q&amp;A <span id="build" class="tag">client-ui</span></h1>
-  <div class="muted">Filter by date, countries, type; ask a question; get an AI-generated answer with sources. Markdown-style bullets are supported.</div>
+<div class="container">
+  <div class="title">
+    Teach For All — Knowledge Q&A
+    <span class="badge" id="build">client-ui</span>
+  </div>
 
-  <div class="panel" style="margin-top:16px">
-    <div class="grid">
-      <div class="col-6">
+  <!-- Query panel -->
+  <div class="panel">
+    <div class="row">
+      <div>
         <label>From date</label>
-        <input id="from" type="date" />
+        <input type="date" id="from">
       </div>
-      <div class="col-6">
+      <div>
         <label>To date</label>
-        <input id="to" type="date" />
+        <input type="date" id="to">
       </div>
+    </div>
 
-      <div class="col-12">
-        <label>Quick ranges</label>
-        <div class="chips">
-          <button class="chip" onclick="quickRange(7)">Past 7 days</button>
-          <button class="chip" onclick="quickRange(30)">Past month</button>
-          <button class="chip" onclick="quickRange(90)">Last 3 months</button>
-          <button class="chip" onclick="clearDates()">Clear dates</button>
-        </div>
+    <div style="margin-top:10px">
+      <label>Quick ranges</label>
+      <div class="chips">
+        <button class="chip" onclick="quickRange(7)">Past 7 days</button>
+        <button class="chip" onclick="quickRange(30)">Past month</button>
+        <button class="chip" onclick="quickRange(90)">Last 3 months</button>
+        <button class="chip" onclick="clearDates()">Clear dates</button>
       </div>
+    </div>
 
-      <div class="col-4">
+    <div class="row" style="margin-top:12px">
+      <div>
         <label>Type</label>
         <select id="type">
-          <option value="all" selected>All (default)</option>
+          <option value="all">All (default)</option>
           <option>Zoom Meeting</option>
           <option>Email</option>
           <option>note</option>
         </select>
       </div>
-      <div class="col-4">
+      <div>
         <label>Countries (comma-separated)</label>
-        <input id="countries" type="text" placeholder="e.g., Portugal, Spain" />
+        <input id="countries" placeholder="e.g., Portugal, Spain" />
       </div>
-      <div class="col-4">
+    </div>
+
+    <div class="row" style="margin-top:12px">
+      <div>
         <label>Topic (optional)</label>
-        <input id="topic" type="text" placeholder="standards, onboarding, budget…" />
+        <input id="topic" placeholder="standards, onboarding, budget…" />
       </div>
-
-      <div class="col-12">
-        <label>Question</label>
-        <textarea id="question" placeholder="Ask your question… e.g., What are Italy’s priorities from the last two weeks?"></textarea>
-      </div>
-
-      <div class="col-4">
-        <label>Answer style</label>
-        <select id="style">
-          <option value="normal" selected>normal</option>
-          <option value="short">short</option>
-        </select>
-      </div>
-      <div class="col-4">
+      <div>
         <label>Response speed</label>
         <select id="speed">
           <option value="50">Fast (~50 rows)</option>
           <option value="100" selected>Medium (~100 rows)</option>
           <option value="200">Slower (~200 rows)</option>
         </select>
-        <div class="small">More rows = more context, potentially slower.</div>
+        <div class="small muted">More rows → more context, potentially slower.</div>
       </div>
-      <div class="col-4 right">
-        <label style="opacity:0">.</label>
-        <div class="flex right">
-          <button class="btn" onclick="ask()">Ask</button>
-          <button class="btn secondary" onclick="resetForm()">Reset</button>
-        </div>
+    </div>
+
+    <div style="margin-top:12px">
+      <label>Question</label>
+      <textarea id="question" placeholder="Ask your question… e.g., What are Italy’s priorities from the last two weeks?"></textarea>
+    </div>
+
+    <div class="row" style="margin-top:12px;align-items:end">
+      <div>
+        <label>Answer style</label>
+        <select id="style">
+          <option value="normal" selected>normal</option>
+          <option value="short">short</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <button class="btn" onclick="ask()">Ask</button>
+        <button class="btn secondary" onclick="resetForm()">Reset</button>
       </div>
     </div>
   </div>
 
-  <div class="panel" style="margin-top:12px">
-    <div id="filters" class="small muted">Filters —</div>
-    <div class="section-title">Answer</div>
-    <div id="answer" class="answer">—</div>
+  <!-- Results -->
+  <div class="panel" id="results">
+    <div class="small muted" id="filters">—</div>
+    <h3>Answer</h3>
+    <div id="answer" class="answer muted">—</div>
 
-    <div class="section-title" style="margin-top:16px">Sources</div>
-    <ul id="sources" class="sources"></ul>
+    <div class="divider"></div>
+    <h4>Sources</h4>
+    <div id="sources" class="small muted">—</div>
 
-    <details class="debug" style="margin-top:14px">
-      <summary>Debug — Request, REST, SQL, Prompt &amp; Raw JSON</summary>
-      <div class="row small">Request URL</div>
-      <input id="reqUrl" type="text" readonly>
-      <div class="row small">Supabase REST URL</div>
-      <input id="restUrl" type="text" readonly>
-      <div class="row small">SQL (approximate)</div>
-      <pre id="sql"></pre>
-      <div class="row small">Prompt (exact, sent to Gemini)</div>
-      <pre id="prompt"></pre>
-      <div class="row small">Response JSON</div>
-      <pre id="json"></pre>
+    <details style="margin-top:12px">
+      <summary>Debug — Request, REST, SQL, Prompt & Raw JSON</summary>
+      <div class="pad small">
+        <div><b>Request URL</b></div>
+        <div id="reqUrl" class="muted" style="word-break:break-all"></div>
+        <div class="divider"></div>
+        <div><b>Supabase REST URL</b></div>
+        <div id="restUrl" class="muted" style="word-break:break-all"></div>
+        <div class="divider"></div>
+        <div><b>SQL (approximate)</b></div>
+        <pre id="sql" class="muted" style="white-space:pre-wrap"></pre>
+        <div class="divider"></div>
+        <div><b>Prompt (exact, sent to Gemini)</b></div>
+        <pre id="prompt" style="white-space:pre-wrap"></pre>
+        <div class="divider"></div>
+        <div><b>Response JSON</b></div>
+        <pre id="raw" style="white-space:pre-wrap"></pre>
+      </div>
     </details>
   </div>
 
-  <div class="panel" style="margin-top:18px">
-    <div class="section-title">Add a note</div>
-    <div class="grid">
-      <div class="col-3">
+  <!-- Notes -->
+  <div class="panel">
+    <h3>Add a note</h3>
+    <div class="grid-4">
+      <div>
         <label>Date</label>
-        <input id="noteDate" type="date">
+        <input type="date" id="noteDate">
       </div>
-      <div class="col-3">
+      <div>
         <label>Type</label>
         <select id="noteType">
           <option value="note" selected>note</option>
-          <option value="Zoom Meeting">Zoom Meeting</option>
-          <option value="Email">Email</option>
+          <option>Zoom Meeting</option>
+          <option>Email</option>
         </select>
       </div>
-      <div class="col-6">
+      <div style="grid-column: span 2">
         <label>Recipients (optional)</label>
-        <input id="noteRecipients" type="text" placeholder="e.g., Ramona; Jeff">
-      </div>
-      <div class="col-12">
-        <label>Summary</label>
-        <textarea id="noteSummary" placeholder="Write your note…"></textarea>
-      </div>
-      <div class="col-12 right">
-        <button class="btn" onclick="saveNote()">Save note</button>
+        <input id="noteRecipients" placeholder="e.g., Ramona, Jeff">
       </div>
     </div>
+    <div style="margin-top:12px">
+      <label>Summary (note)</label>
+      <textarea id="noteSummary" placeholder="Write your note…"></textarea>
+    </div>
+    <div style="margin-top:10px;text-align:right">
+      <button class="btn" onclick="saveNote()">Save note</button>
+    </div>
   </div>
+
+  <div class="footerNote" id="foot"></div>
 </div>
 
 <script>
-  // ***** UPDATE THIS IF YOUR WEB APP URL CHANGES *****
+  // ************ CONFIG ************
   const ENDPOINT = "https://script.google.com/macros/s/AKfycbyvzIgN1uiRtnQh9SkjHo8ADtm66NrX2b1uIWr_vQ6XweQZvu1r9izXIVtPWzF7SuDZ/exec";
 
+  // ************ Helpers ************
   const $ = id => document.getElementById(id);
-
-  // Defaults
-  (function init(){
-    $('build').textContent = 'client-ui';
-    const today = new Date();
-    $('noteDate').valueAsDate = today;
-  })();
-
-  function fmtDate(d){
-    // yyyy-mm-dd
-    const y = d.getFullYear();
-    const m = String(d.getMonth()+1).padStart(2,'0');
-    const day = String(d.getDate()).padStart(2,'0');
-    return `${y}-${m}-${day}`;
-  }
+  const todayISO = () => new Date().toISOString().slice(0,10);
 
   function quickRange(days){
     const to = new Date();
-    const from = new Date(Date.now() - (days*86400000));
-    $('from').value = fmtDate(from);
-    $('to').value = fmtDate(to);
+    const from = new Date();
+    from.setDate(to.getDate() - days);
+    $('from').value = from.toISOString().slice(0,10);
+    $('to').value   = to.toISOString().slice(0,10);
   }
-  function clearDates(){
-    $('from').value = '';
-    $('to').value = '';
-  }
+  function clearDates(){ $('from').value=''; $('to').value=''; }
+
   function resetForm(){
     $('from').value = '';
     $('to').value = '';
     $('type').value = 'all';
     $('countries').value = '';
     $('topic').value = '';
+    $('speed').value = '100';
     $('question').value = '';
     $('style').value = 'normal';
-    $('speed').value = '100';
     $('answer').textContent = '—';
-    $('sources').innerHTML = '';
-    $('reqUrl').value = '';
-    $('restUrl').value = '';
+    $('sources').textContent = '—';
+    $('filters').textContent = '—';
+    $('reqUrl').textContent = '';
+    $('restUrl').textContent = '';
     $('sql').textContent = '';
     $('prompt').textContent = '';
-    $('json').textContent = '';
+    $('raw').textContent = '';
   }
 
-  function buildURL(){
-    const params = new URLSearchParams({
-      question: $('question').value.trim(),
-      topic:    $('topic').value.trim(),
-      type:     $('type').value,
-      countries:$('countries').value.trim(),
-      from:     $('from').value,
-      to:       $('to').value,
-      style:    $('style').value,
-      limit:    $('speed').value,       // response speed -> row limit
-      ts:       String(Date.now())      // cache buster
-    });
-    return `${ENDPOINT}?${params.toString()}`;
-  }
+  // Init
+  (function init(){
+    $('build').textContent = 'client-ui';
+    $('noteDate').value = todayISO();
+    $('foot').textContent = 'Ready';
+  })();
 
-  function renderSources(list){
-    const ul = $('sources');
-    ul.innerHTML = '';
-    if (!Array.isArray(list) || !list.length){
-      ul.innerHTML = '<li class="muted">No sources.</li>';
-      return;
-    }
-    for (const s of list){
-      const li = document.createElement('li');
-      li.textContent = `${s.title || '(untitled)'} ${(s.date? '('+s.date+')':'')} ${s.type? ' · '+s.type:''} ${s.countries? ' · '+s.countries:''}`;
-      ul.appendChild(li);
-    }
-  }
-
+  // ************ Query ************
   async function ask(){
-    const url = buildURL();
-    $('reqUrl').value = url;
+    const p = new URLSearchParams({
+      action: 'ask',
+      from: $('from').value,
+      to: $('to').value,
+      type: $('type').value,
+      countries: $('countries').value,
+      topic: $('topic').value,
+      limit: $('speed').value,
+      style: $('style').value,
+      question: $('question').value,
+      ts: Date.now().toString()
+    });
 
-    const filters = [
-      `countries: ${$('countries').value || 'all'}`,
-      `type: ${$('type').value}`,
-      `limit: ${$('speed').value}`,
-      `style: ${$('style').value}`,
-      `from: ${$('from').value || '—'}`,
-      `to: ${$('to').value || '—'}`
-    ].join(' | ');
-    $('filters').textContent = `Filters — ${filters}`;
+    const url = `${ENDPOINT}?${p.toString()}`;
 
+    $('reqUrl').textContent = url;
     $('answer').textContent = 'Working…';
-    $('sources').innerHTML = '';
+    $('sources').textContent = '—';
+    $('filters').textContent = '—';
+    $('foot').textContent = 'Querying…';
 
-    try {
-      const res = await fetch(url, { method:'GET', redirect:'follow', cache:'no-store' });
-      if (!res.ok){
-        const text = await res.text().catch(()=> '');
-        throw new Error(`HTTP ${res.status} ${res.statusText} — ${text.slice(0,200)}`);
+    try{
+      const res = await fetch(url, { method:'GET', cache:'no-store', redirect:'follow' });
+      const json = await res.json().catch(async ()=>({ ok:false, error:`HTTP ${res.status}`, body: await res.text().catch(()=> '') }));
+
+      $('raw').textContent = JSON.stringify(json, null, 2);
+
+      if (!json.ok){
+        $('answer').innerHTML = `<span class="err">Error:</span> ${json.error || 'Unknown'}`
+        $('foot').textContent = 'Error';
+        if (json.rest) $('restUrl').textContent = json.rest;
+        if (json.debug?.sql_approx) $('sql').textContent = json.debug.sql_approx;
+        if (json.prompt) $('prompt').textContent = json.prompt;
+        return;
       }
-      const data = await res.json();
-      $('build').textContent = data.build || 'client-ui';
-      $('answer').innerHTML = data.answer ? escapeHtml(data.answer).replace(/\n/g,'<br>') : '<span class="muted">(No answer)</span>';
-      renderSources(data.sources);
-      if (data.debug){
-        $('restUrl').value    = data.debug.rest || '';
-        $('sql').textContent  = data.debug.sql_approx || '';
-        $('prompt').textContent= data.debug.prompt || '';
-      } else {
-        $('restUrl').value = '';
-        $('sql').textContent = '';
-        $('prompt').textContent = '';
-      }
-      $('json').textContent = JSON.stringify(data, null, 2);
-    } catch (err){
-      $('answer').innerHTML = `<span class="err">Error:</span> ${escapeHtml(err.message)}`;
-      console.error('Fetch failed:', err);
+
+      $('filters').textContent = json.filters || '';
+      $('answer').textContent = json.answer || '(no answer)';
+      $('sources').innerHTML = (json.sources||[])
+        .map(s => `• <b>${escapeHtml(s.title || '(untitled)')}</b> (${escapeHtml(s.date||'—')} · ${escapeHtml(s.type||'—')} · ${escapeHtml(s.countries||'None')})`)
+        .join('<br>') || '—';
+      $('restUrl').textContent = json.debug?.rest || '';
+      $('sql').textContent = json.debug?.sql_approx || '';
+      $('prompt').textContent = json.debug?.prompt || '';
+      $('foot').textContent = 'Done';
+    } catch(err){
+      $('answer').innerHTML = `<span class="err">Error:</span> ${err.message}`;
+      $('foot').textContent = 'Error';
+      console.error(err);
     }
   }
 
-  function escapeHtml(s){
-    return String(s)
-      .replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
-  }
-
-  // ---- Notes ----
+  // ************ Insert note ************
   async function saveNote(){
     const form = new URLSearchParams({
       action: 'add_note',
@@ -328,29 +294,31 @@
       summary: $('noteSummary').value
     });
 
-    try {
+    try{
       const res = await fetch(ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, // simple request -> no preflight
+        headers: { 'Content-Type':'application/x-www-form-urlencoded' },
         body: form.toString(),
-        redirect: 'follow',
-        cache: 'no-store'
+        cache: 'no-store',
+        redirect: 'follow'
       });
-      if (!res.ok){
-        const text = await res.text().catch(()=> '');
-        throw new Error(`HTTP ${res.status} ${res.statusText} — ${text.slice(0,200)}`);
+
+      const json = await res.json().catch(async ()=>({ ok:false, error:`HTTP ${res.status}`, body: await res.text().catch(()=> '') }));
+
+      if (!json.ok){
+        alert(`Error saving note:\n${json.error || 'Unknown'}\n${json.body ? `\n${json.body.substring(0,400)}` : ''}`);
+        return;
       }
-      const json = await res.json();
-      alert(json.ok ? `Saved! id: ${json.id || '(n/a)'}` : `Error: ${json.error || 'unknown'}`);
-      if (json.ok){
-        $('noteSummary').value = '';
-        $('noteRecipients').value = '';
-      }
-    } catch (err){
+
+      alert(`Saved! id: ${json.id || '(n/a)'}`);
+      $('noteSummary').value = '';
+      $('noteRecipients').value = '';
+    } catch(err){
       alert(`Error saving note: ${err.message}`);
-      console.error('saveNote failed:', err);
     }
   }
+
+  function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) }
 </script>
 </body>
 </html>

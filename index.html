@@ -1,354 +1,356 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Teach For All — Knowledge Q&A</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#0f1222; --panel:#171a2b; --panel-2:#1b1f33; --text:#e9ecf5; --muted:#a9afc6;
-  --accent:#7767ff; --accent-2:#9d8aff; --ok:#1fb981; --err:#ff5d7a; --border:#242742;
-}
-*{box-sizing:border-box}
-body{
-  margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-  color:var(--text); background:radial-gradient(1200px 600px at 20% -10%, #1a1e35 0%, #0f1222 60%);
-}
-.wrap{max-width:1100px; margin:24px auto; padding:0 16px}
-header{display:flex; align-items:center; gap:10px; margin-bottom:18px}
-h1{font-size:28px; margin:0}
-.chip{font-size:12px; background:#222749; color:#b8c0ff; padding:4px 8px; border-radius:999px}
-.card{background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:18px; margin-bottom:16px; box-shadow:0 10px 30px rgba(0,0,0,.25)}
-.grid-2{display:grid; grid-template-columns:1fr 1fr; gap:12px}
-.grid-3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px}
-.grid-auto{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px}
-label{display:block; font-weight:600; font-size:13px; margin:8px 0 6px; color:var(--muted)}
-input,select,textarea{
-  width:100%; background:var(--panel-2); color:var(--text);
-  border:1px solid var(--border); border-radius:10px; padding:10px 12px; font:inherit; outline:none;
-}
-textarea{min-height:120px; resize:vertical}
-.muted{color:var(--muted); font-size:13px}
-.btn{
-  display:inline-block; background:linear-gradient(90deg,var(--accent),var(--accent-2));
-  color:#fff; border:none; padding:10px 18px; border-radius:10px; font-weight:700; cursor:pointer;
-}
-.btn.secondary{background:#242742; color:#d7dbf1}
-.btn.success{background:linear-gradient(90deg,#1fb981,#15a46f)}
-.pills{display:flex; gap:8px; flex-wrap:wrap}
-.pill{background:#1e2442; border:1px solid var(--border); color:#c9cff8; padding:8px 10px; border-radius:999px; font-size:13px; cursor:pointer}
-.inline{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
-.answer{white-space:pre-wrap; line-height:1.55}
-.sources ul{margin:6px 0 0 18px}
-.ok{color:var(--ok)} .err{color:var(--err)}
-.hint{font-size:12px; color:var(--muted); margin-top:6px}
-@media (max-width:780px){ .grid-3{grid-template-columns:1fr; } .grid-2{grid-template-columns:1fr;} }
+  :root{
+    --bg:#0f1220; --panel:#151933; --muted:#8ca1c0; --txt:#e8eefc;
+    --accent:#6c63ff; --accent-2:#4a81ff; --danger:#ff6b6b; --ok:#06d6a0;
+    --chip:#22284d; --chip-hover:#2b3161;
+  }
+  html, body { background:var(--bg); color:var(--txt); font:16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji"; margin:0; }
+  a{ color:var(--accent-2); text-decoration:none; }
+  a:hover{ text-decoration:underline; }
+  .wrap{ max-width:1080px; margin:28px auto 72px; padding:0 16px; }
+  h1{ font-weight:800; letter-spacing:.2px; margin:0 0 8px; }
+  .tag{ display:inline-block; font-size:12px; padding:4px 8px; border-radius:999px; background:var(--chip); color:var(--muted); margin-left:12px; }
+  .panel{ background:var(--panel); border:1px solid #1c2143; border-radius:14px; padding:18px; box-shadow:0 6px 24px rgba(0,0,0,.25) }
+  .grid{ display:grid; grid-template-columns:repeat(12,1fr); gap:12px; }
+  .col-3{ grid-column: span 3 }
+  .col-4{ grid-column: span 4 }
+  .col-5{ grid-column: span 5 }
+  .col-6{ grid-column: span 6 }
+  .col-7{ grid-column: span 7 }
+  .col-12{ grid-column: span 12 }
+  @media (max-width:900px){
+    .col-3,.col-4,.col-5,.col-6,.col-7{ grid-column: span 12 }
+  }
+
+  label{ font-size:13px; color:var(--muted); display:block; margin:6px 0 6px 2px; }
+  input[type="text"], input[type="date"], textarea, select{
+    width:100%; background:#0e1230; color:var(--txt); border:1px solid #2a3162; border-radius:10px; padding:10px 12px; outline:none;
+  }
+  input[type="text"]::placeholder, textarea::placeholder{ color:#6f7aa6 }
+  textarea{ min-height:110px; resize:vertical }
+  .row{ margin:8px 0 10px }
+  .chips{ display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 2px }
+  .chip{ background:var(--chip); color:#d5ddf7; padding:6px 10px; border-radius:999px; cursor:pointer; font-size:13px; border:1px solid #2a3162 }
+  .chip:hover{ background:var(--chip-hover) }
+
+  .btn{ background:var(--accent); color:#fff; border:none; border-radius:10px; padding:10px 16px; cursor:pointer; font-weight:600 }
+  .btn:hover{ filter:brightness(1.05) }
+  .btn.secondary{ background:#232a57 }
+  .btn.danger{ background:var(--danger) }
+
+  .small{ font-size:12px; color:var(--muted); }
+  .muted{ color:var(--muted); }
+
+  .answer{ white-space:pre-wrap; line-height:1.55; }
+  .err{ color:var(--danger); font-weight:700 }
+
+  details.debug > summary{
+    user-select:none; cursor:pointer; padding:10px 12px; border:1px dashed #2b3768; border-radius:12px;
+    background:#111638; color:#bcd1ff;
+  }
+  details.debug pre{ background:#0e1230; border:1px solid #2b3768; border-radius:12px; padding:12px; overflow:auto; }
+
+  ul.sources{ margin:8px 0 0 18px; padding:0 }
+  ul.sources li{ margin:4px 0 }
+
+  .section-title{ font-weight:700; margin:14px 0 8px }
+  .flex{ display:flex; gap:10px; align-items:center }
+  .right{ text-align:right }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <h1>Teach For All — Knowledge Q&A</h1>
-    <span class="chip">client-ui + notes</span>
-  </header>
+  <h1>Teach For All — Knowledge Q&amp;A <span id="build" class="tag">client-ui</span></h1>
+  <div class="muted">Filter by date, countries, type; ask a question; get an AI-generated answer with sources. Markdown-style bullets are supported.</div>
 
-  <!-- ===== QUERY CARD ===== -->
-  <section class="card" id="q-card">
-    <div class="inline" style="justify-content:space-between; margin-bottom:4px">
-      <div class="inline" style="gap:12px">
-        <label class="inline" style="margin:0; gap:8px">
-          <input type="checkbox" id="chatRemember"> Chat mode (remember this thread)
-        </label>
-        <div class="inline muted" style="gap:6px">Thread: <span id="threadLabel">—</span></div>
-      </div>
-      <button class="pill" onclick="newChat()">New chat</button>
-    </div>
-
-    <div class="grid-3">
-      <div>
+  <div class="panel" style="margin-top:16px">
+    <div class="grid">
+      <div class="col-6">
         <label>From date</label>
-        <input id="from" type="date">
+        <input id="from" type="date" />
       </div>
-      <div>
+      <div class="col-6">
         <label>To date</label>
-        <input id="to" type="date">
+        <input id="to" type="date" />
       </div>
-      <div>
+
+      <div class="col-12">
         <label>Quick ranges</label>
-        <div class="pills">
-          <button class="pill" onclick="quickRange(7)">Past 7 days</button>
-          <button class="pill" onclick="quickRange(30)">Past month</button>
-          <button class="pill" onclick="quickRange(90)">Last 3 months</button>
-          <button class="pill" onclick="clearDates()">Clear dates</button>
+        <div class="chips">
+          <button class="chip" onclick="quickRange(7)">Past 7 days</button>
+          <button class="chip" onclick="quickRange(30)">Past month</button>
+          <button class="chip" onclick="quickRange(90)">Last 3 months</button>
+          <button class="chip" onclick="clearDates()">Clear dates</button>
         </div>
       </div>
-    </div>
 
-    <div class="grid-2">
-      <div>
+      <div class="col-4">
         <label>Type</label>
         <select id="type">
           <option value="all" selected>All (default)</option>
           <option>Zoom Meeting</option>
           <option>Email</option>
-          <option>Note</option>
+          <option>note</option>
         </select>
       </div>
-      <div>
+      <div class="col-4">
         <label>Countries (comma-separated)</label>
-        <input id="countries" placeholder="e.g., Portugal, Spain">
+        <input id="countries" type="text" placeholder="e.g., Portugal, Spain" />
       </div>
-    </div>
-
-    <div class="grid-2">
-      <div>
+      <div class="col-4">
         <label>Topic (optional)</label>
-        <input id="topic" placeholder="standards, onboarding, budget…">
+        <input id="topic" type="text" placeholder="standards, onboarding, budget…" />
       </div>
-      <div>
+
+      <div class="col-12">
+        <label>Question</label>
+        <textarea id="question" placeholder="Ask your question… e.g., What are Italy’s priorities from the last two weeks?"></textarea>
+      </div>
+
+      <div class="col-4">
         <label>Answer style</label>
         <select id="style">
           <option value="normal" selected>normal</option>
           <option value="short">short</option>
         </select>
       </div>
-    </div>
-
-    <div>
-      <label>Question</label>
-      <textarea id="question" placeholder="Ask your question… e.g., What are Italy’s priorities from the last two weeks?"></textarea>
-    </div>
-
-    <div class="grid-2" style="align-items:end">
-      <div>
+      <div class="col-4">
         <label>Response speed</label>
         <select id="speed">
           <option value="50">Fast (~50 rows)</option>
           <option value="100" selected>Medium (~100 rows)</option>
           <option value="200">Slower (~200 rows)</option>
         </select>
-        <div class="hint">More rows = more context, potentially slower.</div>
+        <div class="small">More rows = more context, potentially slower.</div>
       </div>
-      <div class="inline" style="justify-content:flex-end">
-        <button class="btn secondary" onclick="resetForm()">Reset</button>
-        <button class="btn" onclick="ask()">Ask</button>
+      <div class="col-4 right">
+        <label style="opacity:0">.</label>
+        <div class="flex right">
+          <button class="btn" onclick="ask()">Ask</button>
+          <button class="btn secondary" onclick="resetForm()">Reset</button>
+        </div>
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- ===== RESULTS ===== -->
-  <section class="card">
-    <div class="muted" id="filters">Filters — countries: all | type: all | limit: 100 | style: normal | from: — | to: —</div>
-    <h3 style="margin:14px 0 6px">Answer</h3>
-    <div class="answer" id="answer">—</div>
-    <h3 style="margin:18px 0 6px">Sources</h3>
-    <div class="sources" id="sources">—</div>
+  <div class="panel" style="margin-top:12px">
+    <div id="filters" class="small muted">Filters —</div>
+    <div class="section-title">Answer</div>
+    <div id="answer" class="answer">—</div>
 
-    <details>
-      <summary>Debug — Request, REST, SQL, Prompt & Raw JSON</summary>
-      <div class="muted" style="margin-top:8px">Request URL</div>
-      <pre id="requrl" class="muted" style="white-space:pre-wrap"></pre>
-      <div class="muted" style="margin-top:8px">Supabase REST URL</div>
-      <pre id="resturl" class="muted" style="white-space:pre-wrap"></pre>
-      <div class="muted" style="margin-top:8px">SQL (approximate)</div>
-      <pre id="sql" class="muted" style="white-space:pre-wrap"></pre>
-      <div class="muted" style="margin-top:8px">Prompt (exact, sent to Gemini)</div>
-      <pre id="prompt" class="muted" style="white-space:pre-wrap"></pre>
-      <div class="muted" style="margin-top:8px">Response JSON</div>
-      <pre id="raw" class="muted" style="white-space:pre-wrap"></pre>
+    <div class="section-title" style="margin-top:16px">Sources</div>
+    <ul id="sources" class="sources"></ul>
+
+    <details class="debug" style="margin-top:14px">
+      <summary>Debug — Request, REST, SQL, Prompt &amp; Raw JSON</summary>
+      <div class="row small">Request URL</div>
+      <input id="reqUrl" type="text" readonly>
+      <div class="row small">Supabase REST URL</div>
+      <input id="restUrl" type="text" readonly>
+      <div class="row small">SQL (approximate)</div>
+      <pre id="sql"></pre>
+      <div class="row small">Prompt (exact, sent to Gemini)</div>
+      <pre id="prompt"></pre>
+      <div class="row small">Response JSON</div>
+      <pre id="json"></pre>
     </details>
-  </section>
+  </div>
 
-  <!-- ===== ADD NOTE ===== -->
-  <section class="card" id="note-card">
-    <h2 style="margin:4px 0 12px">Add note</h2>
-    <div class="grid-3">
-      <div>
+  <div class="panel" style="margin-top:18px">
+    <div class="section-title">Add a note</div>
+    <div class="grid">
+      <div class="col-3">
         <label>Date</label>
-        <input id="n_date" type="date">
+        <input id="noteDate" type="date">
       </div>
-      <div>
+      <div class="col-3">
         <label>Type</label>
-        <select id="n_type">
-          <option selected>Note</option>
-          <option>Zoom Meeting</option>
-          <option>Email</option>
+        <select id="noteType">
+          <option value="note" selected>note</option>
+          <option value="Zoom Meeting">Zoom Meeting</option>
+          <option value="Email">Email</option>
         </select>
       </div>
-      <div>
+      <div class="col-6">
         <label>Recipients (optional)</label>
-        <input id="n_recipients" placeholder="e.g., Ramona; Alex">
+        <input id="noteRecipients" type="text" placeholder="e.g., Ramona; Jeff">
+      </div>
+      <div class="col-12">
+        <label>Summary</label>
+        <textarea id="noteSummary" placeholder="Write your note…"></textarea>
+      </div>
+      <div class="col-12 right">
+        <button class="btn" onclick="saveNote()">Save note</button>
       </div>
     </div>
-    <div class="grid-2">
-      <div>
-        <label>Countries (optional)</label>
-        <input id="n_countries" placeholder="e.g., Latvia, Italy">
-      </div>
-      <div></div>
-    </div>
-    <div>
-      <label>Summary (the note)</label>
-      <textarea id="n_summary" placeholder="Write your note…"></textarea>
-    </div>
-    <div class="inline" style="justify-content:flex-end">
-      <div id="n_status" class="muted"></div>
-      <button class="btn success" onclick="saveNote()">Save note</button>
-    </div>
-    <div class="hint">Requires being signed in with your Teach For All Google account in this browser.</div>
-  </section>
+  </div>
 </div>
 
 <script>
-/* ==== CONFIG ==== */
-const ENDPOINT = "https://script.google.com/macros/s/AKfycbyvzIgN1uiRtnQh9SkjHo8ADtm66NrX2b1uIWr_vQ6XweQZvu1r9izXlVtPWzF7SuDZ/exec";
+  // ***** UPDATE THIS IF YOUR WEB APP URL CHANGES *****
+  const ENDPOINT = "https://script.google.com/macros/s/AKfycbyvzIgN1uiRtnQh9SkjHo8ADtm66NrX2b1uIWr_vQ6XweQZvu1r9izXIVtPWzF7SuDZ/exec";
 
-/* ==== HELPERS ==== */
-const $ = id => document.getElementById(id);
-const todayISO = () => new Date().toISOString().slice(0,10);
-const STORAGE_THREAD = "tfa.thread";
-const STORAGE_REMEMBER = "tfa.thread.remember";
+  const $ = id => document.getElementById(id);
 
-let currentThread = null;
+  // Defaults
+  (function init(){
+    $('build').textContent = 'client-ui';
+    const today = new Date();
+    $('noteDate').valueAsDate = today;
+  })();
 
-function setThreadLabel(){
-  $("threadLabel").textContent = currentThread || "—";
-}
-
-/* ==== INIT ==== */
-(function init(){
-  // default note date
-  $("n_date").value = todayISO();
-
-  // restore chat settings
-  const remember = localStorage.getItem(STORAGE_REMEMBER) === "1";
-  $("chatRemember").checked = remember;
-  currentThread = remember ? localStorage.getItem(STORAGE_THREAD) : null;
-  setThreadLabel();
-
-  $("chatRemember").addEventListener("change", () => {
-    const on = $("chatRemember").checked;
-    localStorage.setItem(STORAGE_REMEMBER, on ? "1" : "0");
-    if (on && !currentThread) newChat();
-    if (!on){ localStorage.removeItem(STORAGE_THREAD); }
-  });
-})();
-
-/* ==== CHAT THREAD ==== */
-function newChat(){
-  currentThread = "thr_" + Date.now().toString(36);
-  if ($("chatRemember").checked){
-    localStorage.setItem(STORAGE_THREAD, currentThread);
+  function fmtDate(d){
+    // yyyy-mm-dd
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
   }
-  setThreadLabel();
-}
 
-/* ==== DATES ==== */
-function quickRange(days){
-  const to = new Date(); const from = new Date(Date.now()-days*864e5);
-  $("from").value = from.toISOString().slice(0,10);
-  $("to").value   = to.toISOString().slice(0,10);
-}
-function clearDates(){ $("from").value=""; $("to").value=""; }
+  function quickRange(days){
+    const to = new Date();
+    const from = new Date(Date.now() - (days*86400000));
+    $('from').value = fmtDate(from);
+    $('to').value = fmtDate(to);
+  }
+  function clearDates(){
+    $('from').value = '';
+    $('to').value = '';
+  }
+  function resetForm(){
+    $('from').value = '';
+    $('to').value = '';
+    $('type').value = 'all';
+    $('countries').value = '';
+    $('topic').value = '';
+    $('question').value = '';
+    $('style').value = 'normal';
+    $('speed').value = '100';
+    $('answer').textContent = '—';
+    $('sources').innerHTML = '';
+    $('reqUrl').value = '';
+    $('restUrl').value = '';
+    $('sql').textContent = '';
+    $('prompt').textContent = '';
+    $('json').textContent = '';
+  }
 
-/* ==== FORM === */
-function resetForm(){
-  ["from","to","countries","topic","question"].forEach(id => $(id).value = "");
-  $("type").value="all"; $("style").value="normal"; $("speed").value="100";
-  $("answer").textContent="—"; $("sources").textContent="—";
-  ["requrl","resturl","sql","prompt","raw"].forEach(id => $(id).textContent = "");
-}
+  function buildURL(){
+    const params = new URLSearchParams({
+      question: $('question').value.trim(),
+      topic:    $('topic').value.trim(),
+      type:     $('type').value,
+      countries:$('countries').value.trim(),
+      from:     $('from').value,
+      to:       $('to').value,
+      style:    $('style').value,
+      limit:    $('speed').value,       // response speed -> row limit
+      ts:       String(Date.now())      // cache buster
+    });
+    return `${ENDPOINT}?${params.toString()}`;
+  }
 
-/* ==== ASK ==== */
-async function ask(){
-  const params = new URLSearchParams({
-    question: $("question").value || "",
-    topic: $("topic").value || "",
-    countries: $("countries").value || "",
-    type: $("type").value || "all",
-    style: $("style").value || "normal",
-    limit: $("speed").value || "100",
-    from: $("from").value || "",
-    to: $("to").value || "",
-    thread: currentThread || "",
-    ts: "1"
-  });
-  const url = ENDPOINT + "?" + params.toString();
-  $("requrl").textContent = url;
-  $("filters").textContent =
-    `Filters — countries: ${$("countries").value || "all"} | type: ${$("type").value || "all"} | ` +
-    `limit: ${$("speed").value || "100"} | style: ${$("style").value||"normal"} | from: ${$("from").value||"—"} | to: ${$("to").value||"—"}`;
-
-  $("answer").textContent = "Working…";
-
-  try{
-    const res = await fetch(url, {method:"GET"});
-    const data = await res.json();
-
-    $("answer").innerHTML = data.answer ? data.answer : "—";
-
-    if (data.sources && Array.isArray(data.sources) && data.sources.length){
-      const ul = document.createElement("ul");
-      data.sources.forEach(s=>{
-        const li = document.createElement("li");
-        // No live links (per your request)
-        li.textContent = `${s.title} (${s.date} · ${s.type} · ${s.countries||"None"})`;
-        ul.appendChild(li);
-      });
-      $("sources").innerHTML = ""; $("sources").appendChild(ul);
-    } else {
-      $("sources").textContent = "—";
+  function renderSources(list){
+    const ul = $('sources');
+    ul.innerHTML = '';
+    if (!Array.isArray(list) || !list.length){
+      ul.innerHTML = '<li class="muted">No sources.</li>';
+      return;
     }
-
-    $("resturl").textContent = data.rest || "";
-    $("sql").textContent = data.sql || "";
-    $("prompt").textContent = data.prompt || "";
-    $("raw").textContent = JSON.stringify(data, null, 2);
-
-  }catch(err){
-    $("answer").innerHTML = `<span class="err">Error:</span> ${err.message}`;
-    console.error(err);
+    for (const s of list){
+      const li = document.createElement('li');
+      li.textContent = `${s.title || '(untitled)'} ${(s.date? '('+s.date+')':'')} ${s.type? ' · '+s.type:''} ${s.countries? ' · '+s.countries:''}`;
+      ul.appendChild(li);
+    }
   }
-}
 
-/* ==== INSERT NOTE (no preflight; URL-encoded) ==== */
-async function saveNote(){
-  const date       = $("n_date").value || todayISO();
-  const type       = $("n_type").value || "Note";
-  const recipients = $("n_recipients").value || "";
-  const countries  = $("n_countries").value || "";
-  const summary    = $("n_summary").value.trim();
-  const statusEl   = $("n_status");
+  async function ask(){
+    const url = buildURL();
+    $('reqUrl').value = url;
 
-  if (!summary){
-    statusEl.innerHTML = `<span class="err">Please enter a note summary.</span>`;
-    return;
+    const filters = [
+      `countries: ${$('countries').value || 'all'}`,
+      `type: ${$('type').value}`,
+      `limit: ${$('speed').value}`,
+      `style: ${$('style').value}`,
+      `from: ${$('from').value || '—'}`,
+      `to: ${$('to').value || '—'}`
+    ].join(' | ');
+    $('filters').textContent = `Filters — ${filters}`;
+
+    $('answer').textContent = 'Working…';
+    $('sources').innerHTML = '';
+
+    try {
+      const res = await fetch(url, { method:'GET', redirect:'follow', cache:'no-store' });
+      if (!res.ok){
+        const text = await res.text().catch(()=> '');
+        throw new Error(`HTTP ${res.status} ${res.statusText} — ${text.slice(0,200)}`);
+      }
+      const data = await res.json();
+      $('build').textContent = data.build || 'client-ui';
+      $('answer').innerHTML = data.answer ? escapeHtml(data.answer).replace(/\n/g,'<br>') : '<span class="muted">(No answer)</span>';
+      renderSources(data.sources);
+      if (data.debug){
+        $('restUrl').value    = data.debug.rest || '';
+        $('sql').textContent  = data.debug.sql_approx || '';
+        $('prompt').textContent= data.debug.prompt || '';
+      } else {
+        $('restUrl').value = '';
+        $('sql').textContent = '';
+        $('prompt').textContent = '';
+      }
+      $('json').textContent = JSON.stringify(data, null, 2);
+    } catch (err){
+      $('answer').innerHTML = `<span class="err">Error:</span> ${escapeHtml(err.message)}`;
+      console.error('Fetch failed:', err);
+    }
   }
-  statusEl.textContent = "Saving…";
 
-  try{
-    // IMPORTANT: no headers → keep it a simple request (no CORS preflight)
-    const body = new URLSearchParams({
-      action:"insert", date, type, recipients, countries, summary
+  function escapeHtml(s){
+    return String(s)
+      .replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+  }
+
+  // ---- Notes ----
+  async function saveNote(){
+    const form = new URLSearchParams({
+      action: 'add_note',
+      date: $('noteDate').value,
+      type: $('noteType').value,
+      recipients: $('noteRecipients').value,
+      summary: $('noteSummary').value
     });
 
-    const res  = await fetch(ENDPOINT, { method:"POST", body });
-    const data = await res.json();
-
-    if (data.ok){
-      statusEl.innerHTML = `<span class="ok">Saved.</span>`;
-      $("n_summary").value = "";
-    } else {
-      statusEl.innerHTML = `<span class="err">Failed: ${data.error || "Unknown error"}</span>`;
-      alert(`Error saving note: ${data.error || "Unknown error"}`);
+    try {
+      const res = await fetch(ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, // simple request -> no preflight
+        body: form.toString(),
+        redirect: 'follow',
+        cache: 'no-store'
+      });
+      if (!res.ok){
+        const text = await res.text().catch(()=> '');
+        throw new Error(`HTTP ${res.status} ${res.statusText} — ${text.slice(0,200)}`);
+      }
+      const json = await res.json();
+      alert(json.ok ? `Saved! id: ${json.id || '(n/a)'}` : `Error: ${json.error || 'unknown'}`);
+      if (json.ok){
+        $('noteSummary').value = '';
+        $('noteRecipients').value = '';
+      }
+    } catch (err){
+      alert(`Error saving note: ${err.message}`);
+      console.error('saveNote failed:', err);
     }
-  } catch(err){
-    statusEl.innerHTML = `<span class="err">Error: ${err.message}</span>`;
-    alert(`Error saving note: ${err.message}`);
-    console.error(err);
   }
-}
 </script>
 </body>
 </html>

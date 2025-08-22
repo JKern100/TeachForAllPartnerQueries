@@ -36,6 +36,18 @@
   .pad{padding:10px 12px;border-top:1px solid var(--border)}
   .ok{color:var(--ok)} .err{color:var(--error)}
   .footerNote{font-size:12px;color:var(--muted);text-align:right}
+  /* Quick ranges buttons: brighter text on dark background */
+#quickRanges button,
+.quick-ranges button,
+button[data-role="quick-range"] {
+  color: #f1f5ff !important;   /* bright, readable */
+}
+#quickRanges button:hover,
+.quick-ranges button:hover,
+button[data-role="quick-range"]:hover {
+  color: #ffffff !important;   /* full white on hover */
+}
+
 </style>
 </head>
 <body>

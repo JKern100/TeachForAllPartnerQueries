@@ -17,7 +17,6 @@
   .badge{font-size:12px;padding:3px 8px;border-radius:16px;background:var(--chip);color:var(--muted)}
   .panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;margin-top:18px}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
   .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
   label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
   input, select, textarea{width:100%;background:#0e1330;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
@@ -30,8 +29,6 @@
   .chip{background:var(--chip);border:1px solid var(--border);border-radius:20px;padding:8px 10px;font-size:12px;cursor:pointer}
   .chip:hover{background:#222a52}
   .answer{white-space:pre-wrap;line-height:1.6}
-  .answer h1,.answer h2,.answer h3{margin:12px 0 6px}
-  .answer ul{margin:0 0 0 18px;padding:0}
   .divider{height:1px;background:var(--border);margin:10px 0}
   .small{font-size:12px}
   details{background:var(--chip);border:1px solid var(--border);border-radius:10px}
@@ -48,7 +45,6 @@
     <span class="badge" id="build">client-ui</span>
   </div>
 
-  <!-- Query panel -->
   <div class="panel">
     <div class="row">
       <div>
@@ -78,7 +74,7 @@
           <option value="all">All (default)</option>
           <option>Zoom Meeting</option>
           <option>Email</option>
-          <option>note</option>
+          <option>Note</option>
         </select>
       </div>
       <div>
@@ -99,7 +95,7 @@
           <option value="100" selected>Medium (~100 rows)</option>
           <option value="200">Slower (~200 rows)</option>
         </select>
-        <div class="small muted">More rows → more context, potentially slower.</div>
+        <div class="small muted">More rows = more context, potentially slower.</div>
       </div>
     </div>
 
@@ -123,7 +119,6 @@
     </div>
   </div>
 
-  <!-- Results -->
   <div class="panel" id="results">
     <div class="small muted" id="filters">—</div>
     <h3>Answer</h3>
@@ -154,7 +149,6 @@
     </details>
   </div>
 
-  <!-- Notes -->
   <div class="panel">
     <h3>Add a note</h3>
     <div class="grid-4">
@@ -165,9 +159,9 @@
       <div>
         <label>Type</label>
         <select id="noteType">
-          <option value="note" selected>note</option>
-          <option>Zoom Meeting</option>
+          <option value="Note" selected>Note</option>
           <option>Email</option>
+          <option>Zoom Meeting</option>
         </select>
       </div>
       <div style="grid-column: span 2">
@@ -191,7 +185,6 @@
   // ************ CONFIG ************
   const ENDPOINT = "https://script.google.com/macros/s/AKfycbyvzIgN1uiRtnQh9SkjHo8ADtm66NrX2b1uIWr_vQ6XweQZvu1r9izXIVtPWzF7SuDZ/exec";
 
-  // ************ Helpers ************
   const $ = id => document.getElementById(id);
   const todayISO = () => new Date().toISOString().slice(0,10);
 
@@ -223,14 +216,12 @@
     $('raw').textContent = '';
   }
 
-  // Init
   (function init(){
     $('build').textContent = 'client-ui';
     $('noteDate').value = todayISO();
     $('foot').textContent = 'Ready';
   })();
 
-  // ************ Query ************
   async function ask(){
     const p = new URLSearchParams({
       action: 'ask',
@@ -284,12 +275,11 @@
     }
   }
 
-  // ************ Insert note ************
   async function saveNote(){
     const form = new URLSearchParams({
       action: 'add_note',
       date: $('noteDate').value,
-      type: $('noteType').value,
+      type: $('noteType').value,   // Now "Note", "Email", "Zoom Meeting"
       recipients: $('noteRecipients').value,
       summary: $('noteSummary').value
     });

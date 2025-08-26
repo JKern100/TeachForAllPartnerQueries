@@ -1,63 +1,43 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Teach For All — Knowledge Q&A</title>
-<style>
-  :root{
-    --bg:#0f1220; --panel:#151a2e; --muted:#9aa3b2; --text:#e8ecf4; --brand:#6c63ff; --brand-2:#8f87ff; --error:#ff6b7a; --ok:#44d19a;
-    --border: #252b43; --chip:#1d2340;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial}
-  a{color:var(--brand)}
-  .container{max-width:1100px;margin:0 auto;padding:26px}
-  .title{font-size:28px;font-weight:800;display:flex;align-items:center;gap:10px}
-  .badge{font-size:12px;padding:3px 8px;border-radius:16px;background:var(--chip);color:var(--muted)}
-  .panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;margin-top:18px}
-  .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-  label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
-  input, select, textarea{width:100%;background:#0e1330;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
-  textarea{min-height:120px;resize:vertical}
-  .btn{border:0;border-radius:10px;padding:10px 18px;background:var(--brand);color:white;cursor:pointer;font-weight:600}
-  .btn.secondary{background:#25305b}
-  .btn:disabled{opacity:.6;cursor:not-allowed}
-  .muted{color:var(--muted)}
-  .chips{display:flex;gap:8px;flex-wrap:wrap}
-  .chip{background:var(--chip);border:1px solid var(--border);border-radius:20px;padding:8px 10px;font-size:12px;cursor:pointer}
-  .chip:hover{background:#222a52}
-  .answer{white-space:pre-wrap;line-height:1.6}
-  .divider{height:1px;background:var(--border);margin:10px 0}
-  .small{font-size:12px}
-  details{background:var(--chip);border:1px solid var(--border);border-radius:10px}
-  summary{cursor:pointer;padding:10px 12px}
-  .pad{padding:10px 12px;border-top:1px solid var(--border)}
-  .ok{color:var(--ok)} .err{color:var(--error)}
-  .footerNote{font-size:12px;color:var(--muted);text-align:right}
-  /* Quick ranges buttons: brighter text on dark background */
-  #quickRanges button,
-  .quick-ranges button,
-  button[data-role="quick-range"] {
-    color: #f1f5ff !important;   /* bright, readable */
-  }
-  #quickRanges button:hover,
-  .quick-ranges button:hover,
-  button[data-role="quick-range"]:hover {
-    color: #ffffff !important;   /* full white on hover */
-  }
-  /* Quick ranges buttons: brighter text on dark background */
-  .chips .chip {
-    color: #f1f5ff !important;       /* bright readable text */
-  }
-  .chips .chip:hover,
-  .chips .chip:focus {
-    color: #ffffff !important;       /* full white on hover/focus */
-    outline: 1px solid var(--brand-2);
-    outline-offset: 2px;
-  }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Teach For All — Knowledge Q&A</title>
+  <style>
+    :root{
+      --bg:#0f1220; --panel:#151a2e; --muted:#9aa3b2; --text:#e8ecf4;
+      --brand:#6c63ff; --brand-2:#8f87ff; --error:#ff6b7a; --ok:#44d19a;
+      --border:#252b43; --chip:#1d2340;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial}
+    a{color:var(--brand)}
+    .container{max-width:1100px;margin:0 auto;padding:26px}
+    .title{font-size:28px;font-weight:800;display:flex;align-items:center;gap:10px}
+    .badge{font-size:12px;padding:3px 8px;border-radius:16px;background:var(--chip);color:var(--muted)}
+    .panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;margin-top:18px}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+    input,select,textarea{width:100%;background:#0e1330;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+    textarea{min-height:120px;resize:vertical}
+    .btn{border:0;border-radius:10px;padding:10px 18px;background:var(--brand);color:white;cursor:pointer;font-weight:600}
+    .btn.secondary{background:#25305b}
+    .btn:disabled{opacity:.6;cursor:not-allowed}
+    .muted{color:var(--muted)}
+    .chips{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{background:var(--chip);border:1px solid var(--border);border-radius:20px;padding:8px 10px;font-size:12px;cursor:pointer;color:#f1f5ff}
+    .chip:hover{background:#222a52;color:#fff}
+    .answer{line-height:1.6}
+    .divider{height:1px;background:var(--border);margin:10px 0}
+    .small{font-size:12px}
+    details{background:var(--chip);border:1px solid var(--border);border-radius:10px}
+    summary{cursor:pointer;padding:10px 12px}
+    .pad{padding:10px 12px;border-top:1px solid var(--border)}
+    .err{color:var(--error)} .ok{color:var(--ok)}
+    .footerNote{font-size:12px;color:var(--muted);text-align:right}
+    pre{white-space:pre-wrap}
+  </style>
 </head>
 <body>
 <div class="container">
@@ -159,13 +139,13 @@
         <div id="restUrl" class="muted" style="word-break:break-all"></div>
         <div class="divider"></div>
         <div><b>SQL (approximate)</b></div>
-        <pre id="sql" class="muted" style="white-space:pre-wrap"></pre>
+        <pre id="sql" class="muted"></pre>
         <div class="divider"></div>
         <div><b>Prompt (exact, sent to Gemini)</b></div>
-        <pre id="prompt" style="white-space:pre-wrap"></pre>
+        <pre id="prompt"></pre>
         <div class="divider"></div>
         <div><b>Response JSON</b></div>
-        <pre id="raw" style="white-space:pre-wrap"></pre>
+        <pre id="raw"></pre>
       </div>
     </details>
   </div>
@@ -173,134 +153,6 @@
   <div class="footerNote" id="foot"></div>
 </div>
 
-<script>
-  // ************ CONFIG ************
-  const ENDPOINT = "https://script.google.com/macros/s/AKfycbyvzIgN1uiRtnQh9SKjHo8ADtm66hN2Kb1uWr_vQ6XweQZvu19izXIVtPWzF7SuDZ/exec";
-
-  const $ = id => document.getElementById(id);
-  const todayISO = () => new Date().toISOString().slice(0,10);
-
-  function quickRange(days){
-    const to = new Date();
-    const from = new Date();
-    from.setDate(to.getDate() - days);
-    $('from').value = from.toISOString().slice(0,10);
-    $('to').value   = to.toISOString().slice(0,10);
-  }
-  function clearDates(){ $('from').value=''; $('to').value=''; }
-
-  function resetForm(){
-    $('from').value = '';
-    $('to').value = '';
-    $('type').value = 'all';
-    $('countries').value = '';
-    $('topic').value = '';
-    $('speed').value = '100';
-    $('question').value = '';
-    $('style').value = 'normal';
-    $('answer').textContent = '—';
-    $('sources').textContent = '—';
-    $('filters').textContent = '—';
-    $('reqUrl').textContent = '';
-    $('restUrl').textContent = '';
-    $('sql').textContent = '';
-    $('prompt').textContent = '';
-    $('raw').textContent = '';
-  }
-
-  (function init(){
-    $('build').textContent = 'client-ui';
-    $('noteDate') && ($('noteDate').value = todayISO());
-    $('foot').textContent = 'Ready';
-  })();
-
-  async function ask(){
-    const p = new URLSearchParams({
-      action: 'ask',
-      from: $('from').value,
-      to: $('to').value,
-      type: $('type').value,
-      countries: $('countries').value,
-      topic: $('topic').value,
-      limit: $('speed').value,
-      style: $('style').value,
-      question: $('question').value,
-      ts: Date.now().toString()
-    });
-
-    const url = `${ENDPOINT}?${p.toString()}`;
-
-    $('reqUrl').textContent = url;
-    $('answer').textContent = 'Working…';
-    $('sources').textContent = '—';
-    $('filters').textContent = '—';
-    $('foot').textContent = 'Querying…';
-
-    try{
-      const res = await fetch(url, { method:'GET', cache:'no-store', redirect:'follow' });
-      const json = await res.json().catch(async ()=>({ ok:false, error:`HTTP ${res.status}`, body: await res.text().catch(()=> '') }));
-
-      $('raw').textContent = JSON.stringify(json, null, 2);
-
-      if (!json.ok){
-        $('answer').innerHTML = `<span class="err">Error:</span> ${json.error || 'Unknown'}`
-        $('foot').textContent = 'Error';
-        if (json.rest) $('restUrl').textContent = json.rest;
-        if (json.debug?.sql_approx) $('sql').textContent = json.debug.sql_approx;
-        if (json.prompt) $('prompt').textContent = json.prompt;
-        return;
-      }
-
-      $('filters').textContent = json.filters || '';
-      $('answer').textContent = json.answer || '(no answer)';
-      $('sources').innerHTML = (json.sources||[])
-        .map(s => `• <b>${escapeHtml(s.title || '(untitled)')}</b> (${escapeHtml(s.date||'—')} · ${escapeHtml(s.type||'—')} · ${escapeHtml(s.countries||'None')})`)
-        .join('<br>') || '—';
-      $('restUrl').textContent = json.debug?.rest || '';
-      $('sql').textContent = json.debug?.sql_approx || '';
-      $('prompt').textContent = json.debug?.prompt || '';
-      $('foot').textContent = 'Done';
-    } catch(err){
-      $('answer').innerHTML = `<span class="err">Error:</span> ${err.message}`;
-      $('foot').textContent = 'Error';
-      console.error(err);
-    }
-  }
-
-  async function saveNote(){
-    const form = new URLSearchParams({
-      action: 'add_note',
-      date: $('noteDate').value,
-      type: $('noteType').value,
-      recipients: $('noteRecipients').value,
-      summary: $('noteSummary').value
-    });
-
-    try{
-      const res = await fetch(ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type':'application/x-www-form-urlencoded' },
-        body: form.toString(),
-        cache: 'no-store',
-        redirect: 'follow'
-      });
-
-      const json = await res.json().catch(async ()=>({ ok:false, error:`HTTP ${res.status}`, body: await res.text().catch(()=> '') }));
-
-      if (!json.ok){
-        alert(`Error saving note:\n${json.error || 'Unknown'}\n${json.body ? `\n${json.body.substring(0,400)}` : ''}`);
-        return;
-      }
-
-      alert(`Saved! id: ${json.id || '(n/a)'}`);
-      $('noteSummary').value = '';
-      $('noteRecipients').value = '';
-    } catch(err){
-      alert(`Error saving note: ${err.message}`);
-    }
-  }
-
-  function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) }
-</script>
+<script src="app.js"></script>
 </body>
 </html>

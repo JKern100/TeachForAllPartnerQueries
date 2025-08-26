@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Teach For All — Knowledge Q&A (V14)</title>
+  <title>Teach For All — Knowledge Q&A</title>
   <style>
   
   /* ---- visual polish only; no JS affected ---- */
@@ -106,7 +106,7 @@
 </head>
 <body>
   <div class="wrap">
-    <h1>Teach For All — Knowledge Q&amp;A <span class="subtle">V15</span></h1>
+    <h1>Teach For All — Knowledge Q&amp;A <span class="subtle">V16</span></h1>
 
     <div class="card">
       <div class="row row-3">
@@ -350,6 +350,8 @@
       const note = document.getElementById("note").value || "";
       const meeting_id = document.getElementById("meeting_id").value || "";
       const author = document.getElementById("author").value || "";
+      const headline = (document.getElementById("note_headline")?.value || "").trim();
+
 
       if (!note.trim()) { noteMsg.textContent = "Please type a note."; btn.disabled = false; return; }
 
@@ -359,6 +361,7 @@
           note,
           meeting_id,
           author,
+          headline,
           // pass filters/meta too:
           from: p.from, to: p.to, type: p.type, countries: p.countries,
           topic: p.topic, style: p.style, question: p.question

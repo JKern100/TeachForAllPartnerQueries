@@ -1,219 +1,321 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Teach For All — Knowledge Q&A</title>
-<style>
-  :root{
-    --bg:#0f1220; --panel:#151a2e; --muted:#9aa3b2; --text:#e8ecf4;
-    --brand:#6c63ff; --chip:#1d2340; --border:#252b43; --error:#ff6b7a;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial}
-  .container{max-width:1100px;margin:0 auto;padding:26px}
-  .title{font-size:28px;font-weight:800;display:flex;align-items:center;gap:10px}
-  .badge{font-size:12px;padding:3px 8px;border-radius:16px;background:var(--chip);color:var(--muted)}
-  .panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;margin-top:18px}
-  .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
-  input,select,textarea{width:100%;background:#0e1330;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
-  textarea{min-height:120px;resize:vertical}
-  .btn{border:0;border-radius:10px;padding:10px 18px;background:var(--brand);color:white;cursor:pointer;font-weight:600}
-  .btn.secondary{background:#25305b}
-  .btn:disabled{opacity:.6;cursor:not-allowed}
-  .muted{color:var(--muted)}
-  .chips{display:flex;gap:8px;flex-wrap:wrap}
-  .chip{background:var(--chip);border:1px solid var(--border);border-radius:20px;padding:8px 10px;font-size:12px;cursor:pointer;color:#f1f5ff}
-  .chip:hover{background:#222a52;color:#fff}
-  .answer{line-height:1.6}
-  .divider{height:1px;background:var(--border);margin:10px 0}
-  .small{font-size:12px}
-  details{background:var(--chip);border:1px solid var(--border);border-radius:10px}
-  summary{cursor:pointer;padding:10px 12px}
-  .pad{padding:10px 12px;border-top:1px solid var(--border)}
-  pre{white-space:pre-wrap}
-  .err{color:var(--error)}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Teach For All — Knowledge Q&A (client-ui)</title>
+  <style>
+    :root {
+      --bg: #0f1220;
+      --panel: #171a2a;
+      --text: #e9ecff;
+      --muted: #9aa3c7;
+      --accent: #7aa2ff;
+      --accent-2: #a8ffef;
+      --danger: #ff7a7a;
+      --ok: #6ee7b7;
+      --border: #232743;
+    }
+    html, body { background: var(--bg); color: var(--text); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; }
+    .wrap { max-width: 1050px; margin: 32px auto 120px; padding: 0 16px; }
+    h1 { font-size: 26px; margin: 0 0 20px; letter-spacing: .2px }
+    .subtle { color: var(--muted); font-size: 12px; margin-left: 8px; padding: 2px 6px; background: #1e2238; border-radius: 10px; vertical-align: middle;}
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 16px; }
+    label { display:block; font-size: 12px; color: var(--muted); margin: 14px 0 6px; }
+    input[type="text"], input[type="date"], select, textarea {
+      width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: #0f1330; color: var(--text);
+    }
+    textarea { min-height: 120px; resize: vertical; }
+    .row { display:flex; gap:14px; }
+    .row > div { flex:1; }
+    .row-3 > div { flex: 1 1 33.3%; }
+    .btns { display:flex; gap:10px; margin-top: 14px; }
+    button {
+      padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border);
+      background: #1e2448; color: var(--text); cursor: pointer;
+    }
+    button.primary { background: #2a3470; border-color:#384196; }
+    button:disabled { opacity: .6; cursor: default; }
+    .muted { color: var(--muted); }
+    .answer { background: #0e1233; border: 1px solid var(--border); border-radius: 10px; padding: 16px; min-height: 80px }
+    .error { color: var(--danger); }
+    details summary { cursor:pointer; color: var(--muted); }
+    ul.clean { margin: 6px 0 0 18px; }
+    .tag { display:inline-block; font-size: 12px; padding: 2px 8px; border:1px solid var(--border); border-radius: 999px; color: var(--muted); margin-right:6px;}
+  </style>
 </head>
 <body>
-<div class="container">
-  <div class="title">Teach For All — Knowledge Q&A <span class="badge">client-ui</span></div>
+  <div class="wrap">
+    <h1>Teach For All — Knowledge Q&amp;A <span class="subtle">client-ui</span></h1>
 
-  <div class="panel">
-    <div class="row">
-      <div><label>From date</label><input type="date" id="from"></div>
-      <div><label>To date</label><input type="date" id="to"></div>
-    </div>
+    <div class="card">
+      <div class="row row-3">
+        <div>
+          <label>From date</label>
+          <input id="from" type="date" />
+        </div>
+        <div>
+          <label>To date</label>
+          <input id="to" type="date" />
+        </div>
+        <div>
+          <label>Quick ranges</label>
+          <div class="btns">
+            <button onclick="qrange(7)">Past 7 days</button>
+            <button onclick="qrange(31)">Past month</button>
+            <button onclick="qrange(92)">Last 3 months</button>
+            <button onclick="clearDates()">Clear dates</button>
+          </div>
+        </div>
+      </div>
 
-    <div style="margin-top:10px">
-      <label>Quick ranges</label>
-      <div class="chips">
-        <button class="chip" onclick="quickRange(7)">Past 7 days</button>
-        <button class="chip" onclick="quickRange(30)">Past month</button>
-        <button class="chip" onclick="quickRange(90)">Last 3 months</button>
-        <button class="chip" onclick="clearDates()">Clear dates</button>
+      <div class="row">
+        <div>
+          <label>Type</label>
+          <select id="type">
+            <option value="all">All (default)</option>
+            <option value="Zoom Meeting">Zoom Meeting</option>
+          </select>
+        </div>
+        <div>
+          <label>Countries (comma-separated)</label>
+          <input id="countries" type="text" placeholder="e.g., Portugal, Spain" />
+        </div>
       </div>
-    </div>
 
-    <div class="row" style="margin-top:12px">
-      <div>
-        <label>Type</label>
-        <select id="type">
-          <option value="all">All (default)</option>
-          <option>Zoom Meeting</option>
-          <option>Email</option>
-          <option>Note</option>
-        </select>
+      <div class="row">
+        <div>
+          <label>Topic (optional)</label>
+          <input id="topic" type="text" placeholder="standards, onboarding, budget…" />
+        </div>
+        <div>
+          <label>Response speed</label>
+          <select id="speed">
+            <option value="30">Fast (~30 rows)</option>
+            <option value="100" selected>Medium (~100 rows)</option>
+            <option value="300">Max (300 rows)</option>
+          </select>
+        </div>
       </div>
-      <div>
-        <label>Countries (comma-separated)</label>
-        <input id="countries" placeholder="e.g., Portugal, Spain" />
-      </div>
-    </div>
 
-    <div class="row" style="margin-top:12px">
-      <div>
-        <label>Topic (optional)</label>
-        <input id="topic" placeholder="standards, onboarding, budget…" />
-      </div>
-      <div>
-        <label>Response speed</label>
-        <select id="speed">
-          <option value="50">Fast (~50 rows)</option>
-          <option value="100" selected>Medium (~100 rows)</option>
-          <option value="200">Slower (~200 rows)</option>
-        </select>
-        <div class="small muted">More rows = more context, potentially slower.</div>
-      </div>
-    </div>
-
-    <div style="margin-top:12px">
       <label>Question</label>
-      <textarea id="question" placeholder="Ask your question…"></textarea>
+      <textarea id="question" placeholder="Ask your question… e.g., What was my last meeting with Bea about?"></textarea>
+
+      <div class="row">
+        <div>
+          <label>Answer style</label>
+          <select id="style">
+            <option value="normal" selected>normal</option>
+            <option value="short">short</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="btns">
+        <button id="askBtn" class="primary" onclick="ask()">Ask</button>
+        <button onclick="resetForm()">Reset</button>
+      </div>
     </div>
 
-    <div class="row" style="margin-top:12px;align-items:end">
-      <div>
-        <label>Answer style</label>
-        <select id="style">
-          <option value="normal" selected>normal</option>
-          <option value="short">short</option>
-        </select>
+    <div class="card">
+      <h3 style="margin:0 0 10px">Answer</h3>
+      <div id="answer" class="answer"></div>
+      <div id="err" class="error" style="margin-top:8px;"></div>
+
+      <details style="margin-top:14px">
+        <summary>Debug — Request, REST, SQL, Prompt &amp; Raw JSON</summary>
+        <div id="debug" class="muted" style="white-space:pre-wrap; font-size:12px; margin-top:10px;"></div>
+      </details>
+    </div>
+
+    <div class="card">
+      <h3 style="margin:0 0 6px">Sources</h3>
+      <div id="sources" class="muted"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin:0 0 10px">Add Note to Supabase</h3>
+      <label>Note text</label>
+      <textarea id="note" placeholder="Write a quick note to save…"></textarea>
+      <div class="row">
+        <div>
+          <label>Optional: Meeting ID</label>
+          <input id="meeting_id" type="text" placeholder="e.g., r1" />
+        </div>
+        <div>
+          <label>Optional: Author</label>
+          <input id="author" type="text" placeholder="Your name or email" />
+        </div>
       </div>
-      <div style="display:flex;gap:10px;justify-content:flex-end">
-        <button class="btn" onclick="ask()">Ask</button>
-        <button class="btn secondary" onclick="resetForm()">Reset</button>
+      <div class="btns">
+        <button id="saveNoteBtn" class="primary" onclick="saveNote()">Save note</button>
+        <span class="muted">Tip: filters, dates, and question are saved in <code>meta</code>.</span>
       </div>
+      <div id="noteMsg" class="muted" style="margin-top:8px;"></div>
     </div>
   </div>
 
-  <div class="panel" id="results">
-    <div class="small muted" id="filters">—</div>
-    <h3>Answer</h3>
-    <div id="answer" class="answer muted">—</div>
-    <div class="divider"></div>
-    <h4>Sources</h4>
-    <div id="sources" class="small muted">—</div>
+  <script>
+    // ========= CONFIG =========
+    const GAS_BASE = "https://script.google.com/macros/s/AKfycbyvzIgN1uiRtnQh9SkjHo8ADtm66NrX2b1uIWr_vQ6XweQZvu1r9izXIVtPWzF7SuDZ/exec"; // <-- replace if you redeploy
 
-    <details style="margin-top:12px">
-      <summary>Debug — Request, REST, SQL, Prompt &amp; Raw JSON</summary>
-      <div class="pad small">
-        <div><b>Request URL</b></div>
-        <div id="reqUrl" class="muted" style="word-break:break-all"></div>
-        <div class="divider"></div>
-        <div><b>Supabase REST URL</b></div>
-        <div id="restUrl" class="muted" style="word-break:break-all"></div>
-        <div class="divider"></div>
-        <div><b>SQL (approximate)</b></div>
-        <pre id="sql" class="muted"></pre>
-        <div class="divider"></div>
-        <div><b>Prompt (exact, sent to Gemini)</b></div>
-        <pre id="prompt"></pre>
-        <div class="divider"></div>
-        <div><b>Response JSON</b></div>
-        <pre id="raw"></pre>
-      </div>
-    </details>
-  </div>
-</div>
+    // ========= JSONP =========
+    function jsonp(baseUrl, params, timeoutMs = 20000) {
+      return new Promise((resolve, reject) => {
+        const cbName = "__cb" + Date.now() + "_" + Math.floor(Math.random() * 1e6);
+        const qs = new URLSearchParams(params);
+        qs.set("callback", cbName);
+        const full = baseUrl + (baseUrl.includes("?") ? "&" : "?") + qs.toString();
 
-<script>
-  // === JSONP util
-  function jsonp(url, timeoutMs=15000){
-    return new Promise((resolve,reject)=>{
-      const cb="__cb"+Math.floor(Math.random()*1e9);
-      const full=url+(url.includes("?")?"&":"?")+"callback="+cb;
-      let done=false;
-      const cleanup=()=>{ try{delete window[cb]}catch(e){} if (s && s.parentNode) s.parentNode.removeChild(s); };
-      const to=setTimeout(()=>{ if(done) return; done=true; cleanup(); reject(new Error("JSONP timeout")); },timeoutMs);
-      window[cb]=(data)=>{ if(done) return; done=true; clearTimeout(to); cleanup(); resolve(data); };
-      const s=document.createElement("script");
-      s.onerror=()=>{ if(done) return; done=true; clearTimeout(to); cleanup(); reject(new Error("JSONP network error")); };
-      s.src=full; document.head.appendChild(s);
-    });
-  }
+        let done = false;
+        const cleanup = () => {
+          done = true;
+          try { delete window[cbName]; } catch(e){}
+          try { script.remove(); } catch(e){}
+          clearTimeout(t);
+        };
 
-  const $ = (id)=>document.getElementById(id);
+        window[cbName] = (data) => { if (done) return; cleanup(); resolve(data); };
 
-  function quickRange(days){
-    const to=new Date();
-    const from=new Date();
-    from.setDate(to.getDate()-days);
-    $('from').value=from.toISOString().slice(0,10);
-    $('to').value=to.toISOString().slice(0,10);
-  }
-  function clearDates(){ $('from').value=''; $('to').value=''; }
-  function resetForm(){
-    $('from').value=''; $('to').value='';
-    $('type').value='all'; $('countries').value=''; $('topic').value='';
-    $('speed').value='100'; $('question').value=''; $('style').value='normal';
-    $('answer').textContent='—'; $('sources').textContent='—'; $('filters').textContent='—';
-    $('reqUrl').textContent=''; $('restUrl').textContent=''; $('sql').textContent='';
-    $('prompt').textContent=''; $('raw').textContent='';
-  }
+        const t = setTimeout(() => { if (done) return; cleanup(); reject(new Error("JSONP timeout")); }, timeoutMs);
 
-  // Your Apps Script Web App URL (deployment)
-  const ENDPOINT = "https://script.google.com/macros/s/AKfycbyvzIgN1uiRtnQh9SkjHo8ADtm66NrX2b1uIWr_vQ6XweQZvu1r9izXIVtPWzF7SuDZ/exec";
-
-  async function ask(){
-    const params=new URLSearchParams({
-      action:'ask',
-      from:$('from').value, to:$('to').value,
-      type:$('type').value, countries:$('countries').value,
-      topic:$('topic').value, limit:$('speed').value,
-      style:$('style').value, question:$('question').value,
-      ts:Date.now().toString()
-    });
-    const url=ENDPOINT+"?"+params.toString();
-    $('reqUrl').textContent=url;
-
-    // optimistic UI
-    $('answer').innerHTML='<span class="muted">Thinking…</span>';
-    $('sources').textContent='—'; $('filters').textContent='—';
-    $('restUrl').textContent=''; $('sql').textContent=''; $('prompt').textContent=''; $('raw').textContent='';
-
-    try{
-      const data = await jsonp(url, 20000);
-      $('raw').textContent = JSON.stringify(data, null, 2);
-      if(!data || data.ok !== true){
-        $('answer').innerHTML = '<span class="err">Error: '+(data && data.error ? data.error : 'No answer produced')+'</span>';
-        return;
-      }
-      $('filters').textContent = data.filters || '—';
-      $('answer').innerHTML = data.answer || '<i>(no answer)</i>';
-      $('sources').innerHTML = (data.sources||[]).map(s =>
-        `• ${s.title} <span class="muted">(${s.date}${s.type? ' · '+s.type:''}${s.countries? ' · '+s.countries:''})</span>`
-      ).join('<br>') || '—';
-
-      const dbg = data.debug || {};
-      $('restUrl').textContent = dbg.rest || '';
-      $('sql').textContent     = dbg.sql_approx || '';
-      $('prompt').textContent  = dbg.prompt || '';
-    }catch(err){
-      $('answer').innerHTML = '<span class="err">Error: '+err.message+'</span>';
+        const script = document.createElement("script");
+        script.src = full;
+        script.onerror = () => { if (done) return; cleanup(); reject(new Error("JSONP network error")); };
+        document.head.appendChild(script);
+      });
     }
-  }
-</script>
+
+    // ========= UI HELPERS =========
+    function todayIso(d = new Date()) { return d.toISOString().slice(0,10); }
+    function daysAgoIso(n) { const d = new Date(); d.setDate(d.getDate() - n); return d.toISOString().slice(0,10); }
+
+    function qrange(n) {
+      document.getElementById("from").value = daysAgoIso(n);
+      document.getElementById("to").value = todayIso();
+    }
+    function clearDates() {
+      document.getElementById("from").value = "";
+      document.getElementById("to").value = "";
+    }
+    function resetForm() {
+      document.getElementById("question").value = "";
+      document.getElementById("topic").value = "";
+      document.getElementById("countries").value = "";
+      document.getElementById("type").value = "all";
+      document.getElementById("speed").value = "100";
+      document.getElementById("style").value = "normal";
+      clearDates();
+      setAnswer("", "");
+      setSources([]);
+      setDebug("");
+      document.getElementById("note").value = "";
+      document.getElementById("meeting_id").value = "";
+      document.getElementById("author").value = "";
+      document.getElementById("noteMsg").textContent = "";
+    }
+
+    function setAnswer(html, err) {
+      document.getElementById("answer").innerHTML = html || "";
+      document.getElementById("err").textContent = err || "";
+    }
+    function setSources(srcs) {
+      const el = document.getElementById("sources");
+      if (!srcs || !srcs.length) { el.innerHTML = "<span class='muted'>—</span>"; return; }
+      el.innerHTML = srcs.map(s => {
+        const bits = [s.date, s.type, s.countries].filter(Boolean).join(" · ");
+        return `<div><span class="tag">${bits||"source"}</span> ${escapeHtml(s.title||"")}</div>`;
+      }).join("");
+    }
+    function setDebug(s) { document.getElementById("debug").textContent = s || ""; }
+    function escapeHtml(x) { return (x||"").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+    function collectFilters() {
+      return {
+        from: document.getElementById("from").value || "",
+        to: document.getElementById("to").value || "",
+        type: document.getElementById("type").value || "all",
+        countries: document.getElementById("countries").value || "",
+        topic: document.getElementById("topic").value || "",
+        limit: document.getElementById("speed").value || "100",
+        style: document.getElementById("style").value || "normal",
+        question: document.getElementById("question").value || ""
+      };
+    }
+
+    // ========= ACTIONS =========
+    async function ask() {
+      const btn = document.getElementById("askBtn");
+      btn.disabled = true; setAnswer("", ""); setDebug(""); setSources([]);
+
+      const p = collectFilters();
+      if (!p.question.trim()) { setAnswer("", "Please enter a question."); btn.disabled = false; return; }
+
+      try {
+        const data = await jsonp(GAS_BASE, { action: "ask", ...p });
+        if (!data || data.ok === false) {
+          setAnswer("", "Error: " + (data && data.error ? data.error : "Unknown"));
+        } else {
+          setAnswer(data.answer || "", "");
+          setSources(data.sources || []);
+          const dbg = [
+            "Request URL:\n" + GAS_BASE,
+            "",
+            "Supabase REST URL:\n" + (data.debug && data.debug.rest ? data.debug.rest : ""),
+            "",
+            "SQL (approximate):\n" + (data.debug && data.debug.sql_approx ? data.debug.sql_approx : ""),
+            "",
+            "Prompt (exact, sent to Gemini):\n" + (data.debug && data.debug.prompt ? data.debug.prompt : "")
+          ].join("\n");
+          setDebug(dbg);
+        }
+      } catch (err) {
+        setAnswer("", "Error: " + err.message);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function saveNote() {
+      const btn = document.getElementById("saveNoteBtn");
+      btn.disabled = true;
+      const noteMsg = document.getElementById("noteMsg");
+      noteMsg.textContent = "";
+
+      const p = collectFilters();
+      const note = document.getElementById("note").value || "";
+      const meeting_id = document.getElementById("meeting_id").value || "";
+      const author = document.getElementById("author").value || "";
+
+      if (!note.trim()) { noteMsg.textContent = "Please type a note."; btn.disabled = false; return; }
+
+      try {
+        const data = await jsonp(GAS_BASE, {
+          action: "addNote",
+          note,
+          meeting_id,
+          author,
+          // pass filters/meta too:
+          from: p.from, to: p.to, type: p.type, countries: p.countries,
+          topic: p.topic, style: p.style, question: p.question
+        });
+
+        if (!data || data.ok === false) {
+          noteMsg.textContent = "Error saving note: " + (data && data.error ? data.error : "Unknown");
+        } else {
+          const tbl = data.result && data.result.table || "?";
+          noteMsg.textContent = "Saved to table “" + tbl + "”.";
+        }
+      } catch (err) {
+        noteMsg.textContent = "Error: " + err.message;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    // ========= INIT =========
+    // start with last 30 days (like your earlier default)
+    qrange(30);
+  </script>
 </body>
 </html>

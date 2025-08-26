@@ -37,27 +37,18 @@
   .ok{color:var(--ok)} .err{color:var(--error)}
   .footerNote{font-size:12px;color:var(--muted);text-align:right}
   /* Quick ranges buttons: brighter text on dark background */
-#quickRanges button,
-.quick-ranges button,
-button[data-role="quick-range"] {
-  color: #f1f5ff !important;   /* bright, readable */
-}
-#quickRanges button:hover,
-.quick-ranges button:hover,
-button[data-role="quick-range"]:hover {
-  color: #ffffff !important;   /* full white on hover */
-}
-/* Quick ranges buttons: brighter text on dark background */
-.chips .chip {
-  color: #f1f5ff !important;       /* bright readable text */
-}
-.chips .chip:hover,
-.chips .chip:focus {
-  color: #ffffff !important;       /* full white on hover/focus */
-  outline: 1px solid var(--brand-2);
-  outline-offset: 2px;
-}
-
+  #quickRanges button,
+  .quick-ranges button,
+  button[data-role="quick-range"] {
+    color: #f1f5ff !important;
+  }
+  #quickRanges button:hover,
+  .quick-ranges button:hover,
+  button[data-role="quick-range"]:hover {
+    color: #ffffff !important;
+  }
+  .chips .chip { color: #f1f5ff !important; }
+  .chips .chip:hover,.chips .chip:focus { color:#fff !important; outline:1px solid var(--brand-2); outline-offset:2px; }
 </style>
 </head>
 <body>
@@ -81,7 +72,7 @@ button[data-role="quick-range"]:hover {
 
     <div style="margin-top:10px">
       <label>Quick ranges</label>
-      <div class="chips">
+      <div class="chips" id="quickRanges">
         <button class="chip" onclick="quickRange(7)">Past 7 days</button>
         <button class="chip" onclick="quickRange(30)">Past month</button>
         <button class="chip" onclick="quickRange(90)">Last 3 months</button>
@@ -205,7 +196,7 @@ button[data-role="quick-range"]:hover {
 
 <script>
   // ************ CONFIG ************
-  const ENDPOINT = "https://script.google.com/macros/s/AKfycbyvzIgN1uiRtnQh9SkjHo8ADtm66NrX2b1uIWr_vQ6XweQZvu1r9izXIVtPWzF7SuDZ/exec";
+  const ENDPOINT = "https://script.google.com/macros/s/AKfycbyvzIgN1uiRtnQh9SkjHo8ADtm66Nk2b1uWr_vQ6XweQZvu19ixZlVfPWzF7SuDZ/exec";
 
   const $ = id => document.getElementById(id);
   const todayISO = () => new Date().toISOString().slice(0,10);
@@ -244,6 +235,26 @@ button[data-role="quick-range"]:hover {
     $('foot').textContent = 'Ready';
   })();
 
+  // --- NEW: minimal HTML sanitizer and renderer ---
+  function sanitize(html) {
+    if (!html) return '';
+    // strip script/style blocks
+    html = html.replace(/<\s*(script|style)[^>]*>[\s\S]*?<\s*\/\s*\1\s*>/gi, '');
+    // remove inline event handlers
+    html = html.replace(/\s(on\w+)=["'][^"']*["']/gi, '');
+    // neutralize javascript: URLs
+    html = html.replace(/href=["']\s*javascript:[^"']*["']/gi, 'href="#"');
+
+    // allow common content tags
+    const allow = /^(h2|h3|h4|p|ul|ol|li|b|strong|em|br|hr|table|thead|tbody|tr|th|td)$/i;
+
+    // escape then unescape allowed tags
+    const esc = html.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return esc.replace(/&lt;(\/?)([a-z0-9]+)([^&]*)&gt;/gi, (_, close, tag, rest) =>
+      allow.test(tag) ? `<${close}${tag}${rest}>` : ''
+    );
+  }
+
   async function ask(){
     const p = new URLSearchParams({
       action: 'ask',
@@ -273,7 +284,7 @@ button[data-role="quick-range"]:hover {
       $('raw').textContent = JSON.stringify(json, null, 2);
 
       if (!json.ok){
-        $('answer').innerHTML = `<span class="err">Error:</span> ${json.error || 'Unknown'}`
+        $('answer').innerHTML = `<span class="err">Error:</span> ${sanitize(json.error || 'Unknown')}`;
         $('foot').textContent = 'Error';
         if (json.rest) $('restUrl').textContent = json.rest;
         if (json.debug?.sql_approx) $('sql').textContent = json.debug.sql_approx;
@@ -282,7 +293,9 @@ button[data-role="quick-range"]:hover {
       }
 
       $('filters').textContent = json.filters || '';
-      $('answer').textContent = json.answer || '(no answer)';
+      const html = (json.answer || '').trim();
+      $('answer').innerHTML = html ? sanitize(html) : '(no answer)';
+
       $('sources').innerHTML = (json.sources||[])
         .map(s => `• <b>${escapeHtml(s.title || '(untitled)')}</b> (${escapeHtml(s.date||'—')} · ${escapeHtml(s.type||'—')} · ${escapeHtml(s.countries||'None')})`)
         .join('<br>') || '—';
@@ -291,7 +304,7 @@ button[data-role="quick-range"]:hover {
       $('prompt').textContent = json.debug?.prompt || '';
       $('foot').textContent = 'Done';
     } catch(err){
-      $('answer').innerHTML = `<span class="err">Error:</span> ${err.message}`;
+      $('answer').innerHTML = `<span class="err">Error:</span> ${sanitize(err.message)}`;
       $('foot').textContent = 'Error';
       console.error(err);
     }
@@ -301,7 +314,7 @@ button[data-role="quick-range"]:hover {
     const form = new URLSearchParams({
       action: 'add_note',
       date: $('noteDate').value,
-      type: $('noteType').value,   // Now "Note", "Email", "Zoom Meeting"
+      type: $('noteType').value,
       recipients: $('noteRecipients').value,
       summary: $('noteSummary').value
     });

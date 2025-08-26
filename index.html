@@ -1,61 +1,49 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Teach For All — Knowledge Q&A</title>
-  <style>
-    :root{
-      --bg:#0f1220; --panel:#151a2e; --muted:#9aa3b2; --text:#e8ecf4;
-      --brand:#6c63ff; --brand-2:#8f87ff; --error:#ff6b7a; --ok:#44d19a;
-      --border:#252b43; --chip:#1d2340;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial}
-    a{color:var(--brand)}
-    .container{max-width:1100px;margin:0 auto;padding:26px}
-    .title{font-size:28px;font-weight:800;display:flex;align-items:center;gap:10px}
-    .badge{font-size:12px;padding:3px 8px;border-radius:16px;background:var(--chip);color:var(--muted)}
-    .panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;margin-top:18px}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-    label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
-    input,select,textarea{width:100%;background:#0e1330;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
-    textarea{min-height:120px;resize:vertical}
-    .btn{border:0;border-radius:10px;padding:10px 18px;background:var(--brand);color:white;cursor:pointer;font-weight:600}
-    .btn.secondary{background:#25305b}
-    .btn:disabled{opacity:.6;cursor:not-allowed}
-    .muted{color:var(--muted)}
-    .chips{display:flex;gap:8px;flex-wrap:wrap}
-    .chip{background:var(--chip);border:1px solid var(--border);border-radius:20px;padding:8px 10px;font-size:12px;cursor:pointer;color:#f1f5ff}
-    .chip:hover{background:#222a52;color:#fff}
-    .answer{line-height:1.6}
-    .divider{height:1px;background:var(--border);margin:10px 0}
-    .small{font-size:12px}
-    details{background:var(--chip);border:1px solid var(--border);border-radius:10px}
-    summary{cursor:pointer;padding:10px 12px}
-    .pad{padding:10px 12px;border-top:1px solid var(--border)}
-    .err{color:var(--error)} .ok{color:var(--ok)}
-    .footerNote{font-size:12px;color:var(--muted);text-align:right}
-    pre{white-space:pre-wrap}
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Teach For All — Knowledge Q&A</title>
+<style>
+  :root{
+    --bg:#0f1220; --panel:#151a2e; --muted:#9aa3b2; --text:#e8ecf4;
+    --brand:#6c63ff; --chip:#1d2340; --border:#252b43; --error:#ff6b7a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial}
+  .container{max-width:1100px;margin:0 auto;padding:26px}
+  .title{font-size:28px;font-weight:800;display:flex;align-items:center;gap:10px}
+  .badge{font-size:12px;padding:3px 8px;border-radius:16px;background:var(--chip);color:var(--muted)}
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;margin-top:18px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+  input,select,textarea{width:100%;background:#0e1330;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+  textarea{min-height:120px;resize:vertical}
+  .btn{border:0;border-radius:10px;padding:10px 18px;background:var(--brand);color:white;cursor:pointer;font-weight:600}
+  .btn.secondary{background:#25305b}
+  .btn:disabled{opacity:.6;cursor:not-allowed}
+  .muted{color:var(--muted)}
+  .chips{display:flex;gap:8px;flex-wrap:wrap}
+  .chip{background:var(--chip);border:1px solid var(--border);border-radius:20px;padding:8px 10px;font-size:12px;cursor:pointer;color:#f1f5ff}
+  .chip:hover{background:#222a52;color:#fff}
+  .answer{line-height:1.6}
+  .divider{height:1px;background:var(--border);margin:10px 0}
+  .small{font-size:12px}
+  details{background:var(--chip);border:1px solid var(--border);border-radius:10px}
+  summary{cursor:pointer;padding:10px 12px}
+  .pad{padding:10px 12px;border-top:1px solid var(--border)}
+  pre{white-space:pre-wrap}
+  .err{color:var(--error)}
+</style>
 </head>
 <body>
 <div class="container">
-  <div class="title">
-    Teach For All — Knowledge Q&A
-    <span class="badge" id="build">client-ui</span>
-  </div>
+  <div class="title">Teach For All — Knowledge Q&A <span class="badge">client-ui</span></div>
 
   <div class="panel">
     <div class="row">
-      <div>
-        <label>From date</label>
-        <input type="date" id="from">
-      </div>
-      <div>
-        <label>To date</label>
-        <input type="date" id="to">
-      </div>
+      <div><label>From date</label><input type="date" id="from"></div>
+      <div><label>To date</label><input type="date" id="to"></div>
     </div>
 
     <div style="margin-top:10px">
@@ -102,7 +90,7 @@
 
     <div style="margin-top:12px">
       <label>Question</label>
-      <textarea id="question" placeholder="Ask your question… e.g., What are Italy’s priorities from the last two weeks?"></textarea>
+      <textarea id="question" placeholder="Ask your question…"></textarea>
     </div>
 
     <div class="row" style="margin-top:12px;align-items:end">
@@ -124,13 +112,12 @@
     <div class="small muted" id="filters">—</div>
     <h3>Answer</h3>
     <div id="answer" class="answer muted">—</div>
-
     <div class="divider"></div>
     <h4>Sources</h4>
     <div id="sources" class="small muted">—</div>
 
     <details style="margin-top:12px">
-      <summary>Debug — Request, REST, SQL, Prompt & Raw JSON</summary>
+      <summary>Debug — Request, REST, SQL, Prompt &amp; Raw JSON</summary>
       <div class="pad small">
         <div><b>Request URL</b></div>
         <div id="reqUrl" class="muted" style="word-break:break-all"></div>
@@ -149,10 +136,84 @@
       </div>
     </details>
   </div>
-
-  <div class="footerNote" id="foot"></div>
 </div>
 
-<script src="app.js"></script>
+<script>
+  // === JSONP util
+  function jsonp(url, timeoutMs=15000){
+    return new Promise((resolve,reject)=>{
+      const cb="__cb"+Math.floor(Math.random()*1e9);
+      const full=url+(url.includes("?")?"&":"?")+"callback="+cb;
+      let done=false;
+      const cleanup=()=>{ try{delete window[cb]}catch(e){} if (s && s.parentNode) s.parentNode.removeChild(s); };
+      const to=setTimeout(()=>{ if(done) return; done=true; cleanup(); reject(new Error("JSONP timeout")); },timeoutMs);
+      window[cb]=(data)=>{ if(done) return; done=true; clearTimeout(to); cleanup(); resolve(data); };
+      const s=document.createElement("script");
+      s.onerror=()=>{ if(done) return; done=true; clearTimeout(to); cleanup(); reject(new Error("JSONP network error")); };
+      s.src=full; document.head.appendChild(s);
+    });
+  }
+
+  const $ = (id)=>document.getElementById(id);
+
+  function quickRange(days){
+    const to=new Date();
+    const from=new Date();
+    from.setDate(to.getDate()-days);
+    $('from').value=from.toISOString().slice(0,10);
+    $('to').value=to.toISOString().slice(0,10);
+  }
+  function clearDates(){ $('from').value=''; $('to').value=''; }
+  function resetForm(){
+    $('from').value=''; $('to').value='';
+    $('type').value='all'; $('countries').value=''; $('topic').value='';
+    $('speed').value='100'; $('question').value=''; $('style').value='normal';
+    $('answer').textContent='—'; $('sources').textContent='—'; $('filters').textContent='—';
+    $('reqUrl').textContent=''; $('restUrl').textContent=''; $('sql').textContent='';
+    $('prompt').textContent=''; $('raw').textContent='';
+  }
+
+  // Your Apps Script Web App URL (deployment)
+  const ENDPOINT = "https://script.google.com/macros/s/AKfycbyvzIgN1uiRtnQh9SkjHo8ADtm66NrX2b1uIWr_vQ6XweQZvu1r9izXIVtPWzF7SuDZ/exec";
+
+  async function ask(){
+    const params=new URLSearchParams({
+      action:'ask',
+      from:$('from').value, to:$('to').value,
+      type:$('type').value, countries:$('countries').value,
+      topic:$('topic').value, limit:$('speed').value,
+      style:$('style').value, question:$('question').value,
+      ts:Date.now().toString()
+    });
+    const url=ENDPOINT+"?"+params.toString();
+    $('reqUrl').textContent=url;
+
+    // optimistic UI
+    $('answer').innerHTML='<span class="muted">Thinking…</span>';
+    $('sources').textContent='—'; $('filters').textContent='—';
+    $('restUrl').textContent=''; $('sql').textContent=''; $('prompt').textContent=''; $('raw').textContent='';
+
+    try{
+      const data = await jsonp(url, 20000);
+      $('raw').textContent = JSON.stringify(data, null, 2);
+      if(!data || data.ok !== true){
+        $('answer').innerHTML = '<span class="err">Error: '+(data && data.error ? data.error : 'No answer produced')+'</span>';
+        return;
+      }
+      $('filters').textContent = data.filters || '—';
+      $('answer').innerHTML = data.answer || '<i>(no answer)</i>';
+      $('sources').innerHTML = (data.sources||[]).map(s =>
+        `• ${s.title} <span class="muted">(${s.date}${s.type? ' · '+s.type:''}${s.countries? ' · '+s.countries:''})</span>`
+      ).join('<br>') || '—';
+
+      const dbg = data.debug || {};
+      $('restUrl').textContent = dbg.rest || '';
+      $('sql').textContent     = dbg.sql_approx || '';
+      $('prompt').textContent  = dbg.prompt || '';
+    }catch(err){
+      $('answer').innerHTML = '<span class="err">Error: '+err.message+'</span>';
+    }
+  }
+</script>
 </body>
 </html>

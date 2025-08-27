@@ -102,11 +102,60 @@
     details summary { cursor:pointer; color: var(--muted); }
     ul.clean { margin: 6px 0 0 18px; }
     .tag { display:inline-block; font-size: 12px; padding: 2px 8px; border:1px solid var(--border); border-radius: 999px; color: var(--muted); margin-right:6px;}
+/* ---- Layout guardrails (add at the END of your <style>) ---- */
+
+/* 1) Make sizing predictable everywhere */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { overflow-x: hidden; }
+
+/* 2) Keep the page centered and inside a max width */
+.wrap { max-width: 1100px; margin: 32px auto; padding-inline: 16px; }
+
+/* 3) Cards never let children bleed out */
+.card { overflow: hidden; }
+
+/* 4) Form controls always fit their container */
+input[type="text"],
+input[type="date"],
+select,
+textarea,
+button {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;          /* <— fixes flex/grid overflow */
+  display: block;
+}
+
+/* 5) Textarea sizing & scrolling (no boundary spill) */
+textarea {
+  resize: vertical;
+  min-height: 140px;
+  overflow: auto;
+}
+
+/* 6) Shared row helpers: wrap instead of pushing out */
+.row { display: flex; flex-wrap: wrap; gap: 14px; }
+.row > div { flex: 1 1 280px; min-width: 240px; }
+
+/* 7) Quick ranges: wrap buttons on smaller widths */
+.quick, .quick-ranges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 8) Small screens: stack everything safely */
+@media (max-width: 900px) {
+  .wrap { padding-inline: 12px; }
+  .row > div { flex-basis: 100%; min-width: 0; }
+}
+
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>Teach For All — Knowledge Q&amp;A <span class="subtle">V16</span></h1>
+    <h1>Teach For All — Knowledge Q&amp;A <span class="subtle">V17</span></h1>
 
     <div class="card">
       <div class="row row-3">

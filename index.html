@@ -178,8 +178,8 @@ button:disabled { opacity: .6; cursor: default; }
 </head>
 <body>
   <div class="wrap">
-// * Version indicator  *//
-    <h1>Teach For All — Knowledge Q&amp;A <span class="subtle">V18</span></h1>
+
+    <h1>Teach For All — Knowledge Q&amp;A <span class="subtle">V19</span></h1>
 
     <div class="card">
       <div class="row row-3">
@@ -251,6 +251,12 @@ button:disabled { opacity: .6; cursor: default; }
         <button onclick="resetForm()">Reset</button>
       </div>
     </div>
+    <!-- Busy indicator (hidden by default) -->
+    <div id="busy" class="busy" hidden aria-live="polite">
+        <span class="spinner"></span>
+        <span id="busyText">Working…</span>
+    </div>
+
 
     <div class="card">
       <h3 style="margin:0 0 10px">Answer</h3>
@@ -381,37 +387,45 @@ button:disabled { opacity: .6; cursor: default; }
     }
 
     // ========= ACTIONS =========
-    async function ask() {
-      const btn = document.getElementById("askBtn");
-      btn.disabled = true; setAnswer("", ""); setDebug(""); setSources([]);
+   <script>
+  async function ask() {
+    const btn = document.getElementById("askBtn");
+    const busy = document.getElementById("busy");          // ← NEW
+    // const busyText = document.getElementById("busyText"); // (optional if you want to change the label)
+    btn.disabled = true; setAnswer("", ""); setDebug(""); setSources([]);
 
-      const p = collectFilters();
-      if (!p.question.trim()) { setAnswer("", "Please enter a question."); btn.disabled = false; return; }
+    const p = collectFilters();
+    if (!p.question.trim()) { setAnswer("", "Please enter a question."); btn.disabled = false; return; }
 
-      try {
-        const data = await jsonp(GAS_BASE, { action: "ask", ...p });
-        if (!data || data.ok === false) {
-          setAnswer("", "Error: " + (data && data.error ? data.error : "Unknown"));
-        } else {
-          setAnswer(data.answer || "", "");
-          setSources(data.sources || []);
-          const dbg = [
-            "Request URL:\n" + GAS_BASE,
-            "",
-            "Supabase REST URL:\n" + (data.debug && data.debug.rest ? data.debug.rest : ""),
-            "",
-            "SQL (approximate):\n" + (data.debug && data.debug.sql_approx ? data.debug.sql_approx : ""),
-            "",
-            "Prompt (exact, sent to Gemini):\n" + (data.debug && data.debug.prompt ? data.debug.prompt : "")
-          ].join("\n");
-          setDebug(dbg);
-        }
-      } catch (err) {
-        setAnswer("", "Error: " + err.message);
-      } finally {
-        btn.disabled = false;
+    busy.hidden = false;                                    // ← NEW (show spinner)
+    try {
+      // bump timeout a bit so you don't hit 60s JSONP timeout during slow queries
+      const data = await jsonp(GAS_BASE, { action: "ask", ...p }, 90000);
+      if (!data || data.ok === false) {
+        setAnswer("", "Error: " + (data && data.error ? data.error : "Unknown"));
+      } else {
+        setAnswer(data.answer || "", "");
+        setSources(data.sources || []);
+        const dbg = [
+          "Request URL:\n" + GAS_BASE,
+          "",
+          "Supabase REST URL:\n" + (data.debug && data.debug.rest ? data.debug.rest : ""),
+          "",
+          "SQL (approximate):\n" + (data.debug && data.debug.sql_approx ? data.debug.sql_approx : ""),
+          "",
+          "Prompt (exact, sent to Gemini):\n" + (data.debug && data.debug.prompt ? data.debug.prompt : "")
+        ].join("\n");
+        setDebug(dbg);
       }
+    } catch (err) {
+      setAnswer("", "Error: " + err.message);
+    } finally {
+      busy.hidden = true;                                   // ← NEW (hide spinner)
+      btn.disabled = false;
     }
+  }
+</script>
+
 
     async function saveNote() {
       const btn = document.getElementById("saveNoteBtn");

@@ -179,7 +179,7 @@ button:disabled { opacity: .6; cursor: default; }
 <body>
   <div class="wrap">
 
-    <h1>Teach For All — Knowledge Q&amp;A <span class="subtle">V19</span></h1>
+    <h1>Teach For All — Knowledge Q&amp;A <span class="subtle">V20</span></h1>
 
     <div class="card">
       <div class="row row-3">
@@ -256,6 +256,7 @@ button:disabled { opacity: .6; cursor: default; }
         <span class="spinner"></span>
         <span id="busyText">Working…</span>
     </div>
+
 
 
     <div class="card">
@@ -387,7 +388,6 @@ button:disabled { opacity: .6; cursor: default; }
     }
 
     // ========= ACTIONS =========
-   <script>
   async function ask() {
     const btn = document.getElementById("askBtn");
     const busy = document.getElementById("busy");          // ← NEW
@@ -424,7 +424,6 @@ button:disabled { opacity: .6; cursor: default; }
       btn.disabled = false;
     }
   }
-</script>
 
 
     async function saveNote() {

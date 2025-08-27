@@ -150,12 +150,36 @@ textarea {
   .wrap { padding-inline: 12px; }
   .row > div { flex-basis: 100%; min-width: 0; }
 }
+/* Busy indicator (safe visual-only) */
+.busy {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  color: var(--muted);
+}
+.busy[hidden] { display: none; }
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top-color: #8fb1ff;
+  border-right-color: #8fb1ff;
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Subtle disabled look for buttons while busy */
+button:disabled { opacity: .6; cursor: default; }
 
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>Teach For All — Knowledge Q&amp;A <span class="subtle">V17</span></h1>
+/* ******************* Version indicator  */
+    <h1>Teach For All — Knowledge Q&amp;A <span class="subtle">V18</span></h1>
 
     <div class="card">
       <div class="row row-3">
@@ -273,7 +297,7 @@ textarea {
     const GAS_BASE = "https://script.google.com/macros/s/AKfycbyvzIgN1uiRtnQh9SkjHo8ADtm66NrX2b1uIWr_vQ6XweQZvu1r9izXIVtPWzF7SuDZ/exec"; // <-- replace if you redeploy
 
     // ========= JSONP =========
-    function jsonp(baseUrl, params, timeoutMs = 20000) {
+    function jsonp(baseUrl, params, timeoutMs = 60000) {
       return new Promise((resolve, reject) => {
         const cbName = "__cb" + Date.now() + "_" + Math.floor(Math.random() * 1e6);
         const qs = new URLSearchParams(params);

@@ -179,7 +179,7 @@ button:disabled { opacity: .6; cursor: default; }
 <body>
   <div class="wrap">
 
-    <h1>Teach For All — Knowledge Q&amp;A <span class="subtle">V20</span></h1>
+    <h1>Teach For All — Knowledge Q&amp;A <span class="subtle">V21</span></h1>
 
     <div class="card">
       <div class="row row-3">
@@ -299,6 +299,51 @@ button:disabled { opacity: .6; cursor: default; }
     </div>
   </div>
 
+  <!-- === Transcript search (new) === -->
+<div class="card" id="tr_card">
+  <h3 style="margin:0 0 8px">Transcript query</h3>
+
+  <div class="row">
+    <div>
+      <label>From (transcripts)</label>
+      <input id="tr_from" type="date" />
+    </div>
+    <div>
+      <label>To</label>
+      <input id="tr_to" type="date" />
+    </div>
+  </div>
+
+  <label>Keywords (file name or contents)</label>
+  <input id="tr_kw" type="text" placeholder="e.g., Portugal, Tiago, budget" />
+
+  <div class="btns">
+    <button id="trFindBtn" class="primary" onclick="findTranscripts()">Find transcripts</button>
+  </div>
+
+  <div id="tr_results" class="muted" style="margin-top:10px;"></div>
+</div>
+
+<!-- === Transcript Q&A (new) === -->
+<div class="card" id="tr_qa" hidden>
+  <h3 style="margin:0 0 8px">Ask about selected transcript</h3>
+  <div id="tr_meta" class="muted"></div>
+
+  <pre id="tr_preview"
+       style="white-space:pre-wrap;background:#0e1233;padding:12px;border-radius:8px;border:1px solid var(--border);max-height:200px;overflow:auto;margin-top:8px;"></pre>
+
+  <label>Question about this transcript</label>
+  <textarea id="tr_q" placeholder="Ask a question about the selected transcript…"></textarea>
+
+  <div class="btns">
+    <button id="trAskBtn" class="primary" onclick="askTranscript()">Ask about transcript</button>
+  </div>
+
+  <div id="tr_ans" class="answer" style="margin-top:10px;"></div>
+  <div id="tr_err" class="error" style="margin-top:8px;"></div>
+</div>
+
+
   <script>
     // ========= CONFIG =========
     const GAS_BASE = "https://script.google.com/macros/s/AKfycbyvzIgN1uiRtnQh9SkjHo8ADtm66NrX2b1uIWr_vQ6XweQZvu1r9izXIVtPWzF7SuDZ/exec"; // <-- replace if you redeploy
@@ -333,6 +378,119 @@ button:disabled { opacity: .6; cursor: default; }
     // ========= UI HELPERS =========
     function todayIso(d = new Date()) { return d.toISOString().slice(0,10); }
     function daysAgoIso(n) { const d = new Date(); d.setDate(d.getDate() - n); return d.toISOString().slice(0,10); }
+// ================== TRANSCRIPTS (client) ==================
+let TR_SELECTED = null;
+
+function trCollect() {
+  return {
+    from: document.getElementById('tr_from').value || '',
+    to: document.getElementById('tr_to').value || '',
+    keywords: document.getElementById('tr_kw').value || '',
+    limit: 10
+  };
+}
+
+async function findTranscripts() {
+  const btn = document.getElementById('trFindBtn');
+  const busy = document.getElementById('busy');
+  const busyText = document.getElementById('busyText');
+
+  btn.disabled = true;
+  document.getElementById('tr_results').textContent = '';
+  document.getElementById('tr_qa').hidden = true;
+  TR_SELECTED = null;
+
+  if (busy) { busyText.textContent = 'Searching Drive…'; busy.hidden = false; }
+
+  try {
+    const p = trCollect();
+    const data = await jsonp(GAS_BASE, { action: 'findTranscripts', ...p }, 90000);
+
+    if (!data || data.ok === false) {
+      document.getElementById('tr_results').innerHTML =
+        "<span class='error'>" + (data && data.error ? escapeHtml(data.error) : "Search failed") + "</span>";
+    } else {
+      renderTranscriptResults(data.results || []);
+    }
+  } catch (err) {
+    document.getElementById('tr_results').innerHTML = "<span class='error'>" + escapeHtml(err.message) + "</span>";
+  } finally {
+    btn.disabled = false;
+    if (busy) busy.hidden = true;
+  }
+}
+
+function renderTranscriptResults(items) {
+  const el = document.getElementById('tr_results');
+  if (!items.length) { el.innerHTML = "<span class='muted'>No transcripts found.</span>"; return; }
+
+  el.innerHTML = items.map((f) => {
+    const date = (f.modified || '').slice(0, 10);
+    const prev = (f.preview || '').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+    return `
+      <div class="card" style="margin:10px 0; padding:12px;">
+        <label style="display:flex; gap:10px; align-items:center;">
+          <input type="radio" name="tr_pick"
+                 value="${f.id}"
+                 onchange="selectTranscript('${f.id}', '${encodeURIComponent(f.name||"")}', '${encodeURIComponent(f.mimeType||"")}', '${encodeURIComponent(prev)}', '${encodeURIComponent(f.link||"")}')">
+          <strong>${escapeHtml(f.name || "(untitled)")}</strong>
+          <span class="tag">${date}</span>
+          ${f.link ? `<a href="${f.link}" target="_blank" style="margin-left:auto">Open</a>` : ""}
+        </label>
+        <div class="muted" style="margin-top:6px">${prev ? prev.slice(0, 300) + '…' : '(no preview)'}</div>
+      </div>`;
+  }).join('');
+}
+
+function selectTranscript(id, encName, encMime, encPrev, encLink) {
+  TR_SELECTED = {
+    id,
+    name: decodeURIComponent(encName || ''),
+    mimeType: decodeURIComponent(encMime || ''),
+    preview: decodeURIComponent(encPrev || ''),
+    link: decodeURIComponent(encLink || '')
+  };
+  document.getElementById('tr_meta').innerHTML =
+    `<strong>${escapeHtml(TR_SELECTED.name)}</strong> ${TR_SELECTED.link ? `• <a href="${TR_SELECTED.link}" target="_blank">Open</a>` : ''}`;
+  document.getElementById('tr_preview').textContent = TR_SELECTED.preview || '(preview unavailable)';
+  document.getElementById('tr_qa').hidden = false;
+}
+
+async function askTranscript() {
+  if (!TR_SELECTED) { alert('Please choose a transcript.'); return; }
+  const q = (document.getElementById('tr_q').value || '').trim();
+  if (!q) { document.getElementById('tr_err').textContent = 'Please enter a question.'; return; }
+
+  const btn = document.getElementById('trAskBtn');
+  const busy = document.getElementById('busy');
+  const busyText = document.getElementById('busyText');
+
+  btn.disabled = true;
+  document.getElementById('tr_err').textContent = '';
+  document.getElementById('tr_ans').innerHTML = '';
+
+  if (busy) { busyText.textContent = 'Reading transcript…'; busy.hidden = false; }
+
+  try {
+    const data = await jsonp(GAS_BASE, {
+      action: 'askTranscript',
+      id: TR_SELECTED.id,
+      mimeType: TR_SELECTED.mimeType,
+      question: q
+    }, 120000);
+
+    if (!data || data.ok === false) {
+      document.getElementById('tr_err').textContent = (data && data.error) ? data.error : 'Failed.';
+    } else {
+      document.getElementById('tr_ans').innerHTML = data.answer || '';
+    }
+  } catch (err) {
+    document.getElementById('tr_err').textContent = err.message;
+  } finally {
+    btn.disabled = false;
+    if (busy) busy.hidden = true;
+  }
+}
 
     function qrange(n) {
       document.getElementById("from").value = daysAgoIso(n);

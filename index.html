@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Teach For All — Knowledge Q&A</title>
   <style>
-  
   /* ---- visual polish only; no JS affected ---- */
 
   /* Answer typography */
@@ -64,122 +63,101 @@
     font-size: 13px;
   }
 
-  
-    :root {
-      --bg: #0f1220;
-      --panel: #171a2a;
-      --text: #e9ecff;
-      --muted: #9aa3c7;
-      --accent: #7aa2ff;
-      --accent-2: #a8ffef;
-      --danger: #ff7a7a;
-      --ok: #6ee7b7;
-      --border: #232743;
-    }
-    html, body { background: var(--bg); color: var(--text); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; }
-    .wrap { max-width: 1050px; margin: 32px auto 120px; padding: 0 16px; }
-    h1 { font-size: 26px; margin: 0 0 20px; letter-spacing: .2px }
-    .subtle { color: var(--muted); font-size: 12px; margin-left: 8px; padding: 2px 6px; background: #1e2238; border-radius: 10px; vertical-align: middle;}
-    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 16px; }
-    label { display:block; font-size: 12px; color: var(--muted); margin: 14px 0 6px; }
-    input[type="text"], input[type="date"], select, textarea {
-      width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: #0f1330; color: var(--text);
-    }
-    textarea { min-height: 120px; resize: vertical; }
-    .row { display:flex; gap:14px; }
-    .row > div { flex:1; }
-    .row-3 > div { flex: 1 1 33.3%; }
-    .btns { display:flex; gap:10px; margin-top: 14px; }
-    button {
-      padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border);
-      background: #1e2448; color: var(--text); cursor: pointer;
-    }
-    button.primary { background: #2a3470; border-color:#384196; }
-    button:disabled { opacity: .6; cursor: default; }
-    .muted { color: var(--muted); }
-    .answer { background: #0e1233; border: 1px solid var(--border); border-radius: 10px; padding: 16px; min-height: 80px }
-    .error { color: var(--danger); }
-    details summary { cursor:pointer; color: var(--muted); }
-    ul.clean { margin: 6px 0 0 18px; }
-    .tag { display:inline-block; font-size: 12px; padding: 2px 8px; border:1px solid var(--border); border-radius: 999px; color: var(--muted); margin-right:6px;}
-/* ---- Layout guardrails (add at the END of your <style>) ---- */
+  :root {
+    --bg: #0f1220;
+    --panel: #171a2a;
+    --text: #e9ecff;
+    --muted: #9aa3c7;
+    --accent: #7aa2ff;
+    --accent-2: #a8ffef;
+    --danger: #ff7a7a;
+    --ok: #6ee7b7;
+    --border: #232743;
+  }
+  html, body { background: var(--bg); color: var(--text); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; }
+  .wrap { max-width: 1050px; margin: 32px auto 120px; padding: 0 16px; }
+  h1 { font-size: 26px; margin: 0 0 20px; letter-spacing: .2px }
+  .subtle { color: var(--muted); font-size: 12px; margin-left: 8px; padding: 2px 6px; background: #1e2238; border-radius: 10px; vertical-align: middle;}
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 16px; }
+  label { display:block; font-size: 12px; color: var(--muted); margin: 14px 0 6px; }
+  input[type="text"], input[type="date"], select, textarea {
+    width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: #0f1330; color: var(--text);
+  }
+  textarea { min-height: 120px; resize: vertical; }
+  .row { display:flex; gap:14px; }
+  .row > div { flex:1; }
+  .row-3 > div { flex: 1 1 33.3%; }
+  .btns { display:flex; gap:10px; margin-top: 14px; }
+  button {
+    padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border);
+    background: #1e2448; color: var(--text); cursor: pointer;
+  }
+  button.primary { background: #2a3470; border-color:#384196; }
+  button:disabled { opacity: .6; cursor: default; }
+  .muted { color: var(--muted); }
+  .answer { background: #0e1233; border: 1px solid var(--border); border-radius: 10px; padding: 16px; min-height: 80px }
+  .error { color: var(--danger); }
+  details summary { cursor:pointer; color: var(--muted); }
+  ul.clean { margin: 6px 0 0 18px; }
+  .tag { display:inline-block; font-size: 12px; padding: 2px 8px; border:1px solid var(--border); border-radius: 999px; color: var(--muted); margin-right:6px;}
 
-/* 1) Make sizing predictable everywhere */
-*, *::before, *::after { box-sizing: border-box; }
-html, body { overflow-x: hidden; }
-
-/* 2) Keep the page centered and inside a max width */
-.wrap { max-width: 1100px; margin: 32px auto; padding-inline: 16px; }
-
-/* 3) Cards never let children bleed out */
-.card { overflow: hidden; }
-
-/* 4) Form controls always fit their container */
-input[type="text"],
-input[type="date"],
-select,
-textarea,
-button {
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;          /* <— fixes flex/grid overflow */
-  display: block;
-}
-
-/* 5) Textarea sizing & scrolling (no boundary spill) */
-textarea {
-  resize: vertical;
-  min-height: 140px;
-  overflow: auto;
-}
-
-/* 6) Shared row helpers: wrap instead of pushing out */
-.row { display: flex; flex-wrap: wrap; gap: 14px; }
-.row > div { flex: 1 1 280px; min-width: 240px; }
-
-/* 7) Quick ranges: wrap buttons on smaller widths */
-.quick, .quick-ranges {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-}
-
-/* 8) Small screens: stack everything safely */
-@media (max-width: 900px) {
-  .wrap { padding-inline: 12px; }
-  .row > div { flex-basis: 100%; min-width: 0; }
-}
-/* Busy indicator (safe visual-only) */
-.busy {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 10px;
-  color: var(--muted);
-}
-.busy[hidden] { display: none; }
-
-.spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid transparent;
-  border-top-color: #8fb1ff;
-  border-right-color: #8fb1ff;
-  border-radius: 50%;
-  animation: spin .8s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* Subtle disabled look for buttons while busy */
-button:disabled { opacity: .6; cursor: default; }
-
+  /* ---- Layout guardrails (add at the END of your <style>) ---- */
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { overflow-x: hidden; }
+  .wrap { max-width: 1100px; margin: 32px auto; padding-inline: 16px; }
+  .card { overflow: hidden; }
+  input[type="text"],
+  input[type="date"],
+  select,
+  textarea,
+  button {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    display: block;
+  }
+  textarea {
+    resize: vertical;
+    min-height: 140px;
+    overflow: auto;
+  }
+  .row { display: flex; flex-wrap: wrap; gap: 14px; }
+  .row > div { flex: 1 1 280px; min-width: 240px; }
+  .quick, .quick-ranges {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+  @media (max-width: 900px) {
+    .wrap { padding-inline: 12px; }
+    .row > div { flex-basis: 100%; min-width: 0; }
+  }
+  .busy {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    color: var(--muted);
+  }
+  .busy[hidden] { display: none; }
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid transparent;
+    border-top-color: #8fb1ff;
+    border-right-color: #8fb1ff;
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  button:disabled { opacity: .6; cursor: default; }
   </style>
 </head>
 <body>
   <div class="wrap">
 
-    <h1>Teach For All — Knowledge Q&amp;A <span class="subtle">V21</span></h1>
+    <h1>Teach For All — Knowledge Q&amp;A <span class="subtle">V22</span></h1>
 
     <div class="card">
       <div class="row row-3">
@@ -251,13 +229,12 @@ button:disabled { opacity: .6; cursor: default; }
         <button onclick="resetForm()">Reset</button>
       </div>
     </div>
+
     <!-- Busy indicator (hidden by default) -->
     <div id="busy" class="busy" hidden aria-live="polite">
-        <span class="spinner"></span>
-        <span id="busyText">Working…</span>
+      <span class="spinner"></span>
+      <span id="busyText">Working…</span>
     </div>
-
-
 
     <div class="card">
       <h3 style="margin:0 0 10px">Answer</h3>
@@ -297,52 +274,52 @@ button:disabled { opacity: .6; cursor: default; }
       </div>
       <div id="noteMsg" class="muted" style="margin-top:8px;"></div>
     </div>
-  </div>
 
-  <!-- === Transcript search (new) === -->
-<div class="card" id="tr_card">
-  <h3 style="margin:0 0 8px">Transcript query</h3>
+    <!-- === Transcript search (new) — FIXED: content is inside the card === -->
+    <div class="card" id="tr_card">
+      <h3 style="margin:0 0 8px">Transcript query</h3>
 
-  <div class="row">
-    <div>
-      <label>From (transcripts)</label>
-      <input id="tr_from" type="date" />
+      <div class="row">
+        <div>
+          <label>From (transcripts)</label>
+          <input id="tr_from" type="date" />
+        </div>
+        <div>
+          <label>To</label>
+          <input id="tr_to" type="date" />
+        </div>
+      </div>
+
+      <label>Keywords (file name or contents)</label>
+      <input id="tr_kw" type="text" placeholder="e.g., Portugal, Tiago, budget" />
+
+      <div class="btns">
+        <button id="trFindBtn" class="primary" onclick="findTranscripts()">Find transcripts</button>
+      </div>
+
+      <div id="tr_results" class="muted" style="margin-top:10px;"></div>
     </div>
-    <div>
-      <label>To</label>
-      <input id="tr_to" type="date" />
+
+    <!-- === Transcript Q&A (new) — stays inside .wrap === -->
+    <div class="card" id="tr_qa" hidden>
+      <h3 style="margin:0 0 8px">Ask about selected transcript</h3>
+      <div id="tr_meta" class="muted"></div>
+
+      <pre id="tr_preview"
+        style="white-space:pre-wrap;background:#0e1233;padding:12px;border-radius:8px;border:1px solid var(--border);max-height:200px;overflow:auto;margin-top:8px;"></pre>
+
+      <label>Question about this transcript</label>
+      <textarea id="tr_q" placeholder="Ask a question about the selected transcript…"></textarea>
+
+      <div class="btns">
+        <button id="trAskBtn" class="primary" onclick="askTranscript()">Ask about transcript</button>
+      </div>
+
+      <div id="tr_ans" class="answer" style="margin-top:10px;"></div>
+      <div id="tr_err" class="error" style="margin-top:8px;"></div>
     </div>
-  </div>
 
-  <label>Keywords (file name or contents)</label>
-  <input id="tr_kw" type="text" placeholder="e.g., Portugal, Tiago, budget" />
-
-  <div class="btns">
-    <button id="trFindBtn" class="primary" onclick="findTranscripts()">Find transcripts</button>
-  </div>
-
-  <div id="tr_results" class="muted" style="margin-top:10px;"></div>
-</div>
-
-<!-- === Transcript Q&A (new) === -->
-<div class="card" id="tr_qa" hidden>
-  <h3 style="margin:0 0 8px">Ask about selected transcript</h3>
-  <div id="tr_meta" class="muted"></div>
-
-  <pre id="tr_preview"
-       style="white-space:pre-wrap;background:#0e1233;padding:12px;border-radius:8px;border:1px solid var(--border);max-height:200px;overflow:auto;margin-top:8px;"></pre>
-
-  <label>Question about this transcript</label>
-  <textarea id="tr_q" placeholder="Ask a question about the selected transcript…"></textarea>
-
-  <div class="btns">
-    <button id="trAskBtn" class="primary" onclick="askTranscript()">Ask about transcript</button>
-  </div>
-
-  <div id="tr_ans" class="answer" style="margin-top:10px;"></div>
-  <div id="tr_err" class="error" style="margin-top:8px;"></div>
-</div>
-
+  </div> <!-- end .wrap -->
 
   <script>
     // ========= CONFIG =========
@@ -378,119 +355,152 @@ button:disabled { opacity: .6; cursor: default; }
     // ========= UI HELPERS =========
     function todayIso(d = new Date()) { return d.toISOString().slice(0,10); }
     function daysAgoIso(n) { const d = new Date(); d.setDate(d.getDate() - n); return d.toISOString().slice(0,10); }
-// ================== TRANSCRIPTS (client) ==================
-let TR_SELECTED = null;
 
-function trCollect() {
-  return {
-    from: document.getElementById('tr_from').value || '',
-    to: document.getElementById('tr_to').value || '',
-    keywords: document.getElementById('tr_kw').value || '',
-    limit: 10
-  };
-}
+    // ================== TRANSCRIPTS (client) ==================
+    let TR_SELECTED = null;
 
-async function findTranscripts() {
-  const btn = document.getElementById('trFindBtn');
-  const busy = document.getElementById('busy');
-  const busyText = document.getElementById('busyText');
-
-  btn.disabled = true;
-  document.getElementById('tr_results').textContent = '';
-  document.getElementById('tr_qa').hidden = true;
-  TR_SELECTED = null;
-
-  if (busy) { busyText.textContent = 'Searching Drive…'; busy.hidden = false; }
-
-  try {
-    const p = trCollect();
-    const data = await jsonp(GAS_BASE, { action: 'findTranscripts', ...p }, 90000);
-
-    if (!data || data.ok === false) {
-      document.getElementById('tr_results').innerHTML =
-        "<span class='error'>" + (data && data.error ? escapeHtml(data.error) : "Search failed") + "</span>";
-    } else {
-      renderTranscriptResults(data.results || []);
+    function trCollect() {
+      return {
+        from: document.getElementById('tr_from').value || '',
+        to: document.getElementById('tr_to').value || '',
+        keywords: document.getElementById('tr_kw').value || '',
+        limit: 10
+      };
     }
-  } catch (err) {
-    document.getElementById('tr_results').innerHTML = "<span class='error'>" + escapeHtml(err.message) + "</span>";
-  } finally {
-    btn.disabled = false;
-    if (busy) busy.hidden = true;
-  }
-}
 
-function renderTranscriptResults(items) {
-  const el = document.getElementById('tr_results');
-  if (!items.length) { el.innerHTML = "<span class='muted'>No transcripts found.</span>"; return; }
+    async function findTranscripts() {
+      const btn = document.getElementById('trFindBtn');
+      const busy = document.getElementById('busy');
+      const busyText = document.getElementById('busyText');
 
-  el.innerHTML = items.map((f) => {
-    const date = (f.modified || '').slice(0, 10);
-    const prev = (f.preview || '').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-    return `
-      <div class="card" style="margin:10px 0; padding:12px;">
-        <label style="display:flex; gap:10px; align-items:center;">
-          <input type="radio" name="tr_pick"
-                 value="${f.id}"
-                 onchange="selectTranscript('${f.id}', '${encodeURIComponent(f.name||"")}', '${encodeURIComponent(f.mimeType||"")}', '${encodeURIComponent(prev)}', '${encodeURIComponent(f.link||"")}')">
-          <strong>${escapeHtml(f.name || "(untitled)")}</strong>
-          <span class="tag">${date}</span>
-          ${f.link ? `<a href="${f.link}" target="_blank" style="margin-left:auto">Open</a>` : ""}
-        </label>
-        <div class="muted" style="margin-top:6px">${prev ? prev.slice(0, 300) + '…' : '(no preview)'}</div>
-      </div>`;
-  }).join('');
-}
+      btn.disabled = true;
+      document.getElementById('tr_results').textContent = '';
+      document.getElementById('tr_qa').hidden = true;
+      TR_SELECTED = null;
 
-function selectTranscript(id, encName, encMime, encPrev, encLink) {
-  TR_SELECTED = {
-    id,
-    name: decodeURIComponent(encName || ''),
-    mimeType: decodeURIComponent(encMime || ''),
-    preview: decodeURIComponent(encPrev || ''),
-    link: decodeURIComponent(encLink || '')
-  };
-  document.getElementById('tr_meta').innerHTML =
-    `<strong>${escapeHtml(TR_SELECTED.name)}</strong> ${TR_SELECTED.link ? `• <a href="${TR_SELECTED.link}" target="_blank">Open</a>` : ''}`;
-  document.getElementById('tr_preview').textContent = TR_SELECTED.preview || '(preview unavailable)';
-  document.getElementById('tr_qa').hidden = false;
-}
+      if (busy) { busyText.textContent = 'Searching Drive…'; busy.hidden = false; }
 
-async function askTranscript() {
-  if (!TR_SELECTED) { alert('Please choose a transcript.'); return; }
-  const q = (document.getElementById('tr_q').value || '').trim();
-  if (!q) { document.getElementById('tr_err').textContent = 'Please enter a question.'; return; }
+      try {
+        const p = trCollect();
+        const data = await jsonp(GAS_BASE, { action: 'findTranscripts', ...p }, 90000);
 
-  const btn = document.getElementById('trAskBtn');
-  const busy = document.getElementById('busy');
-  const busyText = document.getElementById('busyText');
-
-  btn.disabled = true;
-  document.getElementById('tr_err').textContent = '';
-  document.getElementById('tr_ans').innerHTML = '';
-
-  if (busy) { busyText.textContent = 'Reading transcript…'; busy.hidden = false; }
-
-  try {
-    const data = await jsonp(GAS_BASE, {
-      action: 'askTranscript',
-      id: TR_SELECTED.id,
-      mimeType: TR_SELECTED.mimeType,
-      question: q
-    }, 120000);
-
-    if (!data || data.ok === false) {
-      document.getElementById('tr_err').textContent = (data && data.error) ? data.error : 'Failed.';
-    } else {
-      document.getElementById('tr_ans').innerHTML = data.answer || '';
+        if (!data || data.ok === false) {
+          document.getElementById('tr_results').innerHTML =
+            "<span class='error'>" + (data && data.error ? escapeHtml(data.error) : "Search failed") + "</span>";
+        } else {
+          renderTranscriptResults(data.results || []);
+        }
+      } catch (err) {
+        document.getElementById('tr_results').innerHTML = "<span class='error'>" + escapeHtml(err.message) + "</span>";
+      } finally {
+        btn.disabled = false;
+        if (busy) busy.hidden = true;
+      }
     }
-  } catch (err) {
-    document.getElementById('tr_err').textContent = err.message;
-  } finally {
-    btn.disabled = false;
-    if (busy) busy.hidden = true;
-  }
-}
+
+    function renderTranscriptResults(items) {
+      const el = document.getElementById('tr_results');
+      if (!items || !items.length) {
+        el.innerHTML = "<span class='muted'>No transcripts found.</span>";
+        return;
+      }
+
+      el.innerHTML = items.map((f) => {
+        const date = (f.modified || '').slice(0, 10);
+        const prev = (f.preview || '').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+        return `
+          <div class="card" style="margin:10px 0; padding:12px;">
+            <label style="display:flex; gap:10px; align-items:center;">
+              <input type="radio" name="tr_pick"
+                     data-id="${f.id}"
+                     data-name="${encodeURIComponent(f.name || '')}"
+                     data-mime="${encodeURIComponent(f.mimeType || '')}"
+                     data-prev="${encodeURIComponent(prev)}"
+                     data-link="${encodeURIComponent(f.link || '')}">
+              <strong>${escapeHtml(f.name || "(untitled)")}</strong>
+              <span class="tag">${date}</span>
+              ${f.link ? `<a href="${f.link}" target="_blank" style="margin-left:auto">Open</a>` : ""}
+            </label>
+            <div class="muted" style="margin-top:6px">
+              ${prev ? prev.slice(0, 300) + '…' : '(no preview)'}
+            </div>
+          </div>`;
+      }).join('');
+
+      // Wire once to handle all radios safely (no fragile inline handlers)
+      if (!el._wired) {
+        const handler = (ev) => {
+          const r = ev.target.closest('input[name="tr_pick"]');
+          if (!r) return;
+          selectTranscript(
+            r.dataset.id,
+            r.dataset.name,
+            r.dataset.mime,
+            r.dataset.prev,
+            r.dataset.link
+          );
+          // Nudge focus into the ask box for convenience
+          setTimeout(() => document.getElementById('tr_q')?.focus(), 0);
+        };
+        el.addEventListener('input', handler);
+        el.addEventListener('change', handler);
+        el._wired = true;
+      }
+    }
+
+    function selectTranscript(id, encName, encMime, encPrev, encLink) {
+      TR_SELECTED = {
+        id,
+        name: decodeURIComponent(encName || ''),
+        mimeType: decodeURIComponent(encMime || ''),
+        preview: decodeURIComponent(encPrev || ''),
+        link: decodeURIComponent(encLink || '')
+      };
+      document.getElementById('tr_meta').innerHTML =
+        `<strong>${escapeHtml(TR_SELECTED.name)}</strong> ${TR_SELECTED.link ? `• <a href="${TR_SELECTED.link}" target="_blank">Open</a>` : ''}`;
+      document.getElementById('tr_preview').textContent = TR_SELECTED.preview || '(preview unavailable)';
+      document.getElementById('tr_qa').hidden = false;
+
+      // Moved here: scroll to the Q&A panel upon selection
+      document.getElementById('tr_qa').scrollIntoView({ behavior:'smooth', block:'start' });
+    }
+
+    async function askTranscript() {
+      if (!TR_SELECTED) { alert('Please choose a transcript.'); return; }
+      const q = (document.getElementById('tr_q').value || '').trim();
+      if (!q) { document.getElementById('tr_err').textContent = 'Please enter a question.'; return; }
+
+      const btn = document.getElementById('trAskBtn');
+      const busy = document.getElementById('busy');
+      const busyText = document.getElementById('busyText');
+
+      btn.disabled = true;
+      document.getElementById('tr_err').textContent = '';
+      document.getElementById('tr_ans').innerHTML = '';
+
+      if (busy) { busyText.textContent = 'Reading transcript…'; busy.hidden = false; }
+
+      try {
+        const data = await jsonp(GAS_BASE, {
+          action: 'askTranscript',
+          id: TR_SELECTED.id,
+          mimeType: TR_SELECTED.mimeType,
+          question: q
+        }, 120000);
+
+        if (!data || data.ok === false) {
+          document.getElementById('tr_err').textContent = (data && data.error) ? data.error : 'Failed.';
+        } else {
+          document.getElementById('tr_ans').innerHTML = data.answer || '';
+        }
+      } catch (err) {
+        document.getElementById('tr_err').textContent = err.message;
+      } finally {
+        btn.disabled = false;
+        if (busy) busy.hidden = true;
+      }
+    }
 
     function qrange(n) {
       document.getElementById("from").value = daysAgoIso(n);
@@ -546,43 +556,40 @@ async function askTranscript() {
     }
 
     // ========= ACTIONS =========
-  async function ask() {
-    const btn = document.getElementById("askBtn");
-    const busy = document.getElementById("busy");          // ← NEW
-    // const busyText = document.getElementById("busyText"); // (optional if you want to change the label)
-    btn.disabled = true; setAnswer("", ""); setDebug(""); setSources([]);
+    async function ask() {
+      const btn = document.getElementById("askBtn");
+      const busy = document.getElementById("busy");
+      btn.disabled = true; setAnswer("", ""); setDebug(""); setSources([]);
 
-    const p = collectFilters();
-    if (!p.question.trim()) { setAnswer("", "Please enter a question."); btn.disabled = false; return; }
+      const p = collectFilters();
+      if (!p.question.trim()) { setAnswer("", "Please enter a question."); btn.disabled = false; return; }
 
-    busy.hidden = false;                                    // ← NEW (show spinner)
-    try {
-      // bump timeout a bit so you don't hit 60s JSONP timeout during slow queries
-      const data = await jsonp(GAS_BASE, { action: "ask", ...p }, 90000);
-      if (!data || data.ok === false) {
-        setAnswer("", "Error: " + (data && data.error ? data.error : "Unknown"));
-      } else {
-        setAnswer(data.answer || "", "");
-        setSources(data.sources || []);
-        const dbg = [
-          "Request URL:\n" + GAS_BASE,
-          "",
-          "Supabase REST URL:\n" + (data.debug && data.debug.rest ? data.debug.rest : ""),
-          "",
-          "SQL (approximate):\n" + (data.debug && data.debug.sql_approx ? data.debug.sql_approx : ""),
-          "",
-          "Prompt (exact, sent to Gemini):\n" + (data.debug && data.debug.prompt ? data.debug.prompt : "")
-        ].join("\n");
-        setDebug(dbg);
+      busy.hidden = false;
+      try {
+        const data = await jsonp(GAS_BASE, { action: "ask", ...p }, 90000);
+        if (!data || data.ok === false) {
+          setAnswer("", "Error: " + (data && data.error ? data.error : "Unknown"));
+        } else {
+          setAnswer(data.answer || "", "");
+          setSources(data.sources || []);
+          const dbg = [
+            "Request URL:\n" + GAS_BASE,
+            "",
+            "Supabase REST URL:\n" + (data.debug && data.debug.rest ? data.debug.rest : ""),
+            "",
+            "SQL (approximate):\n" + (data.debug && data.debug.sql_approx ? data.debug.sql_approx : ""),
+            "",
+            "Prompt (exact, sent to Gemini):\n" + (data.debug && data.debug.prompt ? data.debug.prompt : "")
+          ].join("\n");
+          setDebug(dbg);
+        }
+      } catch (err) {
+        setAnswer("", "Error: " + err.message);
+      } finally {
+        busy.hidden = true;
+        btn.disabled = false;
       }
-    } catch (err) {
-      setAnswer("", "Error: " + err.message);
-    } finally {
-      busy.hidden = true;                                   // ← NEW (hide spinner)
-      btn.disabled = false;
     }
-  }
-
 
     async function saveNote() {
       const btn = document.getElementById("saveNoteBtn");
@@ -595,7 +602,6 @@ async function askTranscript() {
       const meeting_id = document.getElementById("meeting_id").value || "";
       const author = document.getElementById("author").value || "";
       const headline = (document.getElementById("note_headline")?.value || "").trim();
-
 
       if (!note.trim()) { noteMsg.textContent = "Please type a note."; btn.disabled = false; return; }
 
@@ -625,7 +631,6 @@ async function askTranscript() {
     }
 
     // ========= INIT =========
-    // start with last 30 days (like your earlier default)
     qrange(30);
   </script>
 </body>

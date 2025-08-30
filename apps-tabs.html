@@ -447,6 +447,25 @@
     qrange(30);
     initTabsFromHash();
     window.addEventListener('hashchange', initTabsFromHash);
+    <script>
+  // …all your functions (ask, saveNote, findTranscripts, askTranscript, switchPanel, etc.)
+
+  // ---- Wire UI once the DOM is ready ----
+  document.addEventListener('DOMContentLoaded', () => {
+    const $ = (id) => document.getElementById(id);
+
+    $('#askBtn')?.addEventListener('click', ask);
+    $('#saveNoteBtn')?.addEventListener('click', saveNote);
+    $('#trFindBtn')?.addEventListener('click', findTranscripts);
+    $('#trAskBtn')?.addEventListener('click', askTranscript);
+
+    // If you added tab buttons with data-panel attributes:
+    document.querySelectorAll('[data-panel]').forEach(btn => {
+      btn.addEventListener('click', () => switchPanel(btn.dataset.panel));
+    });
+  });
+</script>
+
   </script>
 </body>
 </html>

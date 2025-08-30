@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Teach For All — Knowledge Q&A (Tabbed)</title>
+  <style>
+    /* ===== your existing styles (kept) ===== */
+    :root {
+      --bg: #0f1220; --panel: #171a2a; --text: #e9ecff; --muted: #9aa3c7;
+      --accent: #7aa2ff; --accent-2: #a8ffef; --danger: #ff7a7a; --ok: #6ee7b7; --border: #232743;
+    }
+    html, body { background: var(--bg); color: var(--text); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; }
+    .wrap { max-width: 1050px; margin: 32px auto 120px; padding: 0 16px; }
+    h1 { font-size: 26px; margin: 0 0 20px; letter-spacing: .2px }
+    .subtle { color: var(--muted); font-size: 12px; margin-left: 8px; padding: 2px 6px; background: #1e2238; border-radius: 10px; vertical-align: middle;}
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 16px; overflow: hidden; }
+    label { display:block; font-size: 12px; color: var(--muted); margin: 14px 0 6px; }
+    input[type="text"], input[type="date"], select, textarea { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: #0f1330; color: var(--text); }
+    textarea { min-height: 140px; resize: vertical; overflow: auto; }
+    .row { display:flex; flex-wrap: wrap; gap:14px; }
+    .row > div { flex:1 1 280px; min-width: 240px; }
+    .btns { display:flex; gap:10px; margin-top: 14px; }
+    button { width:100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); background: #1e2448; color: var(--text); cursor: pointer; }
+    button.primary { background: #2a3470; border-color:#384196; }
+    button:disabled { opacity: .6; cursor: default; }
+    .muted { color: var(--muted); }
+    .answer { background: #0e1233; border: 1px solid var(--border); border-radius: 10px; padding: 16px; min-height: 80px }
+    .error { color: var(--danger); }
+    details summary { cursor:pointer; color: var(--muted); }
+    .tag { display:inline-block; font-size: 12px; padding: 2px 8px; border:1px solid var(--border); border-radius: 999px; color: var(--muted); margin-right:6px;}
+
+    /* Busy indicator (existing) */
+    .busy { display: flex; align-items: center; gap: 10px; margin: 10px 0; color: var(--muted); }
+    .busy[hidden] { display: none; }
+    .spinner { width: 16px; height: 16px; border: 2px solid transparent; border-top-color: #8fb1ff; border-right-color: #8fb1ff; border-radius: 50%; animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== NEW: Tabs (lightweight, accessible) ===== */
+    .tabs {
+      position: sticky; top: 0; z-index: 5; margin-bottom: 16px;
+      background: linear-gradient(#0f1220, #0f1220cc), var(--bg);
+      backdrop-filter: blur(6px);
+      border-bottom: 1px solid var(--border);
+    }
+    .tabsnav {
+      display:flex; gap:8px; padding: 10px 16px;
+    }
+    .tabbtn {
+      appearance: none; border: 1px solid var(--border); background:#121632; color: var(--text);
+      padding: 8px 12px; border-radius: 999px; font-size: 14px; line-height:1;
+    }
+    .tabbtn[aria-selected="true"] { background: #28306a; border-color:#3c4594; }
+    .tabbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    section[role="tabpanel"][hidden] { display:none; }
+    @media (max-width: 900px) { .wrap { padding-inline: 12px; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Teach For All — Knowledge Q&amp;A <span class="subtle">Tabbed</span></h1>
+
+    <!-- Tabs -->
+    <nav class="tabs" role="tablist" aria-label="Main sections">
+      <div class="tabsnav">
+        <button id="tab-qa" class="tabbtn" role="tab" aria-controls="panel-qa" aria-selected="true"  onclick="switchPanel('qa')">Q&A</button>
+        <button id="tab-note" class="tabbtn" role="tab" aria-controls="panel-note" aria-selected="false" onclick="switchPanel('note')">Add note</button>
+        <button id="tab-tr" class="tabbtn" role="tab" aria-controls="panel-tr" aria-selected="false" onclick="switchPanel('tr')">Transcripts</button>
+      </div>
+    </nav>
+
+    <!-- Busy indicator (shared) -->
+    <div id="busy" class="busy" hidden aria-live="polite">
+      <span class="spinner"></span><span id="busyText">Working…</span>
+    </div>
+
+    <!-- ===== Panel 1: Q&A (Supabase) ===== -->
+    <section id="panel-qa" role="tabpanel" aria-labelledby="tab-qa">
+      <div class="card">
+        <div class="row">
+          <div>
+            <label>From date</label>
+            <input id="from" type="date" />
+          </div>
+          <div>
+            <label>To date</label>
+            <input id="to" type="date" />
+          </div>
+          <div>
+            <label>Quick ranges</label>
+            <div class="btns">
+              <button onclick="qrange(7)">Past 7 days</button>
+              <button onclick="qrange(31)">Past month</button>
+              <button onclick="qrange(92)">Last 3 months</button>
+              <button onclick="clearDates()">Clear dates</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Type</label>
+            <select id="type">
+              <option value="all">All (default)</option>
+              <option value="Zoom Meeting">Zoom Meeting</option>
+              <option value="Email">Email</option>
+              <option value="Note">Note</option>
+            </select>
+          </div>
+          <div>
+            <label>Countries (comma-separated)</label>
+            <input id="countries" type="text" placeholder="e.g., Portugal, Spain" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Topic (optional)</label>
+            <input id="topic" type="text" placeholder="standards, onboarding, budget…" />
+          </div>
+          <div>
+            <label>Response speed</label>
+            <select id="speed">
+              <option value="30">Fast (~30 rows)</option>
+              <option value="100" selected>Medium (~100 rows)</option>
+              <option value="300">Max (300 rows)</option>
+            </select>
+          </div>
+        </div>
+
+        <label>Question</label>
+        <textarea id="question" placeholder="Ask your question… e.g., What was my last meeting with Bea about?"></textarea>
+
+        <div class="row">
+          <div>
+            <label>Answer style</label>
+            <select id="style">
+              <option value="normal" selected>normal</option>
+              <option value="short">short</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="btns">
+          <button id="askBtn" class="primary" onclick="ask()">Ask</button>
+          <button onclick="resetForm()">Reset</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 10px">Answer</h3>
+        <div id="answer" class="answer"></div>
+        <div id="err" class="error" style="margin-top:8px;"></div>
+        <details style="margin-top:14px">
+          <summary>Debug — Request, REST, SQL, Prompt &amp; Raw JSON</summary>
+          <div id="debug" class="muted" style="white-space:pre-wrap; font-size:12px; margin-top:10px;"></div>
+        </details>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 6px">Sources</h3>
+        <div id="sources" class="muted"></div>
+      </div>
+    </section>
+
+    <!-- ===== Panel 2: Add Note ===== -->
+    <section id="panel-note" role="tabpanel" aria-labelledby="tab-note" hidden>
+      <div class="card">
+        <h3 style="margin:0 0 10px">Add Note to Supabase</h3>
+        <label>Note text</label>
+        <textarea id="note" placeholder="Write a quick note to save…"></textarea>
+        <div class="row">
+          <div>
+            <label for="note_headline">Headline (optional)</label>
+            <input id="note_headline" type="text" placeholder="e.g., Dev Community call — key decisions" />
+            <label>Optional: Meeting ID</label>
+            <input id="meeting_id" type="text" placeholder="e.g., r1" />
+          </div>
+          <div>
+            <label>Optional: Author</label>
+            <input id="author" type="text" placeholder="Your name or email" />
+          </div>
+        </div>
+        <div class="btns">
+          <button id="saveNoteBtn" class="primary" onclick="saveNote()">Save note</button>
+          <span class="muted">Tip: filters, dates, and question are saved in <code>meta</code>.</span>
+        </div>
+        <div id="noteMsg" class="muted" style="margin-top:8px;"></div>
+      </div>
+    </section>
+
+    <!-- ===== Panel 3: Transcripts ===== -->
+    <section id="panel-tr" role="tabpanel" aria-labelledby="tab-tr" hidden>
+      <div class="card" id="tr_card">
+        <h3 style="margin:0 0 8px">Transcript query</h3>
+        <div class="row">
+          <div>
+            <label>From (transcripts)</label>
+            <input id="tr_from" type="date" />
+          </div>
+          <div>
+            <label>To</label>
+            <input id="tr_to" type="date" />
+          </div>
+        </div>
+        <label>Keywords (file name or contents)</label>
+        <input id="tr_kw" type="text" placeholder="e.g., Portugal, Tiago, budget" />
+        <div class="btns">
+          <button id="trFindBtn" class="primary" onclick="findTranscripts()">Find transcripts</button>
+        </div>
+        <div id="tr_results" class="muted" style="margin-top:10px;"></div>
+      </div>
+
+      <div class="card" id="tr_qa" hidden>
+        <h3 style="margin:0 0 8px">Ask about selected transcript</h3>
+        <div id="tr_meta" class="muted"></div>
+        <pre id="tr_preview"
+          style="white-space:pre-wrap;background:#0e1233;padding:12px;border-radius:8px;border:1px solid var(--border);max-height:200px;overflow:auto;margin-top:8px;"></pre>
+        <label>Question about this transcript</label>
+        <textarea id="tr_q" placeholder="Ask a question about the selected transcript…"></textarea>
+        <div class="btns">
+          <button id="trAskBtn" class="primary" onclick="askTranscript()">Ask about transcript</button>
+        </div>
+        <div id="tr_ans" class="answer" style="margin-top:10px;"></div>
+        <div id="tr_err" class="error" style="margin-top:8px;"></div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    /* ===== your existing JS (kept) ===== */
+    const GAS_BASE = "https://script.google.com/macros/s/AKfycbyvzIgN1uiRtnQh9SkjHo8ADtm66NrX2b1uIWr_vQ6XweQZvu1r9izXIVtPWzF7SuDZ/exec";
+
+    function jsonp(baseUrl, params, timeoutMs = 60000) {
+      return new Promise((resolve, reject) => {
+        const cbName = "__cb" + Date.now() + "_" + Math.floor(Math.random() * 1e6);
+        const qs = new URLSearchParams(params); qs.set("callback", cbName);
+        const full = baseUrl + (baseUrl.includes("?") ? "&" : "?") + qs.toString();
+        let done = false;
+        const cleanup = () => { done = true; try { delete window[cbName]; } catch(e){}; try { script.remove(); } catch(e){}; clearTimeout(t); };
+        window[cbName] = (data) => { if (done) return; cleanup(); resolve(data); };
+        const t = setTimeout(() => { if (done) return; cleanup(); reject(new Error("JSONP timeout")); }, timeoutMs);
+        const script = document.createElement("script");
+        script.src = full;
+        script.onerror = () => { if (done) return; cleanup(); reject(new Error("JSONP network error")); };
+        document.head.appendChild(script);
+      });
+    }
+
+    function todayIso(d = new Date()) { return d.toISOString().slice(0,10); }
+    function daysAgoIso(n) { const d = new Date(); d.setDate(d.getDate() - n); return d.toISOString().slice(0,10); }
+
+    /* ===== transcripts client bits (kept) ===== */
+    let TR_SELECTED = null;
+    function trCollect() {
+      return { from: document.getElementById('tr_from').value || '',
+               to: document.getElementById('tr_to').value || '',
+               keywords: document.getElementById('tr_kw').value || '',
+               limit: 10 };
+    }
+    async function findTranscripts() {
+      const btn = document.getElementById('trFindBtn');
+      const busy = document.getElementById('busy'); const busyText = document.getElementById('busyText');
+      btn.disabled = true; document.getElementById('tr_results').textContent = ''; document.getElementById('tr_qa').hidden = true; TR_SELECTED = null;
+      if (busy) { busyText.textContent = 'Searching Drive…'; busy.hidden = false; }
+      try {
+        const p = trCollect();
+        const data = await jsonp(GAS_BASE, { action: 'findTranscripts', ...p }, 90000);
+        if (!data || data.ok === false) {
+          document.getElementById('tr_results').innerHTML =
+            "<span class='error'>" + (data && data.error ? escapeHtml(data.error) : "Search failed") + "</span>";
+        } else {
+          renderTranscriptResults(data.results || []);
+        }
+      } catch (err) {
+        document.getElementById('tr_results').innerHTML = "<span class='error'>" + escapeHtml(err.message) + "</span>";
+      } finally {
+        btn.disabled = false; if (busy) busy.hidden = true;
+      }
+    }
+    function renderTranscriptResults(items) {
+      const el = document.getElementById('tr_results');
+      if (!items || !items.length) { el.innerHTML = "<span class='muted'>No transcripts found.</span>"; return; }
+      el.innerHTML = items.map((f) => {
+        const date = (f.modified || '').slice(0, 10);
+        const prev = (f.preview || '').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+        return `
+          <div class="card" style="margin:10px 0; padding:12px;">
+            <label style="display:flex; gap:10px; align-items:center;">
+              <input type="radio" name="tr_pick"
+                     data-id="${f.id}"
+                     data-name="${encodeURIComponent(f.name || '')}"
+                     data-mime="${encodeURIComponent(f.mimeType || '')}"
+                     data-prev="${encodeURIComponent(prev)}"
+                     data-link="${encodeURIComponent(f.link || '')}">
+              <strong>${escapeHtml(f.name || "(untitled)")}</strong>
+              <span class="tag">${date}</span>
+              ${f.link ? `<a href="${f.link}" target="_blank" style="margin-left:auto">Open</a>` : ""}
+            </label>
+            <div class="muted" style="margin-top:6px">
+              ${prev ? prev.slice(0, 300) + '…' : '(no preview)'}
+            </div>
+          </div>`;
+      }).join('');
+      if (!el._wired) {
+        const handler = (ev) => {
+          const r = ev.target.closest('input[name="tr_pick"]');
+          if (!r) return;
+          selectTranscript(r.dataset.id, r.dataset.name, r.dataset.mime, r.dataset.prev, r.dataset.link);
+          setTimeout(() => document.getElementById('tr_q')?.focus(), 0);
+        };
+        el.addEventListener('input', handler); el.addEventListener('change', handler); el._wired = true;
+      }
+    }
+    function selectTranscript(id, encName, encMime, encPrev, encLink) {
+      TR_SELECTED = {
+        id, name: decodeURIComponent(encName || ''), mimeType: decodeURIComponent(encMime || ''),
+        preview: decodeURIComponent(encPrev || ''), link: decodeURIComponent(encLink || '')
+      };
+      document.getElementById('tr_meta').innerHTML =
+        `<strong>${escapeHtml(TR_SELECTED.name)}</strong> ${TR_SELECTED.link ? `• <a href="${TR_SELECTED.link}" target="_blank">Open</a>` : ''}`;
+      document.getElementById('tr_preview').textContent = TR_SELECTED.preview || '(preview unavailable)';
+      document.getElementById('tr_qa').hidden = false;
+    }
+    async function askTranscript() {
+      if (!TR_SELECTED) { alert('Please choose a transcript.'); return; }
+      const q = (document.getElementById('tr_q').value || '').trim();
+      if (!q) { document.getElementById('tr_err').textContent = 'Please enter a question.'; return; }
+      const btn = document.getElementById('trAskBtn');
+      const busy = document.getElementById('busy'); const busyText = document.getElementById('busyText');
+      btn.disabled = true; document.getElementById('tr_err').textContent = ''; document.getElementById('tr_ans').innerHTML = '';
+      if (busy) { busyText.textContent = 'Reading transcript…'; busy.hidden = false; }
+      try {
+        const data = await jsonp(GAS_BASE, { action: 'askTranscript', id: TR_SELECTED.id, mimeType: TR_SELECTED.mimeType, question: q }, 120000);
+        if (!data || data.ok === false) { document.getElementById('tr_err').textContent = (data && data.error) ? data.error : 'Failed.'; }
+        else { document.getElementById('tr_ans').innerHTML = data.answer || ''; }
+      } catch (err) {
+        document.getElementById('tr_err').textContent = err.message;
+      } finally {
+        btn.disabled = false; if (busy) busy.hidden = true;
+      }
+      document.getElementById('tr_qa').scrollIntoView({ behavior:'smooth', block:'start' });
+    }
+
+    /* ===== Q&A + notes helpers (kept) ===== */
+    function qrange(n) { document.getElementById("from").value = daysAgoIso(n); document.getElementById("to").value = todayIso(); }
+    function clearDates() { document.getElementById("from").value = ""; document.getElementById("to").value = ""; }
+    function resetForm() {
+      document.getElementById("question").value = ""; document.getElementById("topic").value = ""; document.getElementById("countries").value = "";
+      document.getElementById("type").value = "all"; document.getElementById("speed").value = "100"; document.getElementById("style").value = "normal";
+      clearDates(); setAnswer("", ""); setSources([]); setDebug(""); document.getElementById("note").value = "";
+      document.getElementById("meeting_id").value = ""; document.getElementById("author").value = ""; document.getElementById("noteMsg").textContent = "";
+    }
+    function setAnswer(html, err) { document.getElementById("answer").innerHTML = html || ""; document.getElementById("err").textContent = err || ""; }
+    function setSources(srcs) {
+      const el = document.getElementById("sources");
+      if (!srcs || !srcs.length) { el.innerHTML = "<span class='muted'>—</span>"; return; }
+      el.innerHTML = srcs.map(s => {
+        const bits = [s.date, s.type, s.countries].filter(Boolean).join(" · ");
+        return `<div><span class="tag">${bits||"source"}</span> ${escapeHtml(s.title||"")}</div>`;
+      }).join("");
+    }
+    function setDebug(s) { document.getElementById("debug").textContent = s || ""; }
+    function escapeHtml(x) { return (x||"").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+    function collectFilters() {
+      return {
+        from: document.getElementById("from").value || "",
+        to: document.getElementById("to").value || "",
+        type: document.getElementById("type").value || "all",
+        countries: document.getElementById("countries").value || "",
+        topic: document.getElementById("topic").value || "",
+        limit: document.getElementById("speed").value || "100",
+        style: document.getElementById("style").value || "normal",
+        question: document.getElementById("question").value || ""
+      };
+    }
+
+    async function ask() {
+      const btn = document.getElementById("askBtn");
+      const busy = document.getElementById("busy");
+      btn.disabled = true; setAnswer("", ""); setDebug(""); setSources([]);
+      const p = collectFilters();
+      if (!p.question.trim()) { setAnswer("", "Please enter a question."); btn.disabled = false; return; }
+      busy.hidden = false;
+      try {
+        const data = await jsonp(GAS_BASE, { action: "ask", ...p }, 90000);
+        if (!data || data.ok === false) { setAnswer("", "Error: " + (data && data.error ? data.error : "Unknown")); }
+        else {
+          setAnswer(data.answer || "", ""); setSources(data.sources || []);
+          const dbg = [
+            "Request URL:\n" + GAS_BASE, "", "Supabase REST URL:\n" + (data.debug && data.debug.rest ? data.debug.rest : ""),
+            "", "SQL (approximate):\n" + (data.debug && data.debug.sql_approx ? data.debug.sql_approx : ""),
+            "", "Prompt (exact, sent to Gemini):\n" + (data.debug && data.debug.prompt ? data.debug.prompt : "")
+          ].join("\n");
+          setDebug(dbg);
+        }
+      } catch (err) {
+        setAnswer("", "Error: " + err.message);
+      } finally {
+        busy.hidden = true; btn.disabled = false;
+      }
+    }
+
+    async function saveNote() {
+      const btn = document.getElementById("saveNoteBtn"); btn.disabled = true;
+      const noteMsg = document.getElementById("noteMsg"); noteMsg.textContent = "";
+      const p = collectFilters();
+      const note = document.getElementById("note").value || "";
+      const meeting_id = document.getElementById("meeting_id").value || "";
+      const author = document.getElementById("author").value || "";
+      const headline = (document.getElementById("note_headline")?.value || "").trim();
+      if (!note.trim()) { noteMsg.textContent = "Please type a note."; btn.disabled = false; return; }
+      try {
+        const data = await jsonp(GAS_BASE, { action: "addNote", note, meeting_id, author, headline,
+          from: p.from, to: p.to, type: p.type, countries: p.countries, topic: p.topic, style: p.style, question: p.question });
+        if (!data || data.ok === false) { noteMsg.textContent = "Error saving note: " + (data && data.error ? data.error : "Unknown"); }
+        else { const tbl = data.result && data.result.table || "?"; noteMsg.textContent = "Saved to table “" + tbl + "”."; }
+      } catch (err) {
+        noteMsg.textContent = "Error: " + err.message;
+      } finally { btn.disabled = false; }
+    }
+
+    /* ===== NEW: tiny tab router ===== */
+    function switchPanel(which) {
+      const map = { qa: 'panel-qa', note: 'panel-note', tr: 'panel-tr' };
+      for (const k of Object.keys(map)) {
+        const panel = document.getElementById(map[k]);
+        const tab = document.getElementById('tab-' + k);
+        const isActive = (k === which);
+        panel.hidden = !isActive;
+        tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      }
+      // update hash (nice deep-linking)
+      const hash = which === 'qa' ? '#qa' : which === 'note' ? '#note' : '#transcripts';
+      history.replaceState(null, '', hash);
+    }
+
+    function initTabsFromHash() {
+      const h = (location.hash || '').toLowerCase();
+      if (h.includes('note')) switchPanel('note');
+      else if (h.includes('transcript')) switchPanel('tr');
+      else switchPanel('qa');
+    }
+
+    // Boot
+    qrange(30);
+    initTabsFromHash();
+    window.addEventListener('hashchange', initTabsFromHash);
+  </script>
+</body>
+</html>

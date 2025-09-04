@@ -444,9 +444,33 @@
     }
 
     // Boot
-    qrange(30);
-    initTabsFromHash();
-    window.addEventListener('hashchange', initTabsFromHash);
+document.addEventListener('DOMContentLoaded', () => {
+  const $ = (id) => document.getElementById(id);
+
+  // Main actions
+  $('#askBtn')?.addEventListener('click', ask);
+  $('#saveNoteBtn')?.addEventListener('click', saveNote);
+  $('#trFindBtn')?.addEventListener('click', findTranscripts);
+  $('#trAskBtn')?.addEventListener('click', askTranscript);
+
+  // Tabs
+  $('#tab-qa')?.addEventListener('click', () => switchPanel('qa'));
+  $('#tab-note')?.addEventListener('click', () => switchPanel('note'));
+  $('#tab-tr')?.addEventListener('click', () => switchPanel('tr'));
+
+  // Initial state
+  qrange(30);
+  initTabsFromHash();
+  window.addEventListener('hashchange', initTabsFromHash);
+});
+
+// Keep these so any inline onclick="" still works
+window.ask = ask;
+window.saveNote = saveNote;
+window.findTranscripts = findTranscripts;
+window.askTranscript = askTranscript;
+window.switchPanel = switchPanel;
+
     <script>
   // …all your functions (ask, saveNote, findTranscripts, askTranscript, switchPanel, etc.)
 

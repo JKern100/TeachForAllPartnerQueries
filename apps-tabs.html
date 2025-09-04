@@ -58,7 +58,7 @@
 </head>
 <body>
   <div class="wrap">
-    <h1>Teach For All — Knowledge Q&amp;A <span class="subtle">Tabbed V2</span></h1>
+    <h1>Teach For All — Knowledge Q&amp;A <span class="subtle">Tabbed V3</span></h1>
 
     <!-- Tabs -->
     <nav class="tabs" role="tablist" aria-label="Main sections">
@@ -297,9 +297,11 @@
               <span class="tag">${date}</span>
               ${f.link ? `<a href="${f.link}" target="_blank" style="margin-left:auto">Open</a>` : ""}
             </label>
-            <div class="muted" style="margin-top:6px">
-              ${prev ? prev.slice(0, 300) + '…' : '(no preview)'}
-            </div>
+           ${prev
+  ? `<div class="muted" style="margin-top:6px">${
+      prev.length > 300 ? prev.slice(0, 300) + '…' : prev
+    }</div>`
+  : ``}
           </div>`;
       }).join('');
       if (!el._wired) {

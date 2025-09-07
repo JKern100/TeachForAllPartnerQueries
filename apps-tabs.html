@@ -10,6 +10,11 @@
       --bg: #0f1220; --panel: #171a2a; --text: #e9ecff; --muted: #9aa3c7;
       --accent: #7aa2ff; --accent-2: #a8ffef; --danger: #ff7a7a; --ok: #6ee7b7; --border: #232743;
     }
+
+    /* NEW: make sizing predictable and block overflow surprises */
+    *, *::before, *::after { box-sizing: border-box; }
+    input, select, textarea, button { max-width: 100%; }
+
     html, body { background: var(--bg); color: var(--text); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; }
     .wrap { max-width: 1050px; margin: 32px auto 120px; padding: 0 16px; }
     h1 { font-size: 26px; margin: 0 0 20px; letter-spacing: .2px }
@@ -18,12 +23,23 @@
     label { display:block; font-size: 12px; color: var(--muted); margin: 14px 0 6px; }
     input[type="text"], input[type="date"], select, textarea { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: #0f1330; color: var(--text); }
     textarea { min-height: 140px; resize: vertical; overflow: auto; }
-    .row { display:flex; flex-wrap: wrap; gap:14px; }
+
+    /* rows: let items wrap cleanly and align bottoms to avoid visual overlap */
+    .row { display:flex; flex-wrap: wrap; gap:14px; align-items: flex-end; }
     .row > div { flex:1 1 280px; min-width: 240px; }
-    .btns { display:flex; gap:10px; margin-top: 14px; }
+
+    /* buttons */
+    .btns { display:flex; gap:10px; margin-top: 14px; flex-wrap: wrap; }
     button { width:100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); background: #1e2448; color: var(--text); cursor: pointer; }
     button.primary { background: #2a3470; border-color:#384196; }
     button:disabled { opacity: .6; cursor: default; }
+
+    /* DIFFERENTIATE button groups:
+       - Footer button bars that are direct children of .card: fill evenly
+       - Inline button bars inside .row (e.g., Quick ranges): auto size */
+    .card > .btns > button { flex: 1 1 0; min-width: 160px; }
+    .row .btns > button { width:auto; flex: 0 0 auto; min-width: 120px; }
+
     .muted { color: var(--muted); }
     .answer { background: #0e1233; border: 1px solid var(--border); border-radius: 10px; padding: 16px; min-height: 80px }
     .error { color: var(--danger); }
@@ -36,7 +52,7 @@
     .spinner { width: 16px; height: 16px; border: 2px solid transparent; border-top-color: #8fb1ff; border-right-color: #8fb1ff; border-radius: 50%; animation: spin .8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ===== NEW: Tabs (lightweight, accessible) ===== */
+    /* ===== Tabs ===== */
     .tabs {
       position: sticky; top: 0; z-index: 5; margin-bottom: 16px;
       background: linear-gradient(#0f1220, #0f1220cc), var(--bg);
@@ -44,7 +60,7 @@
       border-bottom: 1px solid var(--border);
     }
     .tabsnav {
-      display:flex; gap:8px; padding: 10px 16px;
+      display:flex; gap:8px; padding: 10px 16px; flex-wrap: wrap; /* NEW: prevent overlap on small screens */
     }
     .tabbtn {
       appearance: none; border: 1px solid var(--border); background:#121632; color: var(--text);
@@ -53,12 +69,19 @@
     .tabbtn[aria-selected="true"] { background: #28306a; border-color:#3c4594; }
     .tabbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     section[role="tabpanel"][hidden] { display:none; }
+
+    /* NEW: make hash-jumps not hide content under sticky tabs */
+    section[role="tabpanel"] { scroll-margin-top: 64px; }
+
+    /* NEW: allow “result” labels set to flex to wrap without smashing neighbors */
+    .card label { flex-wrap: wrap; }
+
     @media (max-width: 900px) { .wrap { padding-inline: 12px; } }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>Teach For All — Knowledge Q&amp;A <span class="subtle">Tabbed V3</span></h1>
+    <h1>Teach For All — Knowledge Q&amp;A <span class="subtle">Tabbed V4</span></h1>
 
     <!-- Tabs -->
     <nav class="tabs" role="tablist" aria-label="Main sections">
@@ -475,7 +498,6 @@
 
     window.askTranscript_ = askTranscript;
     window.findTranscripts_ = findTranscripts;
-    
   </script>
 </body>
 </html>

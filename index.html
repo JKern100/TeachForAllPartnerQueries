@@ -422,12 +422,15 @@ function renderReports(items) {
       const container = document.getElementById('rep_container');
 
       const html = items.map(item => {
-        // === FIX 1: CLEANUP ===
         let raw = item.summary_text || "";
-        // Remove the starting ```html and any whitespace
-        raw = raw.replace(/^```html\s*/i, "");
-        // Remove the ending ``` and whitespace
-        raw = raw.replace(/\s*```$/, "");
+        
+        // === AGGRESSIVE CLEANUP ===
+        // Remove "```html" anywhere in the text (case insensitive)
+        raw = raw.replace(/```html/gi, "");
+        // Remove any remaining backticks "```"
+        raw = raw.replace(/```/g, "");
+        // Trim any leftover whitespace
+        raw = raw.trim();
 
         return `
           <div style="background:#131624; border:1px solid #2b3343; border-radius:8px; padding:16px; margin-bottom:16px;">
@@ -445,7 +448,7 @@ function renderReports(items) {
       }).join("");
 
       container.innerHTML = html;
-}
+    }
 
     // ================== TRANSCRIPTS (client) ==================
     let TR_SELECTED = null;

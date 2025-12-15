@@ -1,3 +1,15 @@
+Here is the **fixed and complete HTML**.
+
+I have added the missing JavaScript functions (`getPartnerReports`, `renderReports`, and `setRepDates`) inside the `<script>` tag. I also added a comment next to `GAS_BASE` to remind you to check your URL.
+
+### What was fixed:
+
+1.  **Added Missing Logic:** The functions to handle the "Load Reports" button click were missing from the script, causing the "ReferenceError". They are now included.
+2.  **Organized Script:** I placed the new logic clearly under a `// ========= WEEKLY REPORTS =========` section in the Javascript.
+
+### Your Fixed Code:
+
+```html
 <!doctype html>
 <html lang="en">
 <head>
@@ -230,7 +242,6 @@
       </div>
     </div>
 
-    <!-- Busy indicator (hidden by default) -->
     <div id="busy" class="busy" hidden aria-live="polite">
       <span class="spinner"></span>
       <span id="busyText">Working…</span>
@@ -251,7 +262,8 @@
       <h3 style="margin:0 0 6px">Sources</h3>
       <div id="sources" class="muted"></div>
     </div>
-<div class="card">
+
+    <div class="card">
       <h3 style="margin:0 0 10px">Weekly Partner Reports</h3>
       
       <div class="row">
@@ -273,7 +285,7 @@
 
       <div id="rep_container" style="margin-top:20px;"></div>
       <div id="rep_err" class="error" style="margin-top:8px;"></div>
-</div>
+    </div>
     
     <div class="card">
       <h3 style="margin:0 0 10px">Add Note to Supabase</h3>
@@ -298,7 +310,6 @@
       <div id="noteMsg" class="muted" style="margin-top:8px;"></div>
     </div>
 
-    <!-- === Transcript search (new) — FIXED: content is inside the card === -->
     <div class="card" id="tr_card">
       <h3 style="margin:0 0 8px">Transcript query</h3>
 
@@ -323,7 +334,6 @@
       <div id="tr_results" class="muted" style="margin-top:10px;"></div>
     </div>
 
-    <!-- === Transcript Q&A (new) — stays inside .wrap === -->
     <div class="card" id="tr_qa" hidden>
       <h3 style="margin:0 0 8px">Ask about selected transcript</h3>
       <div id="tr_meta" class="muted"></div>
@@ -342,11 +352,10 @@
       <div id="tr_err" class="error" style="margin-top:8px;"></div>
     </div>
 
-  </div> <!-- end .wrap -->
-
-  <script>
+  </div> <script>
     // ========= CONFIG =========
-    const GAS_BASE = "https://script.google.com/macros/s/AKfycbyvzIgN1uiRtnQh9SkjHo8ADtm66NrX2b1uIWr_vQ6XweQZvu1r9izXIVtPWzF7SuDZ/exec"; // <-- replace if you redeploy
+    // IMPORTANT: Make sure this URL matches your LATEST "New Version" deployment!
+    const GAS_BASE = "https://script.google.com/macros/s/AKfycbyvzIgN1uiRtnQh9SkjHo8ADtm66NrX2b1uIWr_vQ6XweQZvu1r9izXIVtPWzF7SuDZ/exec"; 
 
     // ========= JSONP =========
     function jsonp(baseUrl, params, timeoutMs = 60000) {
@@ -378,6 +387,70 @@
     // ========= UI HELPERS =========
     function todayIso(d = new Date()) { return d.toISOString().slice(0,10); }
     function daysAgoIso(n) { const d = new Date(); d.setDate(d.getDate() - n); return d.toISOString().slice(0,10); }
+
+    // ========= WEEKLY REPORTS (FIXED: Added missing functions) =========
+    function setRepDates(n) {
+      document.getElementById("rep_from").value = daysAgoIso(n);
+      document.getElementById("rep_to").value = todayIso();
+    }
+
+    async function getPartnerReports() {
+      const btn = document.getElementById('repBtn');
+      const container = document.getElementById('rep_container');
+      const err = document.getElementById('rep_err');
+      const busy = document.getElementById('busy');
+
+      // 1. Reset UI
+      container.innerHTML = "";
+      err.textContent = "";
+      btn.disabled = true;
+      if(busy) { busy.hidden = false; document.getElementById('busyText').textContent = "Loading reports..."; }
+
+      try {
+        // 2. Call Backend
+        const data = await jsonp(GAS_BASE, {
+          action: 'getReports',
+          from: document.getElementById('rep_from').value,
+          to: document.getElementById('rep_to').value
+        }, 30000);
+
+        if (!data || data.ok === false) {
+          err.textContent = (data && data.error) ? data.error : "Failed to load reports.";
+        } else if (!data.reports || data.reports.length === 0) {
+          container.innerHTML = "<div class='muted'>No reports found for this period.</div>";
+        } else {
+          // 3. Render Reports "As Is"
+          renderReports(data.reports);
+        }
+
+      } catch (e) {
+        err.textContent = "Error: " + e.message;
+      } finally {
+        btn.disabled = false;
+        if(busy) busy.hidden = true;
+      }
+    }
+
+    function renderReports(items) {
+      const container = document.getElementById('rep_container');
+
+      const html = items.map(item => {
+        return `
+          <div style="background:#131624; border:1px solid #2b3343; border-radius:8px; padding:16px; margin-bottom:16px;">
+            <div style="margin-bottom:12px; border-bottom:1px solid #232743; padding-bottom:8px;">
+              <span class="tag">${escapeHtml(item.date_iso)}</span>
+              <strong style="margin-left:8px; font-size:15px;">${escapeHtml(item.title)}</strong>
+              ${item.countries ? `<span class="subtle" style="float:right">${escapeHtml(item.countries)}</span>` : ""}
+            </div>
+            <div class="report-content" style="font-size:15px; line-height:1.6; color:#cfd6e6;">
+              ${item.summary_text || "<span class='muted'>(No content)</span>"}
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      container.innerHTML = html;
+    }
 
     // ================== TRANSCRIPTS (client) ==================
     let TR_SELECTED = null;
@@ -436,11 +509,11 @@
           <div class="card" style="margin:10px 0; padding:12px;">
             <label style="display:flex; gap:10px; align-items:center;">
               <input type="radio" name="tr_pick"
-                     data-id="${f.id}"
-                     data-name="${encodeURIComponent(f.name || '')}"
-                     data-mime="${encodeURIComponent(f.mimeType || '')}"
-                     data-prev="${encodeURIComponent(prev)}"
-                     data-link="${encodeURIComponent(f.link || '')}">
+                   data-id="${f.id}"
+                   data-name="${encodeURIComponent(f.name || '')}"
+                   data-mime="${encodeURIComponent(f.mimeType || '')}"
+                   data-prev="${encodeURIComponent(prev)}"
+                   data-link="${encodeURIComponent(f.link || '')}">
               <strong>${escapeHtml(f.name || "(untitled)")}</strong>
               <span class="tag">${date}</span>
               ${f.link ? `<a href="${f.link}" target="_blank" style="margin-left:auto">Open</a>` : ""}
@@ -658,3 +731,4 @@
   </script>
 </body>
 </html>
+```

@@ -29,7 +29,7 @@
     margin: 0.2rem 0;
   }
 
-  /* Error + debug readability (does not change logic) */
+  /* Error + debug readability */
   #error, #err {
     color: #ff6b6b;
     font-weight: 500;
@@ -41,7 +41,7 @@
     white-space: pre-wrap;
   }
 
-  /* Quick ranges: lighter labels and clearer hover */
+  /* Quick ranges buttons */
   .quick button, .quick .btn, .quick-ranges .btn {
     background: #1a1f2b;
     color: #c9d2e3;
@@ -56,12 +56,13 @@
     color: #e8eefc;
   }
 
-  /* Save-note section spacing only */
+  /* Save-note section hint */
   .note-panel .hint {
     color: #aab2c0;
     font-size: 13px;
   }
 
+  /* === CORE THEME VARIABLES === */
   :root {
     --bg: #0f1220;
     --panel: #171a2a;
@@ -73,49 +74,59 @@
     --ok: #6ee7b7;
     --border: #232743;
   }
-  html, body { background: var(--bg); color: var(--text); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; }
+
+  /* === GLOBAL STYLES === */
+  html, body { 
+    background: var(--bg); 
+    color: var(--text); 
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; 
+    overflow-x: hidden;
+  }
+  
+  *, *::before, *::after { box-sizing: border-box; }
+
+  /* Layout */
   .wrap { max-width: 1050px; margin: 32px auto 120px; padding: 0 16px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 16px; overflow: hidden; }
+  
+  /* Typography */
   h1 { font-size: 26px; margin: 0 0 20px; letter-spacing: .2px }
   .subtle { color: var(--muted); font-size: 12px; margin-left: 8px; padding: 2px 6px; background: #1e2238; border-radius: 10px; vertical-align: middle;}
-  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 16px; }
   label { display:block; font-size: 12px; color: var(--muted); margin: 14px 0 6px; }
+  .muted { color: var(--muted); }
+  .error { color: var(--danger); }
+  .tag { display:inline-block; font-size: 12px; padding: 2px 8px; border:1px solid var(--border); border-radius: 999px; color: var(--muted); margin-right:6px;}
+
+  /* Inputs & Buttons */
   input[type="text"], input[type="date"], select, textarea {
     width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: #0f1330; color: var(--text);
+    display: block; max-width: 100%; min-width: 0;
   }
-  textarea { min-height: 120px; resize: vertical; }
-  .row { display:flex; gap:14px; }
-  .row > div { flex:1; }
-  .row-3 > div { flex: 1 1 33.3%; }
-  .btns { display:flex; gap:10px; margin-top: 14px; }
+  textarea { min-height: 120px; resize: vertical; overflow: auto; }
+  
   button {
-    padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border);
-    background: #1e2448; color: var(--text); cursor: pointer;
+    width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border);
+    background: #1e2448; color: var(--text); cursor: pointer; display: block;
   }
   button.primary { background: #2a3470; border-color:#384196; }
   button:disabled { opacity: .6; cursor: default; }
-  .muted { color: var(--muted); }
-  .answer { background: #0e1233; border: 1px solid var(--border); border-radius: 10px; padding: 16px; min-height: 80px }
-  .error { color: var(--danger); }
-  details summary { cursor:pointer; color: var(--muted); }
-  ul.clean { margin: 6px 0 0 18px; }
-  .tag { display:inline-block; font-size: 12px; padding: 2px 8px; border:1px solid var(--border); border-radius: 999px; color: var(--muted); margin-right:6px;}
 
-  /* ---- Layout guardrails ---- */
-  *, *::before, *::after { box-sizing: border-box; }
-  html, body { overflow-x: hidden; }
-  .wrap { max-width: 1100px; margin: 32px auto; padding-inline: 16px; }
-  .card { overflow: hidden; }
-  input[type="text"], input[type="date"], select, textarea, button {
-    width: 100%; max-width: 100%; min-width: 0; display: block;
-  }
-  textarea { resize: vertical; min-height: 140px; overflow: auto; }
+  /* Flex Utilities */
   .row { display: flex; flex-wrap: wrap; gap: 14px; }
   .row > div { flex: 1 1 280px; min-width: 240px; }
-  .quick, .quick-ranges { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .row-3 > div { flex: 1 1 33.3%; }
+  .btns { display:flex; gap:10px; margin-top: 14px; }
+  
   @media (max-width: 900px) {
     .wrap { padding-inline: 12px; }
     .row > div { flex-basis: 100%; min-width: 0; }
   }
+
+  /* Components */
+  .answer { background: #0e1233; border: 1px solid var(--border); border-radius: 10px; padding: 16px; min-height: 80px }
+  details summary { cursor:pointer; color: var(--muted); }
+
+  /* Busy Spinner */
   .busy { display: flex; align-items: center; gap: 10px; margin-top: 10px; color: var(--muted); }
   .busy[hidden] { display: none; }
   .spinner {
@@ -124,23 +135,25 @@
     border-radius: 50%; animation: spin .8s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
-  button:disabled { opacity: .6; cursor: default; }
 
   /* === FIX: REPORT STYLING (Force Dark Mode) === */
+  /* This section aggressively overrides styles from the database HTML */
   .report-content {
     color: #e9ecff;
     font-size: 15px;
     line-height: 1.6;
   }
-  /* Force all children to lose their backgrounds and shadows */
+  
+  /* Force all children to have transparent backgrounds */
   .report-content * {
-    background-color: transparent !important; /* Removes white boxes */
+    background-color: transparent !important; /* Strips white/blue boxes */
     color: #e9ecff !important;                /* Forces light text */
     box-shadow: none !important;              /* Removes card shadows */
     border: none !important;                  /* Removes internal borders */
     font-family: inherit !important;          /* Enforces app font */
   }
-  /* Re-apply Accent Color to headers/bold so it looks nice */
+
+  /* Style headers and bold text with Accent Color */
   .report-content strong, .report-content b,
   .report-content h1, .report-content h2, .report-content h3, .report-content h4 {
     color: #7aa2ff !important; 
@@ -149,12 +162,14 @@
     margin-bottom: 6px !important;
     background: transparent !important;
   }
+
   /* Fix lists spacing */
   .report-content ul, .report-content ol {
     margin-left: 20px !important;
     margin-bottom: 10px !important;
   }
   .report-content li { margin-bottom: 4px !important; }
+
   /* Make links readable */
   .report-content a {
     color: #7aa2ff !important;
@@ -165,7 +180,7 @@
 <body>
   <div class="wrap">
 
-    <h1>Teach For All — Knowledge Q&amp;A <span class="subtle">V24</span></h1>
+    <h1>Teach For All — Knowledge Q&amp;A <span class="subtle">V25</span></h1>
 
     <div class="card">
       <div class="row row-3">
@@ -338,6 +353,7 @@
 
   </div> <script>
     // ========= CONFIG =========
+    // IMPORTANT: Make sure this URL matches your LATEST "New Version" deployment!
     const GAS_BASE = "https://script.google.com/macros/s/AKfycbyvzIgN1uiRtnQh9SkjHo8ADtm66NrX2b1uIWr_vQ6XweQZvu1r9izXIVtPWzF7SuDZ/exec"; 
 
     // ========= JSONP =========

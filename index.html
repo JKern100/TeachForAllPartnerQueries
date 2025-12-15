@@ -1,12 +1,3 @@
-I found the issue in the code you just pasted.
-
-While the JavaScript logic to remove the text was there, **the CSS styles to force Dark Mode were missing** from the `<style>` block. That is why the white background ("flashbang") and styling issues persisted.
-
-Here is the **complete, fixed HTML**. I have injected the "Nuclear CSS" at the bottom of the style section and verified the JavaScript cleanup logic is correct.
-
-**Copy and paste this entire block:**
-
-````html
 <!doctype html>
 <html lang="en">
 <head>
@@ -713,4 +704,3 @@ Here is the **complete, fixed HTML**. I have injected the "Nuclear CSS" at the b
   </script>
 </body>
 </html>
-````

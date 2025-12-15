@@ -418,11 +418,17 @@
         if(busy) busy.hidden = true;
       }
     }
-
-    function renderReports(items) {
+function renderReports(items) {
       const container = document.getElementById('rep_container');
 
       const html = items.map(item => {
+        // === FIX 1: CLEANUP ===
+        let raw = item.summary_text || "";
+        // Remove the starting ```html and any whitespace
+        raw = raw.replace(/^```html\s*/i, "");
+        // Remove the ending ``` and whitespace
+        raw = raw.replace(/\s*```$/, "");
+
         return `
           <div style="background:#131624; border:1px solid #2b3343; border-radius:8px; padding:16px; margin-bottom:16px;">
             <div style="margin-bottom:12px; border-bottom:1px solid #232743; padding-bottom:8px;">
@@ -430,15 +436,16 @@
               <strong style="margin-left:8px; font-size:15px;">${escapeHtml(item.title)}</strong>
               ${item.countries ? `<span class="subtle" style="float:right">${escapeHtml(item.countries)}</span>` : ""}
             </div>
-            <div class="report-content" style="font-size:15px; line-height:1.6; color:#cfd6e6;">
-              ${item.summary_text || "<span class='muted'>(No content)</span>"}
+            
+            <div class="report-content">
+              ${raw || "<span class='muted'>(No content)</span>"}
             </div>
           </div>
         `;
       }).join("");
 
       container.innerHTML = html;
-    }
+}
 
     // ================== TRANSCRIPTS (client) ==================
     let TR_SELECTED = null;

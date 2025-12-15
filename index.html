@@ -251,7 +251,30 @@
       <h3 style="margin:0 0 6px">Sources</h3>
       <div id="sources" class="muted"></div>
     </div>
+<div class="card">
+      <h3 style="margin:0 0 10px">Weekly Partner Reports</h3>
+      
+      <div class="row">
+        <div>
+          <label>From Date</label>
+          <input id="rep_from" type="date" />
+        </div>
+        <div>
+          <label>To Date</label>
+          <input id="rep_to" type="date" />
+        </div>
+      </div>
+      
+      <div class="btns">
+        <button id="repBtn" class="primary" onclick="getPartnerReports()">Load Reports</button>
+        <button onclick="setRepDates(7)">Past 7 days</button>
+        <button onclick="setRepDates(30)">Past 30 days</button>
+      </div>
 
+      <div id="rep_container" style="margin-top:20px;"></div>
+      <div id="rep_err" class="error" style="margin-top:8px;"></div>
+</div>
+    
     <div class="card">
       <h3 style="margin:0 0 10px">Add Note to Supabase</h3>
       <label>Note text</label>

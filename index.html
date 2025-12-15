@@ -136,24 +136,25 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* === FIX: REPORT STYLING (Force Dark Mode) === */
-  /* This section aggressively overrides styles from the database HTML */
+  /* ========================================================= */
+  /* === FIX: REPORT STYLING (The "Nuclear" Option)        === */
+  /* ========================================================= */
   .report-content {
     color: #e9ecff;
     font-size: 15px;
     line-height: 1.6;
   }
   
-  /* Force all children to have transparent backgrounds */
+  /* 1. FORCE TRANSPARENCY: Strips white/blue boxes coming from DB */
   .report-content * {
-    background-color: transparent !important; /* Strips white/blue boxes */
-    color: #e9ecff !important;                /* Forces light text */
-    box-shadow: none !important;              /* Removes card shadows */
-    border: none !important;                  /* Removes internal borders */
-    font-family: inherit !important;          /* Enforces app font */
+    background-color: transparent !important; 
+    color: #e9ecff !important;                
+    box-shadow: none !important;              
+    border: none !important;                  
+    font-family: inherit !important;          
   }
 
-  /* Style headers and bold text with Accent Color */
+  /* 2. STYLE HEADERS: Make them blue/bright again */
   .report-content strong, .report-content b,
   .report-content h1, .report-content h2, .report-content h3, .report-content h4 {
     color: #7aa2ff !important; 
@@ -163,14 +164,14 @@
     background: transparent !important;
   }
 
-  /* Fix lists spacing */
+  /* 3. FIX LISTS */
   .report-content ul, .report-content ol {
     margin-left: 20px !important;
     margin-bottom: 10px !important;
   }
   .report-content li { margin-bottom: 4px !important; }
 
-  /* Make links readable */
+  /* 4. FIX LINKS */
   .report-content a {
     color: #7aa2ff !important;
     text-decoration: underline !important;
@@ -180,7 +181,7 @@
 <body>
   <div class="wrap">
 
-    <h1>Teach For All — Knowledge Q&amp;A <span class="subtle">V25</span></h1>
+    <h1>Teach For All — Knowledge Q&amp;A <span class="subtle">V26</span></h1>
 
     <div class="card">
       <div class="row row-3">
@@ -354,7 +355,7 @@
   </div> <script>
     // ========= CONFIG =========
     // IMPORTANT: Make sure this URL matches your LATEST "New Version" deployment!
-    const GAS_BASE = "https://script.google.com/macros/s/AKfycbyvzIgN1uiRtnQh9SkjHo8ADtm66NrX2b1uIWr_vQ6XweQZvu1r9izXIVtPWzF7SuDZ/exec"; 
+    const GAS_BASE = "[https://script.google.com/macros/s/AKfycbyvzIgN1uiRtnQh9SkjHo8ADtm66NrX2b1uIWr_vQ6XweQZvu1r9izXIVtPWzF7SuDZ/exec](https://script.google.com/macros/s/AKfycbyvzIgN1uiRtnQh9SkjHo8ADtm66NrX2b1uIWr_vQ6XweQZvu1r9izXIVtPWzF7SuDZ/exec)"; 
 
     // ========= JSONP =========
     function jsonp(baseUrl, params, timeoutMs = 60000) {
@@ -429,8 +430,11 @@
         let raw = item.summary_text || "";
         
         // === AGGRESSIVE CLEANUP ===
-        raw = raw.replace(/```html/gi, ""); // Remove ```html
-        raw = raw.replace(/```/g, "");      // Remove any remaining backticks
+        // Remove ```html markers anywhere
+        raw = raw.replace(/```html/gi, ""); 
+        // Remove backticks
+        raw = raw.replace(/```/g, "");      
+        // Remove empty lines at start/end
         raw = raw.trim();
 
         return `

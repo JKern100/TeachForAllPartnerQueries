@@ -90,7 +90,7 @@
   .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 16px; overflow: hidden; }
   
   /* Typography */
-  h1 { font-size: 26px; margin: 0 0 20px; letter-spacing: .2px }
+  h1 { font-size: 26px; margin: 0; letter-spacing: .2px }
   .subtle { color: var(--muted); font-size: 12px; margin-left: 8px; padding: 2px 6px; background: #1e2238; border-radius: 10px; vertical-align: middle;}
   label { display:block; font-size: 12px; color: var(--muted); margin: 14px 0 6px; }
   .muted { color: var(--muted); }
@@ -136,6 +136,24 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  /* === NEW: TABS STYLING === */
+  .tabs { 
+    display: flex; gap: 10px; margin-bottom: 20px; 
+    border-bottom: 1px solid var(--border); padding-bottom: 10px; 
+    overflow-x: auto; /* allow scroll on small mobile */
+  }
+  .tab-btn {
+    background: transparent; border: 1px solid transparent; color: var(--muted);
+    padding: 8px 16px; border-radius: 20px; cursor: pointer; transition: all .2s;
+    font-size: 14px; font-weight: 500; width: auto; display: inline-block;
+  }
+  .tab-btn:hover { color: var(--text); background: #1e2238; }
+  .tab-btn.active {
+    background: #1e2448; color: var(--accent); border-color: var(--accent);
+  }
+  .tab-view[hidden] { display: none !important; }
+
+
   /* ========================================================= */
   /* === FIX: REPORT STYLING (The "Nuclear" Option)        === */
   /* ========================================================= */
@@ -144,8 +162,7 @@
     font-size: 15px;
     line-height: 1.6;
   }
-  
-  /* 1. FORCE TRANSPARENCY: Strips white/blue boxes coming from DB */
+  /* 1. FORCE TRANSPARENCY */
   .report-content * {
     background-color: transparent !important; 
     color: #e9ecff !important;                
@@ -153,8 +170,7 @@
     border: none !important;                  
     font-family: inherit !important;          
   }
-
-  /* 2. STYLE HEADERS: Make them blue/bright again */
+  /* 2. STYLE HEADERS */
   .report-content strong, .report-content b,
   .report-content h1, .report-content h2, .report-content h3, .report-content h4 {
     color: #7aa2ff !important; 
@@ -163,14 +179,12 @@
     margin-bottom: 6px !important;
     background: transparent !important;
   }
-
   /* 3. FIX LISTS */
   .report-content ul, .report-content ol {
     margin-left: 20px !important;
     margin-bottom: 10px !important;
   }
   .report-content li { margin-bottom: 4px !important; }
-
   /* 4. FIX LINKS */
   .report-content a {
     color: #7aa2ff !important;
@@ -181,181 +195,218 @@
 <body>
   <div class="wrap">
 
-    <h1>Teach For All — Knowledge Q&amp;A <span class="subtle">V29</span></h1>
-
-    <div class="card">
-      <div class="row row-3">
-        <div>
-          <label>From date</label>
-          <input id="from" type="date" />
-        </div>
-        <div>
-          <label>To date</label>
-          <input id="to" type="date" />
-        </div>
-        <div>
-          <label>Quick ranges</label>
-          <div class="btns">
-            <button onclick="qrange(7)">Past 7 days</button>
-            <button onclick="qrange(31)">Past month</button>
-            <button onclick="qrange(92)">Last 3 months</button>
-            <button onclick="clearDates()">Clear dates</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="row">
-        <div>
-          <label>Type</label>
-          <select id="type">
-            <option value="all">All (default)</option>
-            <option value="Zoom Meeting">Zoom Meeting</option>
-            <option value="Email">Email</option>
-            <option value="Note">Note</option>
-          </select>
-        </div>
-        <div>
-          <label>Countries (comma-separated)</label>
-          <input id="countries" type="text" placeholder="e.g., Portugal, Spain" />
-        </div>
-      </div>
-
-      <div class="row">
-        <div>
-          <label>Topic (optional)</label>
-          <input id="topic" type="text" placeholder="standards, onboarding, budget…" />
-        </div>
-        <div>
-          <label>Response speed</label>
-          <select id="speed">
-            <option value="30">Fast (~30 rows)</option>
-            <option value="100" selected>Medium (~100 rows)</option>
-            <option value="300">Max (300 rows)</option>
-          </select>
-        </div>
-      </div>
-
-      <label>Question</label>
-      <textarea id="question" placeholder="Ask your question… e.g., What was my last meeting with Bea about?"></textarea>
-
-      <div class="row">
-        <div>
-          <label>Answer style</label>
-          <select id="style">
-            <option value="normal" selected>normal</option>
-            <option value="short">short</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="btns">
-        <button id="askBtn" class="primary" onclick="ask()">Ask</button>
-        <button onclick="resetForm()">Reset</button>
-      </div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h1 style="margin:0">Teach For All — Q&amp;A <span class="subtle">V30</span></h1>
+        <div id="status-indicator" style="font-size:12px; color:var(--ok); font-weight:500;">● System Ready</div>
     </div>
 
-    <div id="busy" class="busy" hidden aria-live="polite">
-      <span class="spinner"></span>
-      <span id="busyText">Working…</span>
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('ask')">🤖 Ask AI</button>
+        <button class="tab-btn" onclick="switchTab('reports')">📄 Weekly Reports</button>
+        <button class="tab-btn" onclick="switchTab('transcripts')">🔍 Transcripts</button>
+        <button class="tab-btn" onclick="switchTab('notes')">📝 Add Note</button>
     </div>
 
-    <div class="card">
-      <h3 style="margin:0 0 10px">Answer</h3>
-      <div id="answer" class="answer"></div>
-      <div id="err" class="error" style="margin-top:8px;"></div>
+    <div id="view-ask" class="tab-view">
+        <div class="card">
+        <div class="row row-3">
+            <div>
+            <label>From date</label>
+            <input id="from" type="date" />
+            </div>
+            <div>
+            <label>To date</label>
+            <input id="to" type="date" />
+            </div>
+            <div>
+            <label>Quick ranges</label>
+            <div class="btns">
+                <button onclick="qrange(7)">Past 7 days</button>
+                <button onclick="qrange(31)">Past month</button>
+                <button onclick="qrange(92)">Last 3 months</button>
+                <button onclick="clearDates()">Clear dates</button>
+            </div>
+            </div>
+        </div>
 
-      <details style="margin-top:14px">
-        <summary>Debug — Request, REST, SQL, Prompt &amp; Raw JSON</summary>
-        <div id="debug" class="muted" style="white-space:pre-wrap; font-size:12px; margin-top:10px;"></div>
-      </details>
+        <div class="row">
+            <div>
+            <label>Type</label>
+            <select id="type">
+                <option value="all">All (default)</option>
+                <option value="Zoom Meeting">Zoom Meeting</option>
+                <option value="Email">Email</option>
+                <option value="Note">Note</option>
+            </select>
+            </div>
+            <div>
+            <label>Countries (comma-separated)</label>
+            <input id="countries" type="text" placeholder="e.g., Portugal, Spain" />
+            </div>
+        </div>
+
+        <div class="row">
+            <div>
+            <label>Topic (optional)</label>
+            <input id="topic" type="text" placeholder="standards, onboarding, budget…" />
+            </div>
+            <div>
+            <label>Response speed</label>
+            <select id="speed">
+                <option value="30">Fast (~30 rows)</option>
+                <option value="100" selected>Medium (~100 rows)</option>
+                <option value="300">Max (300 rows)</option>
+            </select>
+            </div>
+        </div>
+
+        <label>Question</label>
+        <textarea id="question" placeholder="Ask your question… e.g., What was my last meeting with Bea about?"></textarea>
+
+        <div class="row">
+            <div>
+            <label>Answer style</label>
+            <select id="style">
+                <option value="normal" selected>normal</option>
+                <option value="short">short</option>
+            </select>
+            </div>
+        </div>
+
+        <div class="btns">
+            <button id="askBtn" class="primary" onclick="ask()">Ask</button>
+            <button onclick="resetForm()">Reset</button>
+        </div>
+        </div>
+
+        <div id="busy" class="busy" hidden aria-live="polite">
+        <span class="spinner"></span>
+        <span id="busyText">Working…</span>
+        </div>
+
+        <div class="card">
+        <h3 style="margin:0 0 10px">Answer</h3>
+        <div id="answer" class="answer"></div>
+        <div id="err" class="error" style="margin-top:8px;"></div>
+
+        <details style="margin-top:14px">
+            <summary>Debug — Request, REST, SQL, Prompt &amp; Raw JSON</summary>
+            <div id="debug" class="muted" style="white-space:pre-wrap; font-size:12px; margin-top:10px;"></div>
+        </details>
+        </div>
+
+        <div class="card">
+        <h3 style="margin:0 0 6px">Sources</h3>
+        <div id="sources" class="muted"></div>
+        </div>
     </div>
 
-    <div class="card">
-      <h3 style="margin:0 0 6px">Sources</h3>
-      <div id="sources" class="muted"></div>
+    <div id="view-reports" class="tab-view" hidden>
+        <div class="card">
+        <h3 style="margin:0 0 10px">Weekly Partner Reports</h3>
+        <div class="row">
+            <div>
+            <label>From Date</label>
+            <input id="rep_from" type="date" />
+            </div>
+            <div>
+            <label>To Date</label>
+            <input id="rep_to" type="date" />
+            </div>
+        </div>
+        <div class="btns">
+            <button id="repBtn" class="primary" onclick="getPartnerReports()">Load Reports</button>
+            <button onclick="setRepDates(7)">Past 7 days</button>
+            <button onclick="setRepDates(30)">Past 30 days</button>
+        </div>
+        <div id="rep_container" style="margin-top:20px;"></div>
+        <div id="rep_err" class="error" style="margin-top:8px;"></div>
+        </div>
     </div>
 
-    <div class="card">
-      <h3 style="margin:0 0 10px">Weekly Partner Reports</h3>
-      <div class="row">
-        <div>
-          <label>From Date</label>
-          <input id="rep_from" type="date" />
+    <div id="view-transcripts" class="tab-view" hidden>
+        <div class="card" id="tr_card">
+        <h3 style="margin:0 0 8px">Transcript query</h3>
+        <div class="row">
+            <div>
+            <label>From (transcripts)</label>
+            <input id="tr_from" type="date" />
+            </div>
+            <div>
+            <label>To</label>
+            <input id="tr_to" type="date" />
+            </div>
         </div>
-        <div>
-          <label>To Date</label>
-          <input id="rep_to" type="date" />
+        <label>Keywords (file name or contents)</label>
+        <input id="tr_kw" type="text" placeholder="e.g., Portugal, Tiago, budget" />
+        <div class="btns">
+            <button id="trFindBtn" class="primary" onclick="findTranscripts()">Find transcripts</button>
         </div>
-      </div>
-      <div class="btns">
-        <button id="repBtn" class="primary" onclick="getPartnerReports()">Load Reports</button>
-        <button onclick="setRepDates(7)">Past 7 days</button>
-        <button onclick="setRepDates(30)">Past 30 days</button>
-      </div>
-      <div id="rep_container" style="margin-top:20px;"></div>
-      <div id="rep_err" class="error" style="margin-top:8px;"></div>
-    </div>
-    
-    <div class="card">
-      <h3 style="margin:0 0 10px">Add Note to Supabase</h3>
-      <label>Note text</label>
-      <textarea id="note" placeholder="Write a quick note to save…"></textarea>
-      <div class="row">
-        <div>
-          <label for="note_headline">Headline (optional)</label>
-          <input id="note_headline" type="text" placeholder="e.g., Dev Community call — key decisions" />
-          <label>Optional: Meeting ID</label>
-          <input id="meeting_id" type="text" placeholder="e.g., r1" />
+        <div id="tr_results" class="muted" style="margin-top:10px;"></div>
         </div>
-        <div>
-          <label>Optional: Author</label>
-          <input id="author" type="text" placeholder="Your name or email" />
+
+        <div class="card" id="tr_qa" hidden>
+        <h3 style="margin:0 0 8px">Ask about selected transcript</h3>
+        <div id="tr_meta" class="muted"></div>
+        <pre id="tr_preview" style="white-space:pre-wrap;background:#0e1233;padding:12px;border-radius:8px;border:1px solid var(--border);max-height:200px;overflow:auto;margin-top:8px;"></pre>
+        <label>Question about this transcript</label>
+        <textarea id="tr_q" placeholder="Ask a question about the selected transcript…"></textarea>
+        <div class="btns">
+            <button id="trAskBtn" class="primary" onclick="askTranscript()">Ask about transcript</button>
         </div>
-      </div>
-      <div class="btns">
-        <button id="saveNoteBtn" class="primary" onclick="saveNote()">Save note</button>
-        <span class="muted">Tip: filters, dates, and question are saved in <code>meta</code>.</span>
-      </div>
-      <div id="noteMsg" class="muted" style="margin-top:8px;"></div>
+        <div id="tr_ans" class="answer" style="margin-top:10px;"></div>
+        <div id="tr_err" class="error" style="margin-top:8px;"></div>
+        </div>
     </div>
 
-    <div class="card" id="tr_card">
-      <h3 style="margin:0 0 8px">Transcript query</h3>
-      <div class="row">
-        <div>
-          <label>From (transcripts)</label>
-          <input id="tr_from" type="date" />
+    <div id="view-notes" class="tab-view" hidden>
+        <div class="card">
+        <h3 style="margin:0 0 10px">Add Note to Supabase</h3>
+        <label>Note text</label>
+        <textarea id="note" placeholder="Write a quick note to save…"></textarea>
+        <div class="row">
+            <div>
+            <label for="note_headline">Headline (optional)</label>
+            <input id="note_headline" type="text" placeholder="e.g., Dev Community call — key decisions" />
+            <label>Optional: Meeting ID</label>
+            <input id="meeting_id" type="text" placeholder="e.g., r1" />
+            </div>
+            <div>
+            <label>Optional: Author</label>
+            <input id="author" type="text" placeholder="Your name or email" />
+            </div>
         </div>
-        <div>
-          <label>To</label>
-          <input id="tr_to" type="date" />
+        <div class="btns">
+            <button id="saveNoteBtn" class="primary" onclick="saveNote()">Save note</button>
+            <span class="muted">Tip: filters, dates, and question from the "Ask" tab are saved in <code>meta</code>.</span>
         </div>
-      </div>
-      <label>Keywords (file name or contents)</label>
-      <input id="tr_kw" type="text" placeholder="e.g., Portugal, Tiago, budget" />
-      <div class="btns">
-        <button id="trFindBtn" class="primary" onclick="findTranscripts()">Find transcripts</button>
-      </div>
-      <div id="tr_results" class="muted" style="margin-top:10px;"></div>
-    </div>
-
-    <div class="card" id="tr_qa" hidden>
-      <h3 style="margin:0 0 8px">Ask about selected transcript</h3>
-      <div id="tr_meta" class="muted"></div>
-      <pre id="tr_preview" style="white-space:pre-wrap;background:#0e1233;padding:12px;border-radius:8px;border:1px solid var(--border);max-height:200px;overflow:auto;margin-top:8px;"></pre>
-      <label>Question about this transcript</label>
-      <textarea id="tr_q" placeholder="Ask a question about the selected transcript…"></textarea>
-      <div class="btns">
-        <button id="trAskBtn" class="primary" onclick="askTranscript()">Ask about transcript</button>
-      </div>
-      <div id="tr_ans" class="answer" style="margin-top:10px;"></div>
-      <div id="tr_err" class="error" style="margin-top:8px;"></div>
+        <div id="noteMsg" class="muted" style="margin-top:8px;"></div>
+        </div>
     </div>
 
   </div> <script>
     // ========= CONFIG =========
-    // FIXED: Clean URL with no Markdown formatting
+    // Clean, Correct URL
     const GAS_BASE = "https://script.google.com/macros/s/AKfycbyvzIgN1uiRtnQh9SkjHo8ADtm66NrX2b1uIWr_vQ6XweQZvu1r9izXIVtPWzF7SuDZ/exec"; 
+
+    // ========= TABS LOGIC =========
+    function switchTab(name) {
+        // Hide all views
+        document.querySelectorAll('.tab-view').forEach(el => el.hidden = true);
+        // Show selected
+        document.getElementById('view-' + name).hidden = false;
+        // Update buttons
+        document.querySelectorAll('.tab-btn').forEach(b => {
+            b.classList.remove('active');
+            b.style.borderColor = 'transparent';
+        });
+        // Highlight active button
+        const activeBtn = document.querySelector(`button[onclick="switchTab('${name}')"]`);
+        if(activeBtn) {
+            activeBtn.classList.add('active');
+            activeBtn.style.borderColor = 'var(--accent)';
+        }
+    }
 
     // ========= JSONP =========
     function jsonp(baseUrl, params, timeoutMs = 60000) {
@@ -429,22 +480,17 @@
       const html = items.map(item => {
         let raw = item.summary_text || "";
         
-        // 1. Remove Markdown code fences (the ```html)
+        // 1. Remove Markdown fences
         raw = raw.replace(/```html/gi, "").replace(/```/g, "").trim();
 
-        // 2. PARSE & SANITIZE: Handle full HTML documents from Supabase
-        // This stops the <style> tags in the report from breaking your app's dark mode
+        // 2. SURGICAL EXTRACTION of body content
         try {
           const parser = new DOMParser();
           const doc = parser.parseFromString(raw, "text/html");
-          
-          // If the doc has a body, extract JUST the inner content
           if (doc.body && doc.body.childNodes.length > 0) {
              raw = doc.body.innerHTML;
           }
-        } catch (e) {
-          console.warn("HTML parsing warning", e);
-        }
+        } catch (e) { console.warn("HTML parse warning", e); }
 
         return `
           <div style="background:#131624; border:1px solid #2b3343; border-radius:8px; padding:16px; margin-bottom:16px;">

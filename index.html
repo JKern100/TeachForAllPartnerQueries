@@ -181,7 +181,7 @@
 <body>
   <div class="wrap">
 
-    <h1>Teach For All — Knowledge Q&amp;A <span class="subtle">V28</span></h1>
+    <h1>Teach For All — Knowledge Q&amp;A <span class="subtle">V29</span></h1>
 
     <div class="card">
       <div class="row row-3">
@@ -429,13 +429,22 @@
       const html = items.map(item => {
         let raw = item.summary_text || "";
         
-        // === AGGRESSIVE CLEANUP ===
-        // Remove ```html markers anywhere
-        raw = raw.replace(/```html/gi, ""); 
-        // Remove backticks
-        raw = raw.replace(/```/g, "");      
-        // Remove empty lines at start/end
-        raw = raw.trim();
+        // 1. Remove Markdown code fences (the ```html)
+        raw = raw.replace(/```html/gi, "").replace(/```/g, "").trim();
+
+        // 2. PARSE & SANITIZE: Handle full HTML documents from Supabase
+        // This stops the <style> tags in the report from breaking your app's dark mode
+        try {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(raw, "text/html");
+          
+          // If the doc has a body, extract JUST the inner content
+          if (doc.body && doc.body.childNodes.length > 0) {
+             raw = doc.body.innerHTML;
+          }
+        } catch (e) {
+          console.warn("HTML parsing warning", e);
+        }
 
         return `
           <div style="background:#131624; border:1px solid #2b3343; border-radius:8px; padding:16px; margin-bottom:16px;">
